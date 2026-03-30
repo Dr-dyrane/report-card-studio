@@ -141,3 +141,12 @@ button {
     rgba(248, 250, 252, 0.78) 100%
   );
 }
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}

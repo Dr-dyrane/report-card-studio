@@ -1,82 +1,116 @@
+export type NavIcon =
+  | "home"
+  | "students"
+  | "subjects"
+  | "classes"
+  | "terms"
+  | "reports"
+  | "insights"
+  | "exports"
+  | "settings";
+
 export type NavItem = {
   href: string;
   label: string;
   shortLabel: string;
   description: string;
-  icon:
-    | "home"
-    | "students"
-    | "subjects"
-    | "classes"
-    | "terms"
-    | "reports"
-    | "insights"
-    | "exports"
-    | "settings";
+  icon: NavIcon;
 };
 
-export const navItems: NavItem[] = [
+export type NavGroup = {
+  id: string;
+  label: string;
+  items: NavItem[];
+};
+
+export const navGroups: NavGroup[] = [
   {
-    href: "/dashboard",
-    label: "Home",
-    shortLabel: "DB",
-    description: "",
-    icon: "home",
+    id: "workspace",
+    label: "Workspace",
+    items: [
+      {
+        href: "/dashboard",
+        label: "Home",
+        shortLabel: "DB",
+        description: "",
+        icon: "home",
+      },
+    ],
   },
   {
-    href: "/students",
-    label: "Students",
-    shortLabel: "ST",
-    description: "",
-    icon: "students",
+    id: "academics",
+    label: "Academics",
+    items: [
+      {
+        href: "/students",
+        label: "Students",
+        shortLabel: "ST",
+        description: "",
+        icon: "students",
+      },
+      {
+        href: "/subjects",
+        label: "Subjects",
+        shortLabel: "SU",
+        description: "",
+        icon: "subjects",
+      },
+      {
+        href: "/classes",
+        label: "Classes",
+        shortLabel: "CL",
+        description: "",
+        icon: "classes",
+      },
+      {
+        href: "/terms",
+        label: "Terms",
+        shortLabel: "TR",
+        description: "",
+        icon: "terms",
+      },
+    ],
   },
   {
-    href: "/subjects",
-    label: "Subjects",
-    shortLabel: "SU",
-    description: "",
-    icon: "subjects",
-  },
-  {
-    href: "/classes",
-    label: "Classes",
-    shortLabel: "CL",
-    description: "",
-    icon: "classes",
-  },
-  {
-    href: "/terms",
-    label: "Terms",
-    shortLabel: "TR",
-    description: "",
-    icon: "terms",
-  },
-  {
-    href: "/reports",
+    id: "reports",
     label: "Reports",
-    shortLabel: "RP",
-    description: "",
-    icon: "reports",
+    items: [
+      {
+        href: "/reports",
+        label: "Reports",
+        shortLabel: "RP",
+        description: "",
+        icon: "reports",
+      },
+      {
+        href: "/analytics",
+        label: "Insights",
+        shortLabel: "AN",
+        description: "",
+        icon: "insights",
+      },
+      {
+        href: "/exports",
+        label: "Exports",
+        shortLabel: "EX",
+        description: "",
+        icon: "exports",
+      },
+    ],
   },
   {
-    href: "/analytics",
-    label: "Insights",
-    shortLabel: "AN",
-    description: "",
-    icon: "insights",
-  },
-  {
-    href: "/exports",
-    label: "Exports",
-    shortLabel: "EX",
-    description: "",
-    icon: "exports",
-  },
-  {
-    href: "/settings",
-    label: "Settings",
-    shortLabel: "SE",
-    description: "",
-    icon: "settings",
+    id: "system",
+    label: "System",
+    items: [
+      {
+        href: "/settings",
+        label: "Settings",
+        shortLabel: "SE",
+        description: "",
+        icon: "settings",
+      },
+    ],
   },
 ];
+
+export const navItems: NavItem[] = navGroups.flatMap((group) => group.items);

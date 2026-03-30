@@ -7,7 +7,7 @@ import { TopBar } from "@/components/shell/TopBar";
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[color:var(--canvas)] text-[color:var(--text-base)]">
-      <div className="flex min-h-screen gap-0 px-0 py-0 sm:gap-2 sm:px-2 sm:py-2 xl:gap-4 xl:px-4 xl:py-3">
+      <div className="flex min-h-screen items-start gap-0 px-0 py-0 sm:gap-2 sm:px-2 sm:py-2 xl:gap-4 xl:px-4 xl:py-3">
         <SidebarNav />
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
           <TopBar />
