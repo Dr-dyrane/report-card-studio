@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { AppIcon } from "@/components/ui/AppIcon";
 import { navItems } from "@/lib/navigation";
 
 export function SidebarNav() {
@@ -45,7 +46,7 @@ export function SidebarNav() {
                       : "bg-[color:var(--highlight)] text-[color:var(--text-muted)]"
                   }`}
                 >
-                  {item.shortLabel}
+                  <AppIcon name={item.icon} className="h-4.5 w-4.5" />
                 </span>
                 <div>
                   <p className="text-sm font-semibold">{item.label}</p>

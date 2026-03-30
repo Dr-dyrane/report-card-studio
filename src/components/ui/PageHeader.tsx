@@ -29,12 +29,12 @@ export function PageHeader({
         </div>
         <div className="flex flex-wrap gap-2">
           {secondaryAction ? (
-            <button className="frost-pill rounded-full px-4 py-2 text-sm font-semibold text-[color:var(--text-base)] transition hover:bg-white/90">
+            <button className="soft-action rounded-full px-4 py-2 text-sm font-medium transition hover:bg-white/84">
               {secondaryAction}
             </button>
           ) : null}
           {action ? (
-            <button className="rounded-full bg-[color:var(--accent)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-frost)] transition hover:bg-[color:var(--accent-strong)]">
+            <button className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold transition hover:bg-[rgba(231,240,255,0.96)]">
               {action}
             </button>
           ) : null}

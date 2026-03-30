@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { AppIcon } from "@/components/ui/AppIcon";
 import { navItems } from "@/lib/navigation";
 
 const mobileNav = navItems.filter((item) =>
@@ -37,7 +38,7 @@ export function BottomTabBar() {
                       : "bg-white/55 text-[color:var(--text-muted)]"
                   }`}
                 >
-                  {item.shortLabel}
+                  <AppIcon name={item.icon} className="h-3.5 w-3.5" />
                 </div>
                 <p
                   className={`mt-1 text-[10px] font-medium ${

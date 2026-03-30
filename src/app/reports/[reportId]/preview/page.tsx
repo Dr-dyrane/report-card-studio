@@ -57,16 +57,16 @@ export default async function ReportPreviewPage({
                   ["Student", report.student.fullName],
                   ["Class", report.classroom.name],
                   ["Position", report.position ?? "--"],
-                  ["Grand total", `${report.grandTotal} / ${report.grandMax}`],
-                ].map(([label, value]) => (
-                  <div
-                    key={label}
-                    className="rounded-[18px] bg-[color:rgba(246,247,244,0.8)] px-4 py-4"
-                  >
-                    <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
-                    <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)]">
-                      {value}
-                    </p>
+                ["Grand total", `${report.grandTotal} / ${report.grandMax}`],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  className="surface-pocket rounded-[18px] px-4 py-4"
+                >
+                  <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
+                  <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)]">
+                    {value}
+                  </p>
                   </div>
                 ))}
               </div>
@@ -83,8 +83,8 @@ export default async function ReportPreviewPage({
                   key={label}
                   className={`rounded-[22px] px-4 py-4 shadow-[var(--shadow-frost)] ${
                     index === 3
-                      ? "bg-[color:rgba(231,240,255,0.88)]"
-                      : "frost-panel-soft"
+                      ? "soft-action-tint"
+                      : "surface-pocket"
                   }`}
                 >
                   <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
@@ -133,7 +133,7 @@ export default async function ReportPreviewPage({
                     <p className="font-semibold text-[color:var(--text-strong)]">
                       {row.subject.name}
                     </p>
-                    <span className="rounded-full bg-[color:rgba(231,240,255,0.88)] px-3 py-1 text-sm font-semibold text-[color:var(--text-strong)]">
+                    <span className="soft-action-tint rounded-full px-3 py-1 text-sm font-semibold">
                       {row.totalScore}
                     </span>
                   </div>

@@ -71,16 +71,16 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="surface-pocket mt-4 grid grid-cols-2 gap-2 rounded-[24px] p-2">
             <Link
               href="/reports/student-12"
-              className="frost-pill rounded-full px-4 py-2 text-center text-sm font-semibold text-[color:var(--text-base)]"
+              className="soft-action-tint rounded-full px-4 py-2 text-center text-sm font-medium"
             >
               Continue
             </Link>
             <Link
               href="/students"
-              className="frost-pill rounded-full px-4 py-2 text-center text-sm font-semibold text-[color:var(--text-base)]"
+              className="soft-action rounded-full px-4 py-2 text-center text-sm font-medium"
             >
               Students
             </Link>
@@ -156,23 +156,23 @@ export default function DashboardPage() {
 
         <SectionCard title="Next">
           <div className="grid gap-3">
-            <div className="frost-panel-soft rounded-[22px] px-4 py-4">
-              <p className="text-sm font-semibold text-[color:var(--text-strong)]">
+            <div className="surface-pocket rounded-[24px] px-4 py-4">
+              <p className="text-sm font-medium text-[color:var(--text-base)]">
                 Continue report entry
               </p>
-              <p className="mt-2 text-sm leading-5 text-[color:var(--text-muted)]">
+              <p className="mt-2 text-sm leading-5 text-[color:rgba(96,112,129,0.9)]">
                 Move from captured scores to checked totals and preview.
               </p>
               <div className="mt-4 flex gap-2">
                 <Link
                   href="/reports/student-12"
-                  className="rounded-full bg-[color:var(--accent)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-frost)]"
+                  className="soft-action-tint rounded-full px-4 py-2 text-sm font-medium"
                 >
                   Open report
                 </Link>
                 <Link
                   href="/reports/student-12/preview"
-                  className="frost-pill rounded-full px-4 py-2 text-sm font-semibold text-[color:var(--text-base)]"
+                  className="soft-action rounded-full px-4 py-2 text-sm font-medium text-[color:var(--text-base)]"
                 >
                   Preview
                 </Link>

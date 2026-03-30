@@ -68,16 +68,16 @@ export default async function SubjectDetailPage({
         <div className="flex flex-wrap items-center justify-between gap-4">
           <p className="text-sm text-[color:var(--text-muted)]">Last used this term.</p>
           <div className="flex flex-wrap gap-3">
-            <button className="frost-pill rounded-full px-4 py-2 text-sm font-semibold">
+            <button className="soft-action rounded-full px-4 py-2 text-sm font-medium">
               Archive
             </button>
             <Link
               href="/subjects"
-              className="frost-pill rounded-full px-4 py-2 text-sm font-semibold"
+              className="soft-action rounded-full px-4 py-2 text-sm font-medium"
             >
               Back
             </Link>
-            <button className="rounded-full bg-[color:var(--accent)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-frost)]">
+            <button className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold">
               Save
             </button>
           </div>

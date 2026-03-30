@@ -1,0 +1,309 @@
+"use client";
+
+import Link from "next/link";
+import { useMemo, useState, useTransition } from "react";
+
+import { updateReportScores } from "@/app/reports/actions";
+import { SectionCard } from "@/components/ui/SectionCard";
+
+type ScoreRow = {
+  id: string;
+  subject: string;
+  a1: string;
+  a2: string;
+  exam: string;
+  total: number;
+};
+
+type ReportEntryEditorProps = {
+  reportCardId: string;
+  reportId: string;
+  rows: ScoreRow[];
+  teacherComment: string;
+  teacherName: string;
+  position: string;
+  initialGrandTotal: number;
+};
+
+function parseScore(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function computeRowTotal(row: ScoreRow) {
+  return (
+    (parseScore(row.a1) ?? 0) +
+    (parseScore(row.a2) ?? 0) +
+    (parseScore(row.exam) ?? 0)
+  );
+}
+
+export function ReportEntryEditor({
+  reportCardId,
+  reportId,
+  rows: initialRows,
+  teacherComment,
+  teacherName,
+  position,
+}: ReportEntryEditorProps) {
+  const [rows, setRows] = useState(initialRows);
+  const [comment, setComment] = useState(teacherComment);
+  const [teacher, setTeacher] = useState(teacherName);
+  const [saveState, setSaveState] = useState("Ready");
+  const [isPending, startTransition] = useTransition();
+
+  const summary = useMemo(() => {
+    const assessment1Total = rows.reduce(
+      (sum, row) => sum + (parseScore(row.a1) ?? 0),
+      0,
+    );
+    const assessment2Total = rows.reduce(
+      (sum, row) => sum + (parseScore(row.a2) ?? 0),
+      0,
+    );
+    const examTotal = rows.reduce(
+      (sum, row) => sum + (parseScore(row.exam) ?? 0),
+      0,
+    );
+    const grandTotal = rows.reduce((sum, row) => sum + computeRowTotal(row), 0);
+
+    return {
+      assessment1Total,
+      assessment2Total,
+      examTotal,
+      grandTotal,
+    };
+  }, [rows]);
+
+  function updateCell(rowId: string, field: "a1" | "a2" | "exam", value: string) {
+    setRows((current) =>
+      current.map((row) =>
+        row.id === rowId
+          ? {
+              ...row,
+              [field]: value,
+            }
+          : row,
+      ),
+    );
+    setSaveState("Unsaved");
+  }
+
+  function handleSave() {
+    setSaveState("Saving");
+    startTransition(async () => {
+      const result = await updateReportScores({
+        reportCardId,
+        routeKey: reportId,
+        teacherComment: comment,
+        teacherName: teacher,
+        scores: rows.map((row) => ({
+          id: row.id,
+          a1: row.a1,
+          a2: row.a2,
+          exam: row.exam,
+        })),
+      });
+
+      setSaveState(result.ok ? "Saved" : "Retry");
+    });
+  }
+
+  function scoreInput(
+    rowId: string,
+    field: "a1" | "a2" | "exam",
+    value: string,
+    mobile = false,
+  ) {
+    return (
+      <input
+        value={value}
+        onChange={(event) => updateCell(rowId, field, event.target.value)}
+        inputMode="numeric"
+        placeholder="--"
+        className={`rounded-[18px] bg-white/70 px-3 py-3 font-semibold text-[color:var(--text-strong)] shadow-[var(--shadow-frost)] outline-none ${
+          mobile ? "w-full text-center text-lg" : "w-20 text-right"
+        }`}
+      />
+    );
+  }
+
+  return (
+    <div className="grid gap-3 sm:gap-6 xl:grid-cols-[1.25fr_0.42fr]">
+      <SectionCard title="Entry">
+        <form className="space-y-3 sm:hidden">
+          {rows.map((row) => {
+            const rowTotal = computeRowTotal(row);
+
+            return (
+              <div key={row.id} className="frost-panel-soft rounded-[24px] px-4 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-[color:var(--text-strong)]">
+                      {row.subject}
+                    </p>
+                    <p className="mt-1 text-sm text-[color:var(--text-muted)]">
+                      Live totals
+                    </p>
+                  </div>
+                  <span className="soft-action-tint inline-flex min-w-14 items-center justify-center rounded-full px-3 py-1.5 text-sm font-semibold">
+                    {rowTotal}
+                  </span>
+                </div>
+
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  <label className="block">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                      A1
+                    </p>
+                    <div className="mt-2">{scoreInput(row.id, "a1", row.a1, true)}</div>
+                  </label>
+                  <label className="block">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                      A2
+                    </p>
+                    <div className="mt-2">{scoreInput(row.id, "a2", row.a2, true)}</div>
+                  </label>
+                  <label className="block">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                      Exam
+                    </p>
+                    <div className="mt-2">{scoreInput(row.id, "exam", row.exam, true)}</div>
+                  </label>
+                </div>
+              </div>
+            );
+          })}
+        </form>
+
+        <div className="surface-pocket hidden overflow-hidden rounded-[24px] sm:block">
+          <table className="min-w-full border-separate border-spacing-y-2">
+            <thead className="bg-white/40 text-left text-sm text-[color:var(--text-muted)]">
+              <tr>
+                <th className="px-4 py-3 font-medium">Subject</th>
+                <th className="px-4 py-3 text-right font-medium">A1</th>
+                <th className="px-4 py-3 text-right font-medium">A2</th>
+                <th className="px-4 py-3 text-right font-medium">Exam</th>
+                <th className="px-4 py-3 text-right font-medium">Total</th>
+              </tr>
+            </thead>
+            <tbody className="bg-[color:var(--surface)] text-sm">
+              {rows.map((row) => {
+                const rowTotal = computeRowTotal(row);
+
+                return (
+                  <tr
+                    key={row.id}
+                    className="odd:bg-white/10 transition hover:bg-[color:rgba(231,240,255,0.56)]"
+                  >
+                    <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
+                      {row.subject}
+                    </td>
+                    <td className="px-4 py-4">{scoreInput(row.id, "a1", row.a1)}</td>
+                    <td className="px-4 py-4">{scoreInput(row.id, "a2", row.a2)}</td>
+                    <td className="px-4 py-4">{scoreInput(row.id, "exam", row.exam)}</td>
+                    <td className="px-4 py-4 text-right">
+                      <span className="soft-action-tint inline-flex min-w-12 items-center justify-center rounded-full px-3 py-1 font-semibold">
+                        {rowTotal}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="surface-pocket mt-4 grid gap-3 rounded-[24px] p-3 sm:mt-5 sm:grid-cols-[1fr_0.42fr] sm:gap-4 sm:p-4">
+          <div className="soft-action rounded-[22px] px-4 py-4 sm:px-5 sm:py-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
+              Comment
+            </p>
+            <textarea
+              value={comment}
+              onChange={(event) => {
+                setComment(event.target.value);
+                setSaveState("Unsaved");
+              }}
+              className="mt-3 min-h-24 w-full rounded-[18px] bg-white/74 px-4 py-3 text-sm leading-6 text-[color:var(--text-base)] shadow-[var(--shadow-frost)] outline-none"
+            />
+          </div>
+
+          <div className="soft-action rounded-[22px] px-4 py-4 sm:px-5 sm:py-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
+              Teacher
+            </p>
+            <input
+              value={teacher}
+              onChange={(event) => {
+                setTeacher(event.target.value);
+                setSaveState("Unsaved");
+              }}
+              className="mt-3 w-full rounded-[18px] bg-white/74 px-4 py-3 text-sm leading-6 text-[color:var(--text-base)] shadow-[var(--shadow-frost)] outline-none"
+            />
+          </div>
+        </div>
+
+        <div className="surface-pocket mt-3 rounded-[24px] px-4 py-4 sm:mt-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+            <p className="text-sm text-[color:var(--text-muted)]">
+              {isPending ? "Saving changes..." : `${saveState}. Totals are live.`}
+            </p>
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={isPending}
+                className="soft-action rounded-full px-4 py-2 text-sm font-medium"
+              >
+                Save
+              </button>
+              <Link
+                href={`/reports/${reportId}/preview`}
+                className="soft-action rounded-full px-4 py-2 text-center text-sm font-medium"
+              >
+                Preview
+              </Link>
+              <button
+                type="button"
+                className="soft-action-tint col-span-2 rounded-full px-4 py-2 text-sm font-semibold sm:col-span-1"
+              >
+                Publish
+              </button>
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Review">
+        <div className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:sticky xl:top-28 xl:grid-cols-1">
+          {[
+            ["A1 total", String(summary.assessment1Total)],
+            ["A2 total", String(summary.assessment2Total)],
+            ["Exam total", String(summary.examTotal)],
+            ["Grand total", String(summary.grandTotal)],
+            ["Position", position],
+          ].map(([label, value], index) => (
+            <div
+              key={label}
+              className={`rounded-[20px] px-4 py-4 shadow-[var(--shadow-frost)] sm:rounded-[22px] ${
+                index === 3 ? "soft-action-tint" : "surface-pocket"
+              }`}
+            >
+              <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
+              <p className="mt-2 text-2xl font-semibold text-[color:var(--text-strong)]">
+                {value}
+              </p>
+            </div>
+          ))}
+
+          <div className="rounded-[22px] bg-[color:rgba(232,246,238,0.84)] px-4 py-4 text-sm leading-6 text-[color:var(--success)] shadow-[var(--shadow-frost)]">
+            Totals update live.
+          </div>
+        </div>
+      </SectionCard>
+    </div>
+  );
+}
