@@ -16,8 +16,8 @@ export function BottomTabBar() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 px-2 pb-[calc(0.35rem+env(safe-area-inset-bottom))] pt-2 sm:px-3 lg:hidden">
-      <div className="frost-panel-strong rounded-[28px] px-2 py-1.5">
+    <nav className="app-bottomtab fixed inset-x-0 bottom-0 z-30 px-2 pb-[calc(0.45rem+env(safe-area-inset-bottom))] pt-2 sm:px-3 lg:hidden">
+      <div className="frost-panel-strong rounded-[30px] px-1.5 py-1.5 shadow-[0_26px_60px_rgba(17,24,39,0.14)]">
         <div className="grid grid-cols-5 gap-1">
           {mobileNav.map((item) => {
             const isActive =
@@ -27,21 +27,23 @@ export function BottomTabBar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-[20px] px-1.5 py-1.5 text-center transition ${
-                  isActive ? "bg-[color:rgba(47,111,237,0.14)]" : "bg-transparent"
+                className={`rounded-[22px] px-1 py-1.5 text-center transition ${
+                  isActive
+                    ? "bg-[linear-gradient(180deg,rgba(231,240,255,0.98),rgba(221,233,255,0.88))] shadow-[inset_0_1px_0_rgba(255,255,255,0.75),0_10px_20px_rgba(47,111,237,0.12)]"
+                    : "bg-transparent"
                 }`}
               >
                 <div
-                  className={`mx-auto inline-flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold ${
+                  className={`mx-auto inline-flex h-8 w-8 items-center justify-center rounded-full ${
                     isActive
-                      ? "bg-[color:var(--accent)] text-white"
-                      : "bg-white/55 text-[color:var(--text-muted)]"
+                      ? "bg-white/80 text-[color:var(--accent-strong)]"
+                      : "bg-white/45 text-[color:var(--text-muted)]"
                   }`}
                 >
                   <AppIcon name={item.icon} className="h-3.5 w-3.5" />
                 </div>
                 <p
-                  className={`mt-1 text-[10px] font-medium ${
+                  className={`mt-1.5 text-[10px] font-semibold tracking-[0.01em] ${
                     isActive
                       ? "text-[color:var(--text-strong)]"
                       : "text-[color:var(--text-muted)]"

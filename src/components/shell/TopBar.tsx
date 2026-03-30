@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 
 import { BrandMark } from "@/components/ui/BrandMark";
 import { navItems } from "@/lib/navigation";
@@ -40,17 +41,17 @@ export function TopBar() {
 
   return (
     <header className="app-topbar sticky top-0 z-20 px-0 pt-0 sm:px-1 sm:pt-1 xl:px-0">
-      <div className="frost-panel mx-0 flex items-center justify-between gap-3 rounded-none px-4 py-3 sm:flex-wrap sm:gap-4 sm:rounded-[28px] sm:px-4 sm:py-4 xl:px-8">
+      <div className="frost-panel mx-0 flex items-center justify-between gap-3 rounded-none px-2 py-3 sm:flex-wrap sm:gap-4 sm:rounded-[28px] sm:px-4 sm:py-4 xl:px-8">
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-2">
             {!breadcrumb.isRootPage ? (
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="soft-action inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-base leading-none"
+                className="soft-action inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
                 aria-label="Go back"
               >
-                ←
+                <ChevronLeftIcon className="h-4.5 w-4.5 text-[color:var(--text-strong)]" />
               </button>
             ) : null}
             <div className="min-w-0">
