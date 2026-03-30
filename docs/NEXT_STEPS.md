@@ -224,3 +224,4 @@ Secondary modules should support this flow, not compete with it.
 
 - full report parity with the Excel-derived model
 - final preview/export polish
+- complete CRUD functionality and polished UI/UX for core models
