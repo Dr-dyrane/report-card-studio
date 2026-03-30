@@ -1,6 +1,6 @@
-import { getReportCardByRouteKey } from "@/lib/report-data";
-import { PageHeader } from "@/components/ui/PageHeader";
 import { ReportEntryEditor } from "@/components/reports/ReportEntryEditor";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { getReportCardByRouteKey, getReportNeighbors } from "@/lib/report-data";
 
 export default async function ReportEntryPage({
   params,
@@ -8,7 +8,10 @@ export default async function ReportEntryPage({
   params: Promise<{ reportId: string }>;
 }) {
   const { reportId } = await params;
-  const report = await getReportCardByRouteKey(reportId);
+  const [report, neighbors] = await Promise.all([
+    getReportCardByRouteKey(reportId),
+    getReportNeighbors(reportId),
+  ]);
 
   if (!report) {
     return (
@@ -117,6 +120,8 @@ export default async function ReportEntryPage({
         initialAssessment2Total={report.assessment2Total}
         initialExamTotal={report.examTotal}
         initialGrandTotal={report.grandTotal}
+        previousReport={neighbors.previous}
+        nextReport={neighbors.next}
       />
     </div>
   );

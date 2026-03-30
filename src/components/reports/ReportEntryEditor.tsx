@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 
 import { updateReportScores } from "@/app/reports/actions";
 import { SectionCard } from "@/components/ui/SectionCard";
@@ -26,6 +26,14 @@ type ReportEntryEditorProps = {
   initialAssessment2Total: number;
   initialExamTotal: number;
   initialGrandTotal: number;
+  previousReport?: {
+    href: string;
+    label: string;
+  } | null;
+  nextReport?: {
+    href: string;
+    label: string;
+  } | null;
 };
 
 function parseScore(value: string) {
@@ -43,6 +51,19 @@ function computeRowTotal(row: ScoreRow) {
   );
 }
 
+function createSnapshot(rows: ScoreRow[], comment: string, teacher: string) {
+  return JSON.stringify({
+    comment,
+    teacher,
+    rows: rows.map((row) => ({
+      id: row.id,
+      a1: row.a1,
+      a2: row.a2,
+      exam: row.exam,
+    })),
+  });
+}
+
 export function ReportEntryEditor({
   reportCardId,
   reportId,
@@ -54,12 +75,19 @@ export function ReportEntryEditor({
   initialAssessment2Total,
   initialExamTotal,
   initialGrandTotal,
+  previousReport,
+  nextReport,
 }: ReportEntryEditorProps) {
   const [rows, setRows] = useState(initialRows);
   const [comment, setComment] = useState(teacherComment);
   const [teacher, setTeacher] = useState(teacherName);
-  const [saveState, setSaveState] = useState("Ready");
+  const [saveState, setSaveState] = useState<"Saved" | "Saving" | "Unsaved" | "Retry">(
+    "Saved",
+  );
   const [isPending, startTransition] = useTransition();
+  const lastSavedSnapshotRef = useRef(
+    createSnapshot(initialRows, teacherComment, teacherName),
+  );
   const hasEnteredScores = useMemo(
     () =>
       rows.some(
@@ -101,21 +129,18 @@ export function ReportEntryEditor({
     rows,
   ]);
 
-  function updateCell(rowId: string, field: "a1" | "a2" | "exam", value: string) {
-    setRows((current) =>
-      current.map((row) =>
-        row.id === rowId
-          ? {
-              ...row,
-              [field]: value,
-            }
-          : row,
-      ),
-    );
-    setSaveState("Unsaved");
-  }
+  function saveIfNeeded() {
+    const snapshot = createSnapshot(rows, comment, teacher);
 
-  function handleSave() {
+    if (snapshot === lastSavedSnapshotRef.current) {
+      setSaveState("Saved");
+      return;
+    }
+
+    if (isPending) {
+      return;
+    }
+
     setSaveState("Saving");
     startTransition(async () => {
       const result = await updateReportScores({
@@ -131,8 +156,28 @@ export function ReportEntryEditor({
         })),
       });
 
-      setSaveState(result.ok ? "Saved" : "Retry");
+      if (result.ok) {
+        lastSavedSnapshotRef.current = snapshot;
+        setSaveState("Saved");
+        return;
+      }
+
+      setSaveState("Retry");
     });
+  }
+
+  function updateCell(rowId: string, field: "a1" | "a2" | "exam", value: string) {
+    setRows((current) =>
+      current.map((row) =>
+        row.id === rowId
+          ? {
+              ...row,
+              [field]: value,
+            }
+          : row,
+      ),
+    );
+    setSaveState("Unsaved");
   }
 
   function scoreInput(
@@ -145,6 +190,7 @@ export function ReportEntryEditor({
       <input
         value={value}
         onChange={(event) => updateCell(rowId, field, event.target.value)}
+        onBlur={saveIfNeeded}
         inputMode="numeric"
         placeholder="--"
         className={`rounded-[18px] bg-white/70 px-3 py-3 font-semibold text-[color:var(--text-strong)] shadow-[var(--shadow-frost)] outline-none ${
@@ -271,6 +317,7 @@ export function ReportEntryEditor({
                 setComment(event.target.value);
                 setSaveState("Unsaved");
               }}
+              onBlur={saveIfNeeded}
               className="mt-3 min-h-24 w-full rounded-[18px] bg-white/74 px-4 py-3 text-sm leading-6 text-[color:var(--text-base)] shadow-[var(--shadow-frost)] outline-none"
             />
           </div>
@@ -285,6 +332,7 @@ export function ReportEntryEditor({
                 setTeacher(event.target.value);
                 setSaveState("Unsaved");
               }}
+              onBlur={saveIfNeeded}
               className="mt-3 w-full rounded-[18px] bg-white/74 px-4 py-3 text-sm leading-6 text-[color:var(--text-base)] shadow-[var(--shadow-frost)] outline-none"
             />
           </div>
@@ -294,15 +342,21 @@ export function ReportEntryEditor({
           <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <p className="text-sm text-[color:var(--text-muted)]">
               {isPending
-                ? "Saving changes..."
+                ? "Saving…"
                 : hasEnteredScores
-                  ? `${saveState}. Totals are live.`
+                  ? saveState === "Saved"
+                    ? "Saved. Totals stay in sync."
+                    : saveState === "Unsaved"
+                      ? "Unsaved changes."
+                      : saveState === "Retry"
+                        ? "Save didn’t complete. Try again."
+                        : "Saving…"
                   : "Saved totals are shown until subject entry begins."}
             </p>
             <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
               <button
                 type="button"
-                onClick={handleSave}
+                onClick={saveIfNeeded}
                 disabled={isPending}
                 className="soft-action rounded-full px-4 py-2 text-sm font-medium"
               >
@@ -322,6 +376,35 @@ export function ReportEntryEditor({
               </button>
             </div>
           </div>
+
+          {previousReport || nextReport ? (
+            <div className="mt-3 flex flex-col gap-2 sm:mt-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap gap-2">
+                {previousReport ? (
+                  <Link
+                    href={previousReport.href}
+                    className="soft-action rounded-full px-4 py-2 text-sm font-medium"
+                  >
+                    Previous · {previousReport.label}
+                  </Link>
+                ) : null}
+                {nextReport ? (
+                  <Link
+                    href={nextReport.href}
+                    className="soft-action rounded-full px-4 py-2 text-sm font-medium"
+                  >
+                    Next · {nextReport.label}
+                  </Link>
+                ) : null}
+              </div>
+              <Link
+                href="/students"
+                className="text-sm font-medium text-[color:var(--text-muted)] transition hover:text-[color:var(--text-strong)]"
+              >
+                Back to students
+              </Link>
+            </div>
+          ) : null}
         </div>
       </SectionCard>
 

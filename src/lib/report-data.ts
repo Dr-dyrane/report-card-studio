@@ -108,6 +108,10 @@ function slugToStudentName(value: string) {
     .join(" ");
 }
 
+function studentNameToRouteKey(value: string) {
+  return value.toLowerCase().replace(/\s+/g, "-");
+}
+
 export async function getReportCards() {
   try {
     const db = await getDb();
@@ -178,4 +182,36 @@ export async function getReportCardByRouteKey(routeKey: string) {
       ? fallbackReportCard
       : null;
   }
+}
+
+export async function getReportNeighbors(routeKey: string) {
+  const reportCards = await getReportCards();
+  const currentIndex = reportCards.findIndex(
+    (report) => studentNameToRouteKey(report.student.fullName) === routeKey,
+  );
+
+  if (currentIndex === -1) {
+    return {
+      previous: null,
+      next: null,
+    };
+  }
+
+  const previousReport = reportCards[currentIndex - 1];
+  const nextReport = reportCards[currentIndex + 1];
+
+  return {
+    previous: previousReport
+      ? {
+          href: `/reports/${studentNameToRouteKey(previousReport.student.fullName)}`,
+          label: previousReport.student.fullName,
+        }
+      : null,
+    next: nextReport
+      ? {
+          href: `/reports/${studentNameToRouteKey(nextReport.student.fullName)}`,
+          label: nextReport.student.fullName,
+        }
+      : null,
+  };
 }
