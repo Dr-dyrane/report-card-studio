@@ -1,4 +1,5 @@
 import { getReportCardByRouteKey } from "@/lib/report-data";
+import { ReportPreviewActions } from "@/components/reports/ReportPreviewActions";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 export default async function ReportPreviewPage({
@@ -19,7 +20,6 @@ export default async function ReportPreviewPage({
           eyebrow="Report preview"
           title="Preview"
           description="Not found"
-          action="Back"
         />
 
         <section className="frost-panel rounded-[24px] px-4 py-5 text-sm text-[color:var(--text-muted)] sm:px-6">
@@ -30,16 +30,15 @@ export default async function ReportPreviewPage({
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="report-preview-page space-y-4 sm:space-y-6">
       <PageHeader
         eyebrow="Report preview"
         title="Preview"
         description="Ready for print"
-        action="Export"
-        secondaryAction="Back"
       />
+      <ReportPreviewActions />
 
-      <article className="frost-panel rounded-[26px] px-4 py-4 sm:px-6 sm:py-6">
+      <article className="report-print-card frost-panel rounded-[26px] px-4 py-4 sm:px-6 sm:py-6">
         <header className="mb-4 flex flex-col gap-1">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
             Report card

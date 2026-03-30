@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import { AppIcon } from "@/components/ui/AppIcon";
+import { BrandMark } from "@/components/ui/BrandMark";
 import { navGroups } from "@/lib/navigation";
 
 export function SidebarNav() {
@@ -25,19 +26,9 @@ export function SidebarNav() {
   }, [activeGroupId]);
 
   return (
-    <aside className="frost-panel-strong sticky top-3 hidden h-[calc(100vh-1.5rem)] w-[276px] shrink-0 overflow-hidden rounded-[34px] lg:flex lg:flex-col">
+    <aside className="app-sidebar frost-panel-strong sticky top-3 hidden h-[calc(100vh-1.5rem)] w-[276px] shrink-0 overflow-hidden rounded-[34px] lg:flex lg:flex-col">
       <div className="flex h-full min-h-0 flex-col gap-6 px-5 py-6">
-        <div className="surface-wash rounded-[28px] px-5 py-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
-            Kradle
-          </p>
-          <h1 className="mt-3 font-display text-3xl leading-none text-[color:var(--text-strong)]">
-            School reports
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-[color:var(--text-muted)]">
-            Enter. Review. Export.
-          </p>
-        </div>
+        <BrandMark textOnly />
 
         <nav className="scrollbar-hidden flex flex-1 flex-col gap-3 overflow-y-auto pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {navGroups.map((group) => {

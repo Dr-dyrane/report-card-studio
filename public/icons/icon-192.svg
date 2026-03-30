@@ -1,8 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" fill="none">
   <rect width="192" height="192" rx="48" fill="#F6F7F4"/>
   <rect x="22" y="22" width="148" height="148" rx="34" fill="white"/>
-  <path d="M62 55H99C123.853 55 144 75.1472 144 100V100C144 124.853 123.853 145 99 145H62V55Z" fill="#E7F0FF"/>
-  <path d="M62 55H86C110.853 55 131 75.1472 131 100V100C131 124.853 110.853 145 86 145H62V55Z" fill="#2F6FED"/>
-  <path d="M78 77H89.2C99.583 77 108 85.4171 108 95.8V95.8C108 106.183 99.583 114.6 89.2 114.6H78V77Z" fill="white"/>
-  <path d="M78 116H95.6C106.314 116 115 124.686 115 135.4V135.4H78V116Z" fill="#17212B" fill-opacity=".12"/>
+  <rect x="38" y="38" width="116" height="116" rx="28" fill="#E7F0FF"/>
+  <path d="m47 82 49-24 49 24-49 24-49-24Z" fill="#2F6FED" fill-opacity=".14" stroke="#2F6FED" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/>
+  <path d="M66 92v16c0 6 14 14 30 14s30-8 30-14V92" stroke="#2F6FED" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/>
+  <path d="M137 85v28" stroke="#2F6FED" stroke-linecap="round" stroke-width="6"/>
+  <path d="M137 113c5 3 8 7 8 11 0 6-7 10-16 10s-16-4-16-10c0-4 3-8 8-11" fill="#2F6FED" fill-opacity=".12" stroke="#2F6FED" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
 </svg>

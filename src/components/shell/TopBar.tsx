@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
+import { BrandMark } from "@/components/ui/BrandMark";
 import { navItems } from "@/lib/navigation";
 
 function titleCaseSegment(segment: string) {
@@ -38,7 +39,7 @@ export function TopBar() {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-20 px-0 pt-0 sm:px-1 sm:pt-1 xl:px-0">
+    <header className="app-topbar sticky top-0 z-20 px-0 pt-0 sm:px-1 sm:pt-1 xl:px-0">
       <div className="frost-panel mx-0 flex items-center justify-between gap-3 rounded-none px-4 py-3 sm:flex-wrap sm:gap-4 sm:rounded-[28px] sm:px-4 sm:py-4 xl:px-8">
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-2">
@@ -55,9 +56,15 @@ export function TopBar() {
             <div className="min-w-0">
               <Link
                 href={breadcrumb.root.href}
-                className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]"
+                className="inline-flex max-w-full items-center"
               >
-                {breadcrumb.root.label}
+                {breadcrumb.isRootPage ? (
+                  <BrandMark compact />
+                ) : (
+                  <span className="truncate text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
+                    {breadcrumb.root.label}
+                  </span>
+                )}
               </Link>
               <p className="mt-1 truncate text-xs text-[color:var(--text-muted)] sm:text-sm">
                 {breadcrumb.detailLabel

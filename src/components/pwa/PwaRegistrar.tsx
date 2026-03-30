@@ -21,6 +21,11 @@ export function PwaRegistrar() {
     }
 
     let isMounted = true;
+    let updateIntervalId: number | undefined;
+    let registeredMessageHandler: ((event: MessageEvent) => void) | undefined;
+    let registeredVisibilityHandler: (() => void) | undefined;
+    let registeredFocusHandler: (() => void) | undefined;
+    let registeredOnlineHandler: (() => void) | undefined;
 
     const activateWaitingWorker = (registration: ServiceWorkerRegistration) => {
       if (registration.waiting) {
@@ -43,18 +48,50 @@ export function PwaRegistrar() {
       });
     };
 
+    const requestUpdateCheck = (registration?: ServiceWorkerRegistration | null) => {
+      if (!registration) return;
+      registration.update().catch(() => undefined);
+    };
+
     navigator.serviceWorker
       .register("/sw.js", { scope: "/" })
       .then((registration) => {
         if (!isMounted) return;
         wireRegistration(registration);
+        requestUpdateCheck(registration);
+
+        updateIntervalId = window.setInterval(() => {
+          requestUpdateCheck(registration);
+        }, 60 * 1000);
+
+        const handleVisibilityRefresh = () => {
+          if (document.visibilityState === "visible") {
+            requestUpdateCheck(registration);
+          }
+        };
+
+        const handleWindowFocus = () => {
+          requestUpdateCheck(registration);
+        };
+
+        const handleReconnect = () => {
+          requestUpdateCheck(registration);
+        };
+
+        document.addEventListener("visibilitychange", handleVisibilityRefresh);
+        window.addEventListener("focus", handleWindowFocus);
+        window.addEventListener("online", handleReconnect);
+        registeredVisibilityHandler = handleVisibilityRefresh;
+        registeredFocusHandler = handleWindowFocus;
+        registeredOnlineHandler = handleReconnect;
 
         navigator.serviceWorker.addEventListener("controllerchange", forceReload);
-        navigator.serviceWorker.addEventListener("message", (event) => {
+        registeredMessageHandler = (event) => {
           if (event.data?.type === "KRADLE_SW_ACTIVATED") {
             forceReload();
           }
-        });
+        };
+        navigator.serviceWorker.addEventListener("message", registeredMessageHandler);
       })
       .catch(() => {
         return;
@@ -62,7 +99,22 @@ export function PwaRegistrar() {
 
     return () => {
       isMounted = false;
+      if (updateIntervalId) {
+        window.clearInterval(updateIntervalId);
+      }
+      if (registeredVisibilityHandler) {
+        document.removeEventListener("visibilitychange", registeredVisibilityHandler);
+      }
+      if (registeredFocusHandler) {
+        window.removeEventListener("focus", registeredFocusHandler);
+      }
+      if (registeredOnlineHandler) {
+        window.removeEventListener("online", registeredOnlineHandler);
+      }
       navigator.serviceWorker.removeEventListener("controllerchange", forceReload);
+      if (registeredMessageHandler) {
+        navigator.serviceWorker.removeEventListener("message", registeredMessageHandler);
+      }
     };
   }, []);
 
