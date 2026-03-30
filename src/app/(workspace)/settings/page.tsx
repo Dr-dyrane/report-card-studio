@@ -1,45 +1,61 @@
+import { requireServerSession } from "@/lib/auth-session";
+import { getDb } from "@/lib/db";
+import { getOwnedSchool } from "@/lib/owned-school";
+import { AccountProfileCard } from "@/components/settings/AccountProfileCard";
+import { ChangePasswordCard } from "@/components/settings/ChangePasswordCard";
+import { ThemeToggleCard } from "@/components/theme/ThemeToggleCard";
+import { Field, InputShell } from "@/components/ui/Field";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { Field, InputShell } from "@/components/ui/Field";
-import { ThemeToggleCard } from "@/components/theme/ThemeToggleCard";
-import { ChangePasswordCard } from "@/components/settings/ChangePasswordCard";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const session = await requireServerSession();
+  const school = await getOwnedSchool();
+  const db = await getDb();
+
+  const activeSession = school
+    ? await db.academicSession.findFirst({
+        where: {
+          schoolId: school.id,
+          isActive: true,
+        },
+        include: {
+          terms: {
+            where: {
+              isActive: true,
+            },
+            orderBy: [{ sequence: "asc" }],
+            take: 1,
+          },
+        },
+      })
+    : null;
+
+  const activeTerm = activeSession?.terms[0] ?? null;
+
   return (
     <div className="space-y-6">
-      <PageHeader
-        eyebrow="Settings"
-        title="Settings"
-        description="School, grading, template."
-        action={{ label: "Save", href: "/settings" }}
-        secondaryAction={{ label: "School", href: "/settings" }}
-      />
+      <PageHeader eyebrow="Settings" title="Settings" description="Account and workspace." />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <SectionCard title="School profile">
-          <div className="grid gap-5">
-            <Field label="Name">
-              <InputShell value="Report Card Studio Demo School" />
-            </Field>
-            <Field label="Session">
-              <InputShell value="2024/2025" />
-            </Field>
-            <Field label="Active term">
-              <InputShell value="Second Term" />
-            </Field>
-          </div>
+        <SectionCard title="Account">
+          <AccountProfileCard
+            name={session.user.name ?? ""}
+            email={session.user.email}
+            username={session.user.username ?? ""}
+          />
         </SectionCard>
 
-        <SectionCard title="Grading defaults">
+        <SectionCard title="Workspace">
           <div className="grid gap-5">
-            <Field label="Mode">
-              <InputShell value="Subject configured totals" />
+            <Field label="Name">
+              <InputShell value={school?.name ?? "No workspace"} />
             </Field>
-            <Field label="Preview">
-              <InputShell value="HTML print layout" />
+            <Field label="Session">
+              <InputShell value={activeSession?.name ?? "Not set"} />
             </Field>
-            <Field label="Exports">
-              <InputShell value="PDF, Excel, CSV" />
+            <Field label="Active term">
+              <InputShell value={activeTerm?.name ?? "Not set"} />
             </Field>
           </div>
         </SectionCard>
@@ -49,7 +65,7 @@ export default function SettingsPage() {
         <ThemeToggleCard />
       </SectionCard>
 
-      <SectionCard title="Password">
+      <SectionCard title="Security">
         <ChangePasswordCard />
       </SectionCard>
     </div>
