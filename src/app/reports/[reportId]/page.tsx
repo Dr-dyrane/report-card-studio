@@ -34,6 +34,13 @@ const summary = [
   ["Total", "678"],
 ];
 
+const quickMeta = [
+  ["Status", "Draft"],
+  ["Position", "21st"],
+  ["Class", "30"],
+  ["Source", "Image"],
+];
+
 export default async function ReportEntryPage({
   params,
 }: {
@@ -51,30 +58,39 @@ export default async function ReportEntryPage({
         secondaryAction="Save"
       />
 
-      <section className="grid gap-3 xl:grid-cols-[1.2fr_0.8fr]">
+      <section className="grid gap-3 xl:grid-cols-[1.16fr_0.84fr]">
         <div className="frost-panel-soft rounded-[26px] px-4 py-4 sm:px-5 sm:py-5">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {[
-              ["Status", "Draft"],
-              ["Position", "21st"],
-              ["Grand", "678"],
-              ["Class", "30"],
-            ].map(([label, value]) => (
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+            {quickMeta.map(([label, value]) => (
               <div
                 key={label}
-                className="rounded-full bg-white/60 px-3 py-2 text-sm shadow-[var(--shadow-frost)] sm:px-4"
+                className="rounded-[18px] bg-white/60 px-3 py-3 shadow-[var(--shadow-frost)] sm:rounded-full sm:px-4 sm:py-2"
               >
-                <span className="text-[color:var(--text-muted)]">{label}</span>
+                <span className="text-sm text-[color:var(--text-muted)]">{label}</span>
                 <span className="ml-2 font-semibold text-[color:var(--text-strong)]">
                   {value}
                 </span>
               </div>
             ))}
           </div>
+
+          <div className="mt-3 rounded-[22px] bg-white/55 px-4 py-4 shadow-[var(--shadow-frost)]">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm text-[color:var(--text-muted)]">Grand total</p>
+                <p className="mt-2 text-3xl font-semibold tracking-tight text-[color:var(--text-strong)]">
+                  678
+                </p>
+              </div>
+              <div className="rounded-full bg-[color:rgba(231,240,255,0.88)] px-4 py-2 text-sm font-semibold text-[color:var(--text-strong)] shadow-[var(--shadow-frost)]">
+                1000 max
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="frost-panel-soft rounded-[26px] px-4 py-4 sm:px-5 sm:py-5">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {summary.map(([label, value]) => (
               <div
                 key={label}
@@ -94,39 +110,44 @@ export default async function ReportEntryPage({
 
       <div className="grid gap-3 sm:gap-6 xl:grid-cols-[1.25fr_0.42fr]">
         <SectionCard title="Scores">
-          <div className="-mx-1 space-y-2 sm:hidden">
+          <div className="space-y-3 sm:hidden">
             {rows.map((row) => (
               <div
                 key={row.subject}
                 className="frost-panel-soft rounded-[24px] px-4 py-4"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <p className="font-semibold text-[color:var(--text-strong)]">
-                    {row.subject}
-                  </p>
-                  <span className="inline-flex min-w-12 items-center justify-center rounded-full bg-[color:rgba(231,240,255,0.82)] px-3 py-1 text-sm font-semibold text-[color:var(--text-strong)] shadow-[var(--shadow-frost)]">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-[color:var(--text-strong)]">
+                      {row.subject}
+                    </p>
+                    <p className="mt-1 text-sm text-[color:var(--text-muted)]">
+                      Subject total updates automatically
+                    </p>
+                  </div>
+                  <span className="inline-flex min-w-14 items-center justify-center rounded-full bg-[color:rgba(231,240,255,0.88)] px-3 py-1.5 text-sm font-semibold text-[color:var(--text-strong)] shadow-[var(--shadow-frost)]">
                     {row.total}
                   </span>
                 </div>
-                <div className="mt-4 grid grid-cols-3 gap-3 text-sm">
-                  <div>
-                    <p className="text-[color:var(--text-muted)]">A1</p>
-                    <p className="mt-1 font-medium text-[color:var(--text-strong)]">
-                      {row.a1}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[color:var(--text-muted)]">A2</p>
-                    <p className="mt-1 font-medium text-[color:var(--text-strong)]">
-                      {row.a2}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[color:var(--text-muted)]">Exam</p>
-                    <p className="mt-1 font-medium text-[color:var(--text-strong)]">
-                      {row.exam}
-                    </p>
-                  </div>
+
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  {[
+                    ["A1", row.a1],
+                    ["A2", row.a2],
+                    ["Exam", row.exam],
+                  ].map(([label, value]) => (
+                    <div
+                      key={label}
+                      className="rounded-[18px] bg-white/55 px-3 py-3 text-center shadow-[var(--shadow-frost)]"
+                    >
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                        {label}
+                      </p>
+                      <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)]">
+                        {value}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
