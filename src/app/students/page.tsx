@@ -46,10 +46,9 @@ export default async function StudentsPage() {
 
           <div className="space-y-3 sm:hidden">
             {students.map((student) => (
-              <Link
+              <div
                 key={student.id}
-                href={`/students/${student.id}`}
-                className="frost-panel-soft block rounded-[24px] px-4 py-4"
+                className="frost-panel-soft rounded-[24px] px-4 py-4"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -78,7 +77,27 @@ export default async function StudentsPage() {
                     </p>
                   </div>
                 </div>
-              </Link>
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  <Link
+                    href={student.reportHref}
+                    className="soft-action-tint rounded-full px-3 py-2 text-center text-sm font-semibold"
+                  >
+                    Entry
+                  </Link>
+                  <Link
+                    href={student.previewHref}
+                    className="soft-action rounded-full px-3 py-2 text-center text-sm font-medium"
+                  >
+                    Preview
+                  </Link>
+                  <Link
+                    href={`/students/${student.id}`}
+                    className="soft-action rounded-full px-3 py-2 text-center text-sm font-medium"
+                  >
+                    Profile
+                  </Link>
+                </div>
+              </div>
             ))}
           </div>
 
@@ -91,7 +110,7 @@ export default async function StudentsPage() {
                   <th className="px-4 py-3 text-right font-medium">Total</th>
                   <th className="px-4 py-3 text-right font-medium">Position</th>
                   <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 text-right font-medium">Open</th>
+                  <th className="px-4 py-3 text-right font-medium">Report</th>
                 </tr>
               </thead>
               <tbody className="bg-[color:var(--surface)] text-sm">
@@ -115,12 +134,20 @@ export default async function StudentsPage() {
                       </span>
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <Link
-                        href={`/students/${student.id}`}
-                        className="soft-action inline-flex rounded-full px-3 py-1.5 text-sm font-medium"
-                      >
-                        View
-                      </Link>
+                      <div className="flex justify-end gap-2">
+                        <Link
+                          href={student.reportHref}
+                          className="soft-action-tint inline-flex rounded-full px-3 py-1.5 text-sm font-semibold"
+                        >
+                          Entry
+                        </Link>
+                        <Link
+                          href={student.previewHref}
+                          className="soft-action inline-flex rounded-full px-3 py-1.5 text-sm font-medium"
+                        >
+                          Preview
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -155,7 +182,7 @@ export default async function StudentsPage() {
           <SectionCard title="Top student">
             {topStudent ? (
               <Link
-                href={`/students/${topStudent.id}`}
+                href={topStudent.reportHref}
                 className="frost-panel-soft block rounded-[24px] px-4 py-4 transition hover:bg-[color:rgba(231,240,255,0.44)]"
               >
                 <div className="flex items-center justify-between gap-3">
@@ -197,7 +224,7 @@ export default async function StudentsPage() {
                 .map((student) => (
                   <Link
                     key={student.id}
-                    href={`/students/${student.id}`}
+                    href={student.reportHref}
                     className="surface-pocket block rounded-[22px] px-4 py-4 transition hover:bg-white/78"
                   >
                     <div className="flex items-center justify-between gap-3">

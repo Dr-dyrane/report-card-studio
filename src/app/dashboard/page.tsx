@@ -43,8 +43,8 @@ export default function DashboardPage() {
         eyebrow="Dashboard"
         title="Overview"
         description="Second Term, 2024/2025"
-        action="New report"
-        secondaryAction="Export"
+        action="Students"
+        secondaryAction="Reports"
       />
 
       <div className="grid w-full gap-3 md:grid-cols-[0.92fr_1.08fr]">
@@ -73,16 +73,16 @@ export default function DashboardPage() {
 
           <div className="surface-pocket mt-4 grid grid-cols-2 gap-2 rounded-[24px] p-2">
             <Link
-              href="/reports/student-12"
+              href="/students"
               className="soft-action-tint rounded-full px-4 py-2 text-center text-sm font-medium"
             >
-              Continue
+              Open roster
             </Link>
             <Link
-              href="/students"
+              href="/reports"
               className="soft-action rounded-full px-4 py-2 text-center text-sm font-medium"
             >
-              Students
+              Reports
             </Link>
           </div>
         </SectionCard>
@@ -109,8 +109,9 @@ export default function DashboardPage() {
         <SectionCard title="Top">
           <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1">
             {topPerformers.map(([student, total], index) => (
-              <div
+              <Link
                 key={student}
+                href={`/reports/${student.toLowerCase().replace(/\s+/g, "-")}`}
                 className="frost-panel-soft flex items-center justify-between rounded-[22px] px-4 py-4"
               >
                 <div className="flex min-w-0 items-center gap-3">
@@ -124,7 +125,7 @@ export default function DashboardPage() {
                 <span className="text-lg font-semibold text-[color:var(--text-strong)]">
                   {total}
                 </span>
-              </div>
+              </Link>
             ))}
           </div>
         </SectionCard>
@@ -134,8 +135,9 @@ export default function DashboardPage() {
         <SectionCard title="Attention">
           <div className="grid gap-3">
             {attentionRows.map(([student, subjects, total]) => (
-              <div
+              <Link
                 key={student}
+                href={`/reports/${student.toLowerCase().replace(/\s+/g, "-")}`}
                 className="frost-panel-soft flex items-start justify-between gap-4 rounded-[22px] px-4 py-4"
               >
                 <div className="min-w-0">
@@ -149,7 +151,7 @@ export default function DashboardPage() {
                 <span className="shrink-0 rounded-full bg-white/60 px-3 py-1 text-sm font-semibold text-[color:var(--text-strong)] shadow-[var(--shadow-frost)]">
                   {total}
                 </span>
-              </div>
+              </Link>
             ))}
           </div>
         </SectionCard>
@@ -165,16 +167,16 @@ export default function DashboardPage() {
               </p>
               <div className="mt-4 flex gap-2">
                 <Link
-                  href="/reports/student-12"
+                  href="/students"
                   className="soft-action-tint rounded-full px-4 py-2 text-sm font-medium"
                 >
-                  Open report
+                  Open students
                 </Link>
                 <Link
-                  href="/reports/student-12/preview"
+                  href="/reports"
                   className="soft-action rounded-full px-4 py-2 text-sm font-medium text-[color:var(--text-base)]"
                 >
-                  Preview
+                  Open reports
                 </Link>
               </div>
             </div>

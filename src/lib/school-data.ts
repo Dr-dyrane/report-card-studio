@@ -8,6 +8,8 @@ const fallbackStudents = [
     grandTotal: 825,
     position: "2nd",
     status: "Published",
+    reportHref: "/reports/student-2",
+    previewHref: "/reports/student-2/preview",
   },
   {
     id: "student-3",
@@ -16,6 +18,8 @@ const fallbackStudents = [
     grandTotal: 733,
     position: "12th",
     status: "Published",
+    reportHref: "/reports/student-3",
+    previewHref: "/reports/student-3/preview",
   },
   {
     id: "student-4",
@@ -24,6 +28,8 @@ const fallbackStudents = [
     grandTotal: 721,
     position: "13th",
     status: "Published",
+    reportHref: "/reports/student-4",
+    previewHref: "/reports/student-4/preview",
   },
   {
     id: "student-20",
@@ -32,6 +38,8 @@ const fallbackStudents = [
     grandTotal: 530,
     position: "30th",
     status: "Published",
+    reportHref: "/reports/student-20",
+    previewHref: "/reports/student-20/preview",
   },
 ];
 
@@ -121,6 +129,8 @@ export async function getStudentsList() {
         status: latestReport
           ? `${latestReport.status.slice(0, 1)}${latestReport.status.slice(1).toLowerCase()}`
           : "Draft",
+        reportHref: `/reports/${slugify(student.fullName)}`,
+        previewHref: `/reports/${slugify(student.fullName)}/preview`,
       };
       })
       .sort((a, b) => {

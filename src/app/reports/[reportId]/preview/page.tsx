@@ -106,9 +106,12 @@ export default async function ReportPreviewPage({
                   <thead className="bg-white/50 text-left text-sm text-[color:var(--text-muted)]">
                     <tr>
                       <th className="px-4 py-3 font-medium">Subject</th>
-                      <th className="px-4 py-3 text-right font-medium">A1</th>
-                      <th className="px-4 py-3 text-right font-medium">A2</th>
-                      <th className="px-4 py-3 text-right font-medium">Exam</th>
+                      <th className="px-4 py-3 text-right font-medium">A1 Max</th>
+                      <th className="px-4 py-3 text-right font-medium">A1 Score</th>
+                      <th className="px-4 py-3 text-right font-medium">A2 Max</th>
+                      <th className="px-4 py-3 text-right font-medium">A2 Score</th>
+                      <th className="px-4 py-3 text-right font-medium">Exam Max</th>
+                      <th className="px-4 py-3 text-right font-medium">Exam Score</th>
                       <th className="px-4 py-3 text-right font-medium">Total</th>
                     </tr>
                   </thead>
@@ -118,8 +121,17 @@ export default async function ReportPreviewPage({
                         <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
                           {row.subject.name}
                         </td>
+                        <td className="px-4 py-4 text-right text-[color:var(--text-muted)]">
+                          {row.subject.a1Max ?? "--"}
+                        </td>
                         <td className="px-4 py-4 text-right">{row.a1Score ?? "--"}</td>
+                        <td className="px-4 py-4 text-right text-[color:var(--text-muted)]">
+                          {row.subject.a2Max ?? "--"}
+                        </td>
                         <td className="px-4 py-4 text-right">{row.a2Score ?? "--"}</td>
+                        <td className="px-4 py-4 text-right text-[color:var(--text-muted)]">
+                          {row.subject.examMax ?? "--"}
+                        </td>
                         <td className="px-4 py-4 text-right">{row.examScore ?? "--"}</td>
                         <td className="px-4 py-4 text-right font-semibold text-[color:var(--text-strong)]">
                           {row.totalScore}
@@ -143,19 +155,25 @@ export default async function ReportPreviewPage({
                     </div>
                     <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
                       <div>
-                        <p className="text-[color:var(--text-muted)]">A1</p>
+                        <p className="text-[color:var(--text-muted)]">
+                          A1 {row.subject.a1Max ? `· ${row.subject.a1Max}` : ""}
+                        </p>
                         <p className="mt-1 font-medium text-[color:var(--text-strong)]">
                           {row.a1Score ?? "--"}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[color:var(--text-muted)]">A2</p>
+                        <p className="text-[color:var(--text-muted)]">
+                          A2 {row.subject.a2Max ? `· ${row.subject.a2Max}` : ""}
+                        </p>
                         <p className="mt-1 font-medium text-[color:var(--text-strong)]">
                           {row.a2Score ?? "--"}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[color:var(--text-muted)]">Exam</p>
+                        <p className="text-[color:var(--text-muted)]">
+                          Exam {row.subject.examMax ? `· ${row.subject.examMax}` : ""}
+                        </p>
                         <p className="mt-1 font-medium text-[color:var(--text-strong)]">
                           {row.examScore ?? "--"}
                         </p>

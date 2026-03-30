@@ -31,7 +31,7 @@ const fallbackReportCard = {
       a2Score: 16,
       examScore: 31,
       totalScore: 59,
-      subject: { name: "Mathematics", displayOrder: 1 },
+      subject: { name: "Mathematics", displayOrder: 1, a1Max: 20, a2Max: 20, examMax: 60 },
     },
     {
       id: "grammar",
@@ -39,7 +39,7 @@ const fallbackReportCard = {
       a2Score: 14,
       examScore: 11,
       totalScore: 37,
-      subject: { name: "Grammar", displayOrder: 2 },
+      subject: { name: "Grammar", displayOrder: 2, a1Max: 20, a2Max: 20, examMax: 60 },
     },
     {
       id: "composition",
@@ -47,7 +47,7 @@ const fallbackReportCard = {
       a2Score: null,
       examScore: 15,
       totalScore: 15,
-      subject: { name: "Composition", displayOrder: 3 },
+      subject: { name: "Composition", displayOrder: 3, a1Max: null, a2Max: null, examMax: 30 },
     },
     {
       id: "comprehension",
@@ -55,7 +55,7 @@ const fallbackReportCard = {
       a2Score: null,
       examScore: 10,
       totalScore: 10,
-      subject: { name: "Comprehension", displayOrder: 4 },
+      subject: { name: "Comprehension", displayOrder: 4, a1Max: null, a2Max: null, examMax: 20 },
     },
     {
       id: "social-studies",
@@ -63,7 +63,7 @@ const fallbackReportCard = {
       a2Score: 8,
       examScore: 32,
       totalScore: 42,
-      subject: { name: "Social Studies", displayOrder: 5 },
+      subject: { name: "Social Studies", displayOrder: 5, a1Max: 10, a2Max: 10, examMax: 50 },
     },
     {
       id: "science",
@@ -71,7 +71,7 @@ const fallbackReportCard = {
       a2Score: 6,
       examScore: 18,
       totalScore: 29,
-      subject: { name: "Science", displayOrder: 6 },
+      subject: { name: "Science", displayOrder: 6, a1Max: 10, a2Max: 10, examMax: 30 },
     },
     {
       id: "computer",
@@ -79,7 +79,7 @@ const fallbackReportCard = {
       a2Score: 6,
       examScore: 48,
       totalScore: 60,
-      subject: { name: "Computer", displayOrder: 7 },
+      subject: { name: "Computer", displayOrder: 7, a1Max: 10, a2Max: 10, examMax: 50 },
     },
     {
       id: "history",
@@ -87,7 +87,7 @@ const fallbackReportCard = {
       a2Score: 6,
       examScore: 30,
       totalScore: 41,
-      subject: { name: "History", displayOrder: 8 },
+      subject: { name: "History", displayOrder: 8, a1Max: 10, a2Max: 10, examMax: 40 },
     },
     {
       id: "fine-art",
@@ -95,7 +95,7 @@ const fallbackReportCard = {
       a2Score: null,
       examScore: 15,
       totalScore: 15,
-      subject: { name: "Fine Art", displayOrder: 9 },
+      subject: { name: "Fine Art", displayOrder: 9, a1Max: null, a2Max: null, examMax: 30 },
     },
   ],
 };
