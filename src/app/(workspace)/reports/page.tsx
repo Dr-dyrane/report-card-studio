@@ -1,10 +1,10 @@
 import Link from "next/link";
 
 import { MobileBladeList } from "@/components/mobile/MobileBladeList";
-import { getReportCards } from "@/lib/report-data";
-import { getClassroomsList } from "@/lib/school-data";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
+import { getReportCards } from "@/lib/report-data";
+import { getClassroomsList } from "@/lib/school-data";
 
 function slugify(value: string) {
   return value.toLowerCase().replace(/\s+/g, "-");
@@ -66,7 +66,7 @@ export default async function ReportsPage({
         ))}
       </section>
 
-      <section className="grid gap-3">
+      <section className="grid gap-4 xl:grid-cols-[1.24fr_0.76fr]">
         <SectionCard title="Current">
           <div className="mb-4 flex flex-wrap gap-2">
             <Link
@@ -135,25 +135,124 @@ export default async function ReportsPage({
             emptyMessage="No reports yet in this class. Create a new student sheet to start."
           />
 
-          <div className="hidden gap-3 sm:grid">
+          <div className="frost-panel-soft hidden overflow-hidden rounded-[22px] sm:block">
             {visibleReports.length ? (
-              visibleReports.map((report) => (
-                <div
-                  key={report.id}
-                  className="frost-panel-soft rounded-[24px] px-4 py-4"
-                >
-                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div className="min-w-0">
-                      <p className="font-semibold text-[color:var(--text-strong)]">
+              <table className="min-w-full border-separate border-spacing-0">
+                <thead className="table-head text-left text-sm text-[color:var(--text-muted)]">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Student</th>
+                    <th className="px-4 py-3 font-medium">Class</th>
+                    <th className="px-4 py-3 font-medium">Status</th>
+                    <th className="px-4 py-3 text-right font-medium">Total</th>
+                    <th className="px-4 py-3 text-right font-medium">Position</th>
+                    <th className="px-4 py-3 text-right font-medium">Open</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-[color:var(--surface)] text-sm">
+                  {visibleReports.map((report, index) => (
+                    <tr
+                      key={report.id}
+                      style={{
+                        backgroundColor:
+                          index % 2 === 0 ? "var(--table-row-odd)" : undefined,
+                      }}
+                    >
+                      <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
                         {report.student.fullName}
-                      </p>
-                      <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-                        {(report.classroom?.name ?? "Class") + " · " + report.status.toLowerCase()}
-                      </p>
-                    </div>
+                      </td>
+                      <td className="px-4 py-4 text-[color:var(--text-muted)]">
+                        {report.classroom?.name ?? "Class"}
+                      </td>
+                      <td className="px-4 py-4">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                            report.status === "PUBLISHED"
+                              ? "bg-[color:var(--success-soft)] text-[color:var(--success)]"
+                              : "soft-action text-[color:var(--text-base)]"
+                          }`}
+                        >
+                          {`${report.status.slice(0, 1)}${report.status
+                            .slice(1)
+                            .toLowerCase()}`}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-right font-semibold text-[color:var(--text-strong)]">
+                        {report.grandTotal}
+                      </td>
+                      <td className="px-4 py-4 text-right text-[color:var(--text-base)]">
+                        {report.position ?? "--"}
+                      </td>
+                      <td className="px-4 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <Link
+                            href={`/reports/${report.id}`}
+                            className="soft-action-tint inline-flex rounded-full px-3 py-1.5 text-sm font-semibold"
+                          >
+                            Entry
+                          </Link>
+                          <Link
+                            href={`/reports/${report.id}/preview`}
+                            className="soft-action inline-flex rounded-full px-3 py-1.5 text-sm font-medium"
+                          >
+                            Preview
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="m-4 rounded-[22px] px-4 py-5 text-sm text-[color:var(--text-muted)] soft-action">
+                No reports yet in this class. Create a new student sheet to start.
+              </div>
+            )}
+          </div>
+        </SectionCard>
 
-                    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-                      <div className="surface-chip rounded-[18px] px-3 py-2 text-center sm:min-w-[4.5rem] sm:text-right">
+        <div className="hidden xl:grid xl:gap-4">
+          <SectionCard title="Snapshot">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                ["Visible", String(visibleReports.length)],
+                ["Published", String(published)],
+                ["Drafts", String(drafts)],
+                ["Ready", String(ready)],
+              ].map(([label, value], index) => (
+                <div
+                  key={label}
+                  className={`rounded-[22px] px-4 py-4 ${
+                    index === 1 ? "soft-action-tint" : "surface-pocket"
+                  }`}
+                >
+                  <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
+                  <p className="mt-2 text-3xl font-semibold text-[color:var(--text-strong)]">
+                    {value}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+
+          <SectionCard title="Top ready">
+            {visibleReports.slice(0, 4).length ? (
+              <div className="grid gap-3">
+                {visibleReports.slice(0, 4).map((report) => (
+                  <Link
+                    key={`${report.id}-side`}
+                    href={`/reports/${report.id}`}
+                    className="surface-pocket surface-hover block rounded-[22px] px-4 py-4 transition"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-[color:var(--text-strong)]">
+                          {report.student.fullName}
+                        </p>
+                        <p className="mt-1 text-sm text-[color:var(--text-muted)]">
+                          {report.classroom?.name ?? "Class"}
+                        </p>
+                      </div>
+                      <div className="text-right">
                         <p className="font-semibold text-[color:var(--text-strong)]">
                           {report.grandTotal}
                         </p>
@@ -161,31 +260,17 @@ export default async function ReportsPage({
                           {report.position ?? "--"}
                         </p>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2">
-                        <Link
-                          href={`/reports/${report.id}`}
-                          className="soft-action-tint rounded-full px-3 py-2 text-center text-sm font-semibold"
-                        >
-                          Entry
-                        </Link>
-                        <Link
-                          href={`/reports/${report.id}/preview`}
-                          className="soft-action rounded-full px-3 py-2 text-center text-sm font-medium"
-                        >
-                          Preview
-                        </Link>
-                      </div>
                     </div>
-                  </div>
-                </div>
-              ))
+                  </Link>
+                ))}
+              </div>
             ) : (
-              <div className="frost-panel-soft rounded-[24px] px-4 py-5 text-sm text-[color:var(--text-muted)]">
-                No reports yet in this class. Create a new student sheet to start.
+              <div className="soft-action rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
+                No reports yet in this class.
               </div>
             )}
-          </div>
-        </SectionCard>
+          </SectionCard>
+        </div>
       </section>
     </div>
   );

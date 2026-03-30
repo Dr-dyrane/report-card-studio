@@ -1,6 +1,8 @@
 import Link from "next/link";
 
+import { StudentEditorCard } from "@/components/students/StudentEditorCard";
 import { getStudentProfileByRouteKey } from "@/lib/school-data";
+import { getStudentEditorDetail } from "@/lib/school-data";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 
@@ -10,7 +12,10 @@ export default async function StudentProfilePage({
   params: Promise<{ studentId: string }>;
 }) {
   const { studentId } = await params;
-  const profile = await getStudentProfileByRouteKey(studentId);
+  const [profile, studentEditor] = await Promise.all([
+    getStudentProfileByRouteKey(studentId),
+    getStudentEditorDetail(studentId),
+  ]);
 
   if (!profile) {
     return (
@@ -104,6 +109,8 @@ export default async function StudentProfilePage({
           )}
         </SectionCard>
       </section>
+
+      {studentEditor ? <StudentEditorCard student={{ ...studentEditor, routeKey: studentId }} /> : null}
 
       <SectionCard title="Report history">
         <div className="grid gap-3">

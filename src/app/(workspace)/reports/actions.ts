@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { getDb } from "@/lib/db";
 import { requireServerSession } from "@/lib/auth-session";
+import { getDb } from "@/lib/db";
 import { requireOwnedSchool } from "@/lib/owned-school";
 
 type ScoreUpdateInput = {
@@ -37,6 +37,47 @@ function slugify(value: string) {
   return value.toLowerCase().replace(/\s+/g, "-");
 }
 
+function formatOrdinal(value: number) {
+  const remainderTen = value % 10;
+  const remainderHundred = value % 100;
+
+  if (remainderTen === 1 && remainderHundred !== 11) return `${value}st`;
+  if (remainderTen === 2 && remainderHundred !== 12) return `${value}nd`;
+  if (remainderTen === 3 && remainderHundred !== 13) return `${value}rd`;
+  return `${value}th`;
+}
+
+async function recomputeClassroomTermRanking(classroomId: string, termId: string) {
+  const db = await getDb();
+  if (!db) return;
+
+  const reportCards = await db.reportCard.findMany({
+    where: {
+      classroomId,
+      termId,
+      status: {
+        not: "LOCKED",
+      },
+    },
+    orderBy: [{ grandTotal: "desc" }, { updatedAt: "asc" }],
+    select: { id: true },
+  });
+
+  const classSize = reportCards.length;
+
+  await Promise.all(
+    reportCards.map((report, index) =>
+      db.reportCard.update({
+        where: { id: report.id },
+        data: {
+          classSize,
+          position: formatOrdinal(index + 1),
+        },
+      }),
+    ),
+  );
+}
+
 export async function updateReportScores(input: {
   reportCardId: string;
   routeKey: string;
@@ -62,6 +103,7 @@ export async function updateReportScores(input: {
     select: {
       id: true,
       classroomId: true,
+      termId: true,
     },
   });
 
@@ -103,11 +145,6 @@ export async function updateReportScores(input: {
   const examTotal = reportScores.reduce((sum, score) => sum + (score.examScore ?? 0), 0);
   const grandTotal = reportScores.reduce((sum, score) => sum + score.totalScore, 0);
 
-  const classroom = await db.reportCard.findUnique({
-    where: { id: reportCard.id },
-    select: { classroomId: true },
-  });
-
   await db.reportCard.update({
     where: { id: input.reportCardId },
     data: {
@@ -119,20 +156,21 @@ export async function updateReportScores(input: {
     },
   });
 
-  if (classroom?.classroomId) {
-    await db.classroom.update({
-      where: { id: classroom.classroomId },
-      data: {
-        teacherName: input.teacherName,
-      },
-    });
-  }
+  await db.classroom.update({
+    where: { id: reportCard.classroomId },
+    data: {
+      teacherName: input.teacherName,
+    },
+  });
+
+  await recomputeClassroomTermRanking(reportCard.classroomId, reportCard.termId);
 
   revalidatePath("/reports");
   revalidatePath(`/reports/${input.routeKey}`);
   revalidatePath(`/reports/${input.routeKey}/preview`);
   revalidatePath("/students");
   revalidatePath(`/students/${input.routeKey}`);
+  revalidatePath("/analytics");
 
   return {
     ok: true,
@@ -164,7 +202,7 @@ export async function publishReportCard(input: {
         schoolId: ownedSchool.id,
       },
     },
-    select: { id: true },
+    select: { id: true, classroomId: true, termId: true },
   });
 
   if (!reportCard) {
@@ -178,13 +216,78 @@ export async function publishReportCard(input: {
     },
   });
 
+  await recomputeClassroomTermRanking(reportCard.classroomId, reportCard.termId);
+
   revalidatePath("/reports");
   revalidatePath(`/reports/${input.routeKey}`);
   revalidatePath(`/reports/${input.routeKey}/preview`);
   revalidatePath("/students");
   revalidatePath(`/students/${input.routeKey}`);
+  revalidatePath("/analytics");
 
   return { ok: true };
+}
+
+export async function removeReportCard(input: {
+  reportCardId: string;
+  routeKey: string;
+}) {
+  await requireServerSession();
+  const ownedSchool = await requireOwnedSchool();
+
+  const db = await getDb();
+  if (!db) {
+    return { ok: false, message: "Database unavailable." };
+  }
+
+  const reportCard = await db.reportCard.findFirst({
+    where: {
+      id: input.reportCardId,
+      classroom: {
+        schoolId: ownedSchool.id,
+      },
+    },
+    include: {
+      scores: true,
+    },
+  });
+
+  if (!reportCard) {
+    return { ok: false, message: "Report not found." };
+  }
+
+  const hasEnteredScores = reportCard.scores.some(
+    (score) =>
+      score.a1Score !== null || score.a2Score !== null || score.examScore !== null,
+  );
+
+  if (reportCard.status === "PUBLISHED" || hasEnteredScores) {
+    await db.reportCard.update({
+      where: { id: reportCard.id },
+      data: {
+        status: "LOCKED",
+        position: null,
+      },
+    });
+    await recomputeClassroomTermRanking(reportCard.classroomId, reportCard.termId);
+    revalidatePath("/reports");
+    revalidatePath("/students");
+    revalidatePath(`/reports/${input.routeKey}`);
+    revalidatePath(`/reports/${input.routeKey}/preview`);
+    revalidatePath("/analytics");
+    return { ok: true, mode: "archived" as const, message: "Report archived." };
+  }
+
+  await db.reportCard.delete({
+    where: { id: reportCard.id },
+  });
+  await recomputeClassroomTermRanking(reportCard.classroomId, reportCard.termId);
+  revalidatePath("/reports");
+  revalidatePath("/students");
+  revalidatePath(`/reports/${input.routeKey}`);
+  revalidatePath(`/reports/${input.routeKey}/preview`);
+  revalidatePath("/analytics");
+  return { ok: true, mode: "deleted" as const, message: "Report deleted." };
 }
 
 export async function createOrOpenReportCard(input: { studentRouteKey: string }) {
@@ -268,6 +371,8 @@ export async function createOrOpenReportCard(input: { studentRouteKey: string })
       });
     }
   }
+
+  await recomputeClassroomTermRanking(student.classroomId, term.id);
 
   const href = `/reports/${input.studentRouteKey}`;
 
@@ -383,6 +488,8 @@ export async function createStudentReportCard(input: {
       });
     }
   }
+
+  await recomputeClassroomTermRanking(classroom.id, term.id);
 
   const href = `/reports/${reportCard.id}`;
   const studentHref = `/students/${slugify(student.fullName)}`;
@@ -544,11 +651,14 @@ export async function applyScannedReportPrefill(input: {
     },
   });
 
+  await recomputeClassroomTermRanking(reportCard.classroomId, reportCard.termId);
+
   revalidatePath("/reports");
   revalidatePath("/students");
   revalidatePath(created.href);
   revalidatePath(`${created.href}/preview`);
   revalidatePath(`/students/${slugify(input.fullName)}`);
+  revalidatePath("/analytics");
 
   return { ok: true, href: created.href };
 }

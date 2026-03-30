@@ -127,6 +127,9 @@ export async function getReportCards() {
         classroom: {
           schoolId: ownedSchool.id,
         },
+        status: {
+          not: "LOCKED",
+        },
       },
       include: {
         student: true,
@@ -200,7 +203,8 @@ export async function getReportCardByRouteKey(routeKey: string) {
 export async function getReportNeighbors(routeKey: string) {
   const reportCards = await getReportCards();
   const currentIndex = reportCards.findIndex(
-    (report) => studentNameToRouteKey(report.student.fullName) === routeKey,
+    (report) =>
+      studentNameToRouteKey(report.student.fullName) === routeKey || report.id === routeKey,
   );
 
   if (currentIndex === -1) {

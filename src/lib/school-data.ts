@@ -158,6 +158,100 @@ export async function getClassroomsList() {
   }
 }
 
+export async function getClassroomDetail(classId: string) {
+  const fallback = fallbackClassrooms.find(
+    (classroom) => classroom.id === classId || slugify(classroom.name) === classId,
+  );
+
+  try {
+    const ownedSchool = await getOwnedSchool();
+    const db = await getDb();
+    if (!db || !ownedSchool) {
+      return fallback
+        ? {
+            id: fallback.id,
+            name: fallback.name,
+            teacherName: fallback.teacherName ?? "",
+            displayOrder: 0,
+            studentCount: fallback.studentCount,
+            activeReports: fallback.activeReports,
+            students: fallbackStudents
+              .filter((student) => student.classroomName === fallback.name)
+              .map((student) => ({
+                id: student.id,
+                fullName: student.fullName,
+              })),
+            subjects: fallbackSubjects.map((subject) => ({
+              id: subject.id,
+              name: subject.name,
+            })),
+          }
+        : null;
+    }
+
+    const classroom = await db.classroom.findFirst({
+      where: {
+        schoolId: ownedSchool.id,
+        OR: [{ id: classId }, { name: classId }],
+      },
+      include: {
+        students: {
+          orderBy: [{ fullName: "asc" }],
+        },
+        reportCards: true,
+        classSubjects: {
+          include: {
+            subject: true,
+          },
+          orderBy: [{ displayOrder: "asc" }],
+        },
+      },
+    });
+
+    if (!classroom) {
+      return null;
+    }
+
+    return {
+      id: classroom.id,
+      name: classroom.name,
+      teacherName: classroom.teacherName ?? "",
+      displayOrder: classroom.displayOrder,
+      studentCount: classroom.students.length,
+      activeReports: classroom.reportCards.length,
+      students: classroom.students.map((student) => ({
+        id: slugify(student.fullName),
+        fullName: student.fullName,
+      })),
+      subjects: classroom.classSubjects.map((item) => ({
+        id: item.subject.id,
+        name: item.subject.name,
+      })),
+    };
+  } catch {
+    return fallback
+      ? {
+          id: fallback.id,
+          name: fallback.name,
+          teacherName: fallback.teacherName ?? "",
+          displayOrder: 0,
+          studentCount: fallback.studentCount,
+          activeReports: fallback.activeReports,
+          students: fallbackStudents
+            .filter((student) => student.classroomName === fallback.name)
+            .map((student) => ({
+              id: student.id,
+              fullName: student.fullName,
+            })),
+          subjects: fallbackSubjects.map((subject) => ({
+            id: subject.id,
+            name: subject.name,
+          })),
+        }
+      : null;
+  }
+}
+
 export async function getStudentsList() {
   try {
     const ownedSchool = await getOwnedSchool();
@@ -171,6 +265,11 @@ export async function getStudentsList() {
       include: {
         classroom: true,
         reportCards: {
+          where: {
+            status: {
+              not: "LOCKED",
+            },
+          },
           orderBy: [{ updatedAt: "desc" }],
           take: 1,
         },
@@ -222,7 +321,7 @@ export async function getSubjectsList() {
     if (!subjects.length) return fallbackSubjects;
 
     return subjects.map((subject) => ({
-      id: slugify(subject.name),
+      id: subject.id,
       name: subject.name,
       category: subject.category ?? "General",
       modeLabel:
@@ -237,6 +336,80 @@ export async function getSubjectsList() {
     }));
   } catch {
     return fallbackSubjects;
+  }
+}
+
+export async function getSubjectDetail(subjectId: string) {
+  const fallback = fallbackSubjects.find(
+    (subject) => subject.id === subjectId || slugify(subject.name) === subjectId,
+  );
+
+  const buildFallbackSubject = () =>
+    fallback
+      ? {
+          id: fallback.id,
+          name: fallback.name,
+          category: fallback.category,
+          assessmentMode: (
+            fallback.modeLabel === "Exam only"
+              ? "EXAM_ONLY"
+              : "CONTINUOUS_AND_EXAM"
+          ) as "EXAM_ONLY" | "CONTINUOUS_AND_EXAM",
+          a1Max: fallback.modeLabel === "Exam only" ? null : 20,
+          a2Max: fallback.modeLabel === "Exam only" ? null : 20,
+          examMax: fallback.modeLabel === "Exam only" ? 30 : 60,
+          displayOrder: 1,
+          isActive: fallback.activeLabel === "Yes",
+          classrooms: fallbackClassrooms.map((classroom) => ({
+            id: classroom.id,
+            name: classroom.name,
+          })),
+        }
+      : null;
+
+  try {
+    const ownedSchool = await getOwnedSchool();
+    const db = await getDb();
+    if (!db || !ownedSchool) {
+      return buildFallbackSubject();
+    }
+
+    const subject = await db.subject.findFirst({
+      where: {
+        schoolId: ownedSchool.id,
+        OR: [{ id: subjectId }, { name: subjectId }],
+      },
+      include: {
+        classSubjects: {
+          include: {
+            classroom: true,
+          },
+          orderBy: [{ displayOrder: "asc" }],
+        },
+      },
+    });
+
+    if (!subject) {
+      return null;
+    }
+
+    return {
+      id: subject.id,
+      name: subject.name,
+      category: subject.category ?? "",
+      assessmentMode: subject.assessmentMode,
+      a1Max: subject.a1Max,
+      a2Max: subject.a2Max,
+      examMax: subject.examMax,
+      displayOrder: subject.displayOrder,
+      isActive: subject.isActive,
+      classrooms: subject.classSubjects.map((item) => ({
+        id: item.classroom.id,
+        name: item.classroom.name,
+      })),
+    };
+  } catch {
+    return buildFallbackSubject();
   }
 }
 
@@ -288,6 +461,11 @@ export async function getStudentProfileByRouteKey(routeKey: string) {
       include: {
         classroom: true,
         reportCards: {
+          where: {
+            status: {
+              not: "LOCKED",
+            },
+          },
           include: {
             term: {
               include: {
@@ -329,6 +507,56 @@ export async function getStudentProfileByRouteKey(routeKey: string) {
         status: `${report.status.slice(0, 1)}${report.status.slice(1).toLowerCase()}`,
         href: `/reports/${reportSlug}`,
       })),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function getStudentEditorDetail(routeKey: string) {
+  const candidateName = routeKey
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+
+  try {
+    const ownedSchool = await getOwnedSchool();
+    const db = await getDb();
+    if (!db || !ownedSchool) {
+      return null;
+    }
+
+    const [student, classrooms] = await Promise.all([
+      db.student.findFirst({
+        where: {
+          schoolId: ownedSchool.id,
+          fullName: candidateName,
+        },
+        include: {
+          reportCards: {
+            select: { id: true },
+          },
+        },
+      }),
+      db.classroom.findMany({
+        where: { schoolId: ownedSchool.id },
+        orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
+        select: { id: true, name: true },
+      }),
+    ]);
+
+    if (!student) {
+      return null;
+    }
+
+    return {
+      id: student.id,
+      fullName: student.fullName,
+      classroomId: student.classroomId,
+      isActive: student.isActive,
+      classrooms,
+      reportCount: student.reportCards.length,
     };
   } catch {
     return null;

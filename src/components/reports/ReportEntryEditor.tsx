@@ -4,9 +4,14 @@ import Link from "next/link";
 import { useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import { publishReportCard, updateReportScores } from "@/app/(workspace)/reports/actions";
+import {
+  publishReportCard,
+  removeReportCard,
+  updateReportScores,
+} from "@/app/(workspace)/reports/actions";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { SectionCard } from "@/components/ui/SectionCard";
+import { ConfirmSurface } from "@/components/ui/ConfirmSurface";
 
 type ScoreRow = {
   id: string;
@@ -85,6 +90,7 @@ export function ReportEntryEditor({
   const [rows, setRows] = useState(initialRows);
   const [comment, setComment] = useState(teacherComment);
   const [teacher, setTeacher] = useState(teacherName);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [saveState, setSaveState] = useState<"Saved" | "Saving" | "Unsaved" | "Retry">(
     "Saved",
   );
@@ -217,6 +223,24 @@ export function ReportEntryEditor({
       }
 
       notify("Published.", "success");
+      router.refresh();
+    });
+  }
+
+  function handleRemove() {
+    startTransition(async () => {
+      const result = await removeReportCard({
+        reportCardId,
+        routeKey: reportId,
+      });
+
+      if (!result.ok) {
+        notify(result.message, "error");
+        return;
+      }
+
+      notify(result.message, "success");
+      router.push("/reports");
       router.refresh();
     });
   }
@@ -435,6 +459,26 @@ export function ReportEntryEditor({
             </div>
           </div>
 
+          <div className="mt-3 flex flex-col gap-2 sm:mt-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmOpen(true)}
+                className="rounded-full bg-[color:var(--danger-soft)] px-4 py-2 text-sm font-medium text-[color:var(--danger)]"
+              >
+                Remove
+              </button>
+            </div>
+            {(previousReport || nextReport) ? null : (
+              <Link
+                href="/students"
+                className="text-sm font-medium text-[color:var(--text-muted)] transition hover:text-[color:var(--text-strong)]"
+              >
+                Back to students
+              </Link>
+            )}
+          </div>
+
           {previousReport || nextReport ? (
             <div className="mt-3 flex flex-col gap-2 sm:mt-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap gap-2">
@@ -495,6 +539,26 @@ export function ReportEntryEditor({
           </div>
         </div>
       </SectionCard>
+
+      <ConfirmSurface
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleRemove}
+        busy={isPending}
+        title="Remove report"
+        description="Kradle deletes empty draft sheets. If this report already carries saved work or has been published, it will archive the sheet instead."
+        confirmLabel="Remove"
+        supportingContent={
+          <div className="rounded-[22px] surface-pocket px-4 py-4">
+            <p className="text-sm font-semibold text-[color:var(--text-strong)]">
+              {summary.grandTotal} total
+            </p>
+            <p className="mt-1 text-sm text-[color:var(--text-muted)]">
+              Position {position}
+            </p>
+          </div>
+        }
+      />
     </div>
   );
 }
