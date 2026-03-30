@@ -33,6 +33,7 @@ Implemented:
 - Heroicons-based icon system
 - PWA support and aggressive service-worker update flow
 - Prisma connected to Postgres locally using pulled Vercel env
+- auth, onboarding, password reset, and account management
 - report entry with inline editable scores
 - live row totals and live assessment/grand totals
 - report preview and browser print/PDF flow
@@ -46,6 +47,7 @@ Partially implemented:
 - setup CRUD for subjects, classes, terms, settings
 - publish/finalize workflow
 - ranking recomputation after edits
+- mobile list ergonomics for students and reports
 
 ## Highest Priority Gaps
 
@@ -142,13 +144,41 @@ What remains:
 - class create/edit
 - term/session management
 - settings persistence
+- polished editing UX for each core model
+- stronger feedback for successful saves, validation errors, and destructive actions
 
 Definition of done:
 
 - all primary setup screens save to Prisma/Postgres
 - changes are reflected immediately in report entry and preview
 
-### 7. Production Backend Hardening
+### 7. Mobile Blade Flow
+
+Students and reports should feel lighter and faster on mobile.
+
+What remains:
+
+- render students and reports as compact blades/cards on mobile
+- tapping a blade opens a bottom sheet, not a full immediate navigation
+- the sheet should show a useful snapshot:
+  - student name
+  - class
+  - total
+  - position
+  - status
+- the sheet should provide clear CTAs into the full stack page:
+  - `Open sheet`
+  - `Preview`
+  - `Profile` where appropriate
+- preserve scroll position when closing the sheet
+
+Definition of done:
+
+- mobile lists are fast to scan and easy on the eyes
+- users can inspect a student or report without losing list context
+- detailed pages still exist as deeper stack pages
+
+### 8. Production Backend Hardening
 
 Local Postgres-backed development is now working. Production still needs explicit verification.
 
@@ -164,7 +194,7 @@ Definition of done:
 - deployed app reads and writes to Postgres successfully
 - no Prisma fallback-only behavior is masking backend issues
 
-### 8. PDF / Print Finish
+### 9. PDF / Print Finish
 
 The print path is much better, but still needs final product-level polish.
 
@@ -181,14 +211,13 @@ Definition of done:
 
 ## Recommended Build Order
 
-1. Verify production Postgres deployment
-2. Add autosave or blur-save in report entry
-3. Add next/previous student navigation inside report entry
-4. Add scan-to-add AI intake
-5. Implement ranking recomputation
-6. Expand subject/report parity to full report-card coverage
-7. Finish setup CRUD
-8. Final print/PDF polish
+1. Polish report entry and ranking recomputation
+2. Expand subject/report parity to full report-card coverage
+3. Complete CRUD functionality and polished UI/UX for core models
+4. Add mobile blade -> bottom sheet -> stack page flow for students and reports
+5. Finish scan-to-add AI intake
+6. Final print/PDF polish
+7. Production backend verification sweep
 
 ## UX Direction to Preserve
 
@@ -226,3 +255,4 @@ Secondary modules should support this flow, not compete with it.
 - final preview/export polish
 - complete CRUD functionality and polished UI/UX for core models
 - keep the not-found experience outside the authenticated workspace shell
+- mobile blade lists with bottom-sheet snapshots for students and reports

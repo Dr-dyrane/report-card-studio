@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { MobileBladeList } from "@/components/mobile/MobileBladeList";
 import { getClassroomsList, getStudentsList } from "@/lib/school-data";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
@@ -74,67 +75,34 @@ export default async function StudentsPage({
             ))}
           </div>
 
-          <div className="space-y-3 sm:hidden">
-            {visibleStudents.map((student) => (
-              <div
-                key={student.id}
-                className="frost-panel-soft rounded-[24px] px-4 py-4"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-[color:var(--text-strong)]">
-                      {student.fullName}
-                    </p>
-                    <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-                      {student.classroomName}
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-[color:var(--success-soft)] px-3 py-1 text-xs font-semibold text-[color:var(--success)]">
-                    {student.status}
-                  </span>
-                </div>
-                <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                  <div className="surface-pocket rounded-[18px] px-3 py-3">
-                    <p className="text-[color:var(--text-muted)]">Total</p>
-                    <p className="mt-1 font-semibold text-[color:var(--text-strong)]">
-                      {student.grandTotal}
-                    </p>
-                  </div>
-                  <div className="surface-pocket rounded-[18px] px-3 py-3">
-                    <p className="text-[color:var(--text-muted)]">Position</p>
-                    <p className="mt-1 font-semibold text-[color:var(--text-strong)]">
-                      {student.position}
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-4 grid grid-cols-3 gap-2">
-                  <Link
-                    href={student.reportHref}
-                    className="soft-action-tint rounded-full px-3 py-2 text-center text-sm font-semibold"
-                  >
-                    Entry
-                  </Link>
-                  <Link
-                    href={student.previewHref}
-                    className="soft-action rounded-full px-3 py-2 text-center text-sm font-medium"
-                  >
-                    Preview
-                  </Link>
-                  <Link
-                    href={`/students/${student.id}`}
-                    className="soft-action rounded-full px-3 py-2 text-center text-sm font-medium"
-                  >
-                    Profile
-                  </Link>
-                </div>
-              </div>
-            ))}
-            {!visibleStudents.length ? (
-              <div className="soft-action rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
-                No students yet in this class.
-              </div>
-            ) : null}
-          </div>
+          <MobileBladeList
+            items={visibleStudents.map((student) => ({
+              id: student.id,
+              title: student.fullName,
+              subtitle: student.classroomName,
+              eyebrow: "Student",
+              badge: {
+                label: student.status,
+                tone: student.status === "Published" ? "success" : "default",
+              },
+              quickValue: String(student.grandTotal),
+              quickHint: student.position,
+              summary:
+                "Open the report sheet, preview, or profile without losing your place in the roster.",
+              meta: [
+                { label: "Total", value: String(student.grandTotal) },
+                { label: "Position", value: student.position },
+                { label: "Class", value: student.classroomName },
+                { label: "Status", value: student.status },
+              ],
+              actions: [
+                { label: "Open sheet", href: student.reportHref, tone: "accent" },
+                { label: "Preview", href: student.previewHref },
+                { label: "Profile", href: `/students/${student.id}` },
+              ],
+            }))}
+            emptyMessage="No students yet in this class."
+          />
 
           <div className="frost-panel-soft hidden overflow-hidden rounded-[22px] sm:block">
             <table className="min-w-full border-separate border-spacing-0">

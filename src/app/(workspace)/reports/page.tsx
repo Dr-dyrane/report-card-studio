@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { MobileBladeList } from "@/components/mobile/MobileBladeList";
 import { getReportCards } from "@/lib/report-data";
 import { getClassroomsList } from "@/lib/school-data";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -103,7 +104,38 @@ export default async function ReportsPage({
             ))}
           </div>
 
-          <div className="grid gap-3">
+          <MobileBladeList
+            items={visibleReports.map((report) => ({
+              id: report.id,
+              title: report.student.fullName,
+              subtitle: report.classroom?.name ?? "Class",
+              eyebrow: "Report",
+              badge: {
+                label: `${report.status.slice(0, 1)}${report.status.slice(1).toLowerCase()}`,
+                tone: report.status === "PUBLISHED" ? "success" : "default",
+              },
+              quickValue: String(report.grandTotal),
+              quickHint: report.position ?? "--",
+              summary:
+                "Review the current total, then jump into entry or preview without losing your place in the list.",
+              meta: [
+                { label: "Total", value: String(report.grandTotal) },
+                { label: "Position", value: report.position ?? "--" },
+                { label: "Class", value: report.classroom?.name ?? "Class" },
+                {
+                  label: "Status",
+                  value: `${report.status.slice(0, 1)}${report.status.slice(1).toLowerCase()}`,
+                },
+              ],
+              actions: [
+                { label: "Open sheet", href: `/reports/${report.id}`, tone: "accent" },
+                { label: "Preview", href: `/reports/${report.id}/preview` },
+              ],
+            }))}
+            emptyMessage="No reports yet in this class. Create a new student sheet to start."
+          />
+
+          <div className="hidden gap-3 sm:grid">
             {visibleReports.length ? (
               visibleReports.map((report) => (
                 <div
