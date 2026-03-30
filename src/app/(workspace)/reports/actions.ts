@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getDb } from "@/lib/db";
+import { requireServerSession } from "@/lib/auth-session";
 
 type ScoreUpdateInput = {
   id: string;
@@ -42,6 +43,8 @@ export async function updateReportScores(input: {
   teacherName: string;
   scores: ScoreUpdateInput[];
 }) {
+  await requireServerSession();
+
   const db = await getDb();
   if (!db) {
     return { ok: false };
@@ -127,6 +130,8 @@ export async function publishReportCard(input: {
   reportCardId: string;
   routeKey: string;
 }) {
+  await requireServerSession();
+
   const db = await getDb();
   if (!db) {
     return { ok: false };
@@ -149,6 +154,8 @@ export async function publishReportCard(input: {
 }
 
 export async function createOrOpenReportCard(input: { studentRouteKey: string }) {
+  await requireServerSession();
+
   const db = await getDb();
   if (!db) {
     return { ok: false, message: "Database unavailable." };
@@ -238,6 +245,8 @@ export async function createStudentReportCard(input: {
   fullName: string;
   classroomId: string;
 }) {
+  await requireServerSession();
+
   const db = await getDb();
   if (!db) {
     return { ok: false, message: "Database unavailable." };
@@ -398,6 +407,8 @@ export async function applyScannedReportPrefill(input: {
     position?: string | null;
   };
 }) {
+  await requireServerSession();
+
   const created = await createStudentReportCard({
     fullName: input.fullName,
     classroomId: input.classroomId,

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import { publishReportCard, updateReportScores } from "@/app/reports/actions";
+import { publishReportCard, updateReportScores } from "@/app/(workspace)/reports/actions";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { SectionCard } from "@/components/ui/SectionCard";
 

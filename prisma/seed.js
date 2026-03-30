@@ -459,7 +459,7 @@ async function main() {
   await prisma.student.deleteMany();
   await prisma.subject.deleteMany();
   await prisma.term.deleteMany();
-  await prisma.session.deleteMany();
+  await prisma.academicSession.deleteMany();
   await prisma.classroom.deleteMany();
   await prisma.school.deleteMany();
 
@@ -467,7 +467,7 @@ async function main() {
     data: { name: "Report Card Studio Demo School" },
   });
 
-  const session = await prisma.session.create({
+  const session = await prisma.academicSession.create({
     data: {
       name: "2024/2025",
       isActive: true,

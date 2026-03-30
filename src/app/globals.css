@@ -195,7 +195,7 @@ button {
 .soft-action-tint {
   background: color-mix(in srgb, var(--accent-soft) 88%, var(--surface) 12%);
   backdrop-filter: blur(18px);
-  box-shadow: var(--shadow-frost);
+  /* box-shadow: var(--shadow-frost);?\ */
   color: var(--accent-strong);
 }
 

@@ -2,10 +2,12 @@
 
 import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
+import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { BrandMark } from "@/components/ui/BrandMark";
+import { authClient } from "@/lib/auth-client";
 import { navItems } from "@/lib/navigation";
 
 function titleCaseSegment(segment: string) {
@@ -19,6 +21,10 @@ function titleCaseSegment(segment: string) {
 export function TopBar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { notify } = useFeedback();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const session = authClient.useSession();
+  const currentUser = session.data?.user;
 
   const breadcrumb = useMemo(() => {
     const root =
@@ -74,6 +80,38 @@ export function TopBar() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2 sm:flex-wrap sm:gap-3">
+          {currentUser ? (
+            <div className="hidden items-center gap-2 rounded-full surface-chip px-3 py-2 sm:flex">
+              <p className="max-w-[220px] truncate text-sm font-semibold text-[color:var(--text-strong)]">
+                {currentUser.email}
+              </p>
+              <button
+                type="button"
+                onClick={async () => {
+                  setIsSigningOut(true);
+                  try {
+                    const result = await authClient.signOut();
+
+                    if (result.error) {
+                      throw result.error;
+                    }
+
+                    notify("Signed out.", "success");
+                    router.push("/sign-in");
+                    router.refresh();
+                  } catch {
+                    notify("Could not sign out.", "error");
+                  } finally {
+                    setIsSigningOut(false);
+                  }
+                }}
+                className="soft-action inline-flex items-center rounded-full px-3 py-2 text-sm font-medium"
+              >
+                {isSigningOut ? "Signing out..." : "Sign out"}
+              </button>
+            </div>
+          ) : null}
+
           <Link
             href="/reports/new"
             className="soft-action-tint inline-flex items-center rounded-full px-3 py-2 text-sm font-semibold transition sm:px-4"

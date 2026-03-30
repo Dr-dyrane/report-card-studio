@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import {
   applyScannedReportPrefill,
   createStudentReportCard,
-} from "@/app/reports/actions";
+} from "@/app/(workspace)/reports/actions";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { useNewReportFlow } from "@/components/reports/NewReportFlowContext";
 import { SectionCard } from "@/components/ui/SectionCard";

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { auth } from "@/lib/auth";
+
 function cleanEnv(value?: string | null) {
   return value?.trim().replace(/^['"]|['"]$/g, "") || "";
 }
@@ -16,6 +18,14 @@ function extractFirstJsonObject(value: string) {
 }
 
 export async function POST(request: Request) {
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
+
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
   const body = (await request.json()) as {
     imageDataUrl?: string;
     studentName?: string;

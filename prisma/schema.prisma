@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -19,17 +20,21 @@ enum AssessmentMode {
 }
 
 model School {
-  id         String      @id @default(cuid())
+  id         String            @id @default(cuid())
   name       String
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  sessions   Session[]
+  ownerId    String?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  owner      User?             @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  sessions   AcademicSession[]
   classrooms Classroom[]
   students   Student[]
   subjects   Subject[]
+
+  @@index([ownerId])
 }
 
-model Session {
+model AcademicSession {
   id        String   @id @default(cuid())
   name      String
   isActive  Boolean  @default(false)
@@ -38,18 +43,20 @@ model Session {
   updatedAt DateTime @updatedAt
   school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   terms     Term[]
+
+  @@map("Session")
 }
 
 model Term {
-  id             String       @id @default(cuid())
+  id             String          @id @default(cuid())
   name           String
   sequence       Int
-  isActive       Boolean      @default(false)
+  isActive       Boolean         @default(false)
   sessionId      String
   nextTermBegins String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  session        Session      @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  session        AcademicSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   reportCards    ReportCard[]
 
   @@unique([sessionId, sequence])
@@ -155,4 +162,71 @@ model ReportScore {
   subject      Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   @@unique([reportCardId, subjectId])
+}
+
+model User {
+  id              String    @id
+  name            String
+  email           String
+  emailVerified   Boolean   @default(false)
+  image           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  username        String?
+  displayUsername String?
+  schools         School[]
+  sessions        Session[]
+  accounts        Account[]
+
+  @@unique([email])
+  @@unique([username])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
