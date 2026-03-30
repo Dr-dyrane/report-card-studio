@@ -1,6 +1,6 @@
-import { getReportCardByRouteKey } from "@/lib/report-data";
 import { ReportPreviewActions } from "@/components/reports/ReportPreviewActions";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { getReportCardByRouteKey } from "@/lib/report-data";
 
 export default async function ReportPreviewPage({
   params,
@@ -16,11 +16,7 @@ export default async function ReportPreviewPage({
   if (!report) {
     return (
       <div className="space-y-4 sm:space-y-6">
-        <PageHeader
-          eyebrow="Report preview"
-          title="Preview"
-          description="Not found"
-        />
+        <PageHeader eyebrow="Report preview" title="Preview" description="Not found" />
 
         <section className="frost-panel rounded-[24px] px-4 py-5 text-sm text-[color:var(--text-muted)] sm:px-6">
           This preview is not available yet.
@@ -32,11 +28,7 @@ export default async function ReportPreviewPage({
   return (
     <div className="report-preview-page space-y-4 sm:space-y-6">
       <div className="print:hidden">
-        <PageHeader
-          eyebrow="Report preview"
-          title="Preview"
-          description="Ready for print"
-        />
+        <PageHeader eyebrow="Report preview" title="Preview" description="Ready for print" />
       </div>
       <div className="print:hidden">
         <ReportPreviewActions />
@@ -56,14 +48,14 @@ export default async function ReportPreviewPage({
                 {report.classroom.name} Report Card
               </h1>
               <p className="mt-2 text-sm text-[color:var(--text-muted)] print:text-[10pt]">
-                {report.term.name} · {report.term.session.name}
+                {report.term.name} / {report.term.session.name}
               </p>
             </div>
             <div className="soft-action rounded-[18px] px-4 py-3 text-sm print:rounded-[12px] print:border print:border-slate-200 print:bg-white print:px-3 print:py-2">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
                 Status
               </p>
-              <p className="mt-1 font-semibold text-[color:var(--text-strong)]">
+              <p className="mt-1 font-semibold capitalize text-[color:var(--text-strong)]">
                 {report.status.toLowerCase()}
               </p>
             </div>
@@ -79,7 +71,10 @@ export default async function ReportPreviewPage({
                 ["Position", report.position ?? "--"],
                 ["Grand total", `${report.grandTotal} / ${report.grandMax}`],
               ].map(([label, value]) => (
-              <div key={label} className="surface-pocket rounded-[20px] px-4 py-4 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">
+                <div
+                  key={label}
+                  className="surface-pocket rounded-[20px] px-4 py-4 print:rounded-[12px] print:border print:border-slate-200 print:bg-white"
+                >
                   <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
                   <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)] print:text-[11pt]">
                     {value}
@@ -175,7 +170,7 @@ export default async function ReportPreviewPage({
                     <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
                       <div>
                         <p className="text-[color:var(--text-muted)]">
-                          A1 {row.subject.a1Max ? `· ${row.subject.a1Max}` : ""}
+                          A1 {row.subject.a1Max ? `/ ${row.subject.a1Max}` : ""}
                         </p>
                         <p className="mt-1 font-medium text-[color:var(--text-strong)]">
                           {row.a1Score ?? "--"}
@@ -183,7 +178,7 @@ export default async function ReportPreviewPage({
                       </div>
                       <div>
                         <p className="text-[color:var(--text-muted)]">
-                          A2 {row.subject.a2Max ? `· ${row.subject.a2Max}` : ""}
+                          A2 {row.subject.a2Max ? `/ ${row.subject.a2Max}` : ""}
                         </p>
                         <p className="mt-1 font-medium text-[color:var(--text-strong)]">
                           {row.a2Score ?? "--"}
@@ -191,7 +186,7 @@ export default async function ReportPreviewPage({
                       </div>
                       <div>
                         <p className="text-[color:var(--text-muted)]">
-                          Exam {row.subject.examMax ? `· ${row.subject.examMax}` : ""}
+                          Exam {row.subject.examMax ? `/ ${row.subject.examMax}` : ""}
                         </p>
                         <p className="mt-1 font-medium text-[color:var(--text-strong)]">
                           {row.examScore ?? "--"}

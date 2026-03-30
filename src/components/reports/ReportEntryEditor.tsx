@@ -10,8 +10,8 @@ import {
   updateReportScores,
 } from "@/app/(workspace)/reports/actions";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
-import { SectionCard } from "@/components/ui/SectionCard";
 import { ConfirmSurface } from "@/components/ui/ConfirmSurface";
+import { SectionCard } from "@/components/ui/SectionCard";
 
 type ScoreRow = {
   id: string;
@@ -91,6 +91,7 @@ export function ReportEntryEditor({
   const [comment, setComment] = useState(teacherComment);
   const [teacher, setTeacher] = useState(teacherName);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [activeRowId, setActiveRowId] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<"Saved" | "Saving" | "Unsaved" | "Retry">(
     "Saved",
   );
@@ -180,7 +181,7 @@ export function ReportEntryEditor({
 
       setSaveState("Retry");
       if (announce) {
-        notify("Save didn’t complete.", "error");
+        notify("Save didn't complete.", "error");
       }
     });
   }
@@ -188,6 +189,7 @@ export function ReportEntryEditor({
   function handlePublish() {
     startTransition(async () => {
       const saveSnapshot = createSnapshot(rows, comment, teacher);
+
       if (saveSnapshot !== lastSavedSnapshotRef.current) {
         const saveResult = await updateReportScores({
           reportCardId,
@@ -204,7 +206,7 @@ export function ReportEntryEditor({
 
         if (!saveResult.ok) {
           setSaveState("Retry");
-          notify("Save didn’t complete.", "error");
+          notify("Save didn't complete.", "error");
           return;
         }
 
@@ -218,7 +220,7 @@ export function ReportEntryEditor({
       });
 
       if (!publishResult.ok) {
-        notify("Publish didn’t complete.", "error");
+        notify("Publish didn't complete.", "error");
         return;
       }
 
@@ -259,7 +261,7 @@ export function ReportEntryEditor({
     setSaveState("Unsaved");
   }
 
-  function scoreInput(
+  function renderScoreInput(
     rowId: string,
     field: "a1" | "a2" | "exam",
     value: string,
@@ -270,13 +272,23 @@ export function ReportEntryEditor({
         value={value}
         onChange={(event) => updateCell(rowId, field, event.target.value)}
         onBlur={() => saveIfNeeded()}
+        onFocus={() => setActiveRowId(rowId)}
         inputMode="numeric"
         placeholder="--"
-                      className={`surface-input rounded-[18px] px-3 py-3 font-semibold text-[color:var(--text-strong)] outline-none ${
+        className={`surface-input rounded-[18px] px-3 py-3 font-semibold text-[color:var(--text-strong)] outline-none transition focus:shadow-[0_0_0_1px_var(--accent-border),var(--shadow-frost)] ${
           mobile ? "w-full text-center text-lg" : "w-20 text-right"
         }`}
       />
     );
+  }
+
+  function renderSaveMessage() {
+    if (isPending) return "Saving...";
+    if (!hasEnteredScores) return "Saved totals stay in view until subject entry begins.";
+    if (saveState === "Saved") return "All changes saved.";
+    if (saveState === "Unsaved") return "Changes not saved yet.";
+    if (saveState === "Retry") return "Save didn't complete. Try again.";
+    return "Saving...";
   }
 
   return (
@@ -287,9 +299,15 @@ export function ReportEntryEditor({
             <form className="space-y-3 sm:hidden">
               {rows.map((row) => {
                 const rowTotal = computeRowTotal(row);
+                const rowIsActive = activeRowId === row.id;
 
                 return (
-                  <div key={row.id} className="frost-panel-soft rounded-[24px] px-4 py-4">
+                  <div
+                    key={row.id}
+                    className={`rounded-[24px] px-4 py-4 transition ${
+                      rowIsActive ? "soft-action-tint" : "frost-panel-soft"
+                    }`}
+                  >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="font-semibold text-[color:var(--text-strong)]">
@@ -309,19 +327,21 @@ export function ReportEntryEditor({
                         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                           A1
                         </p>
-                        <div className="mt-2">{scoreInput(row.id, "a1", row.a1, true)}</div>
+                        <div className="mt-2">{renderScoreInput(row.id, "a1", row.a1, true)}</div>
                       </label>
                       <label className="block">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                           A2
                         </p>
-                        <div className="mt-2">{scoreInput(row.id, "a2", row.a2, true)}</div>
+                        <div className="mt-2">{renderScoreInput(row.id, "a2", row.a2, true)}</div>
                       </label>
                       <label className="block">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                           Exam
                         </p>
-                        <div className="mt-2">{scoreInput(row.id, "exam", row.exam, true)}</div>
+                        <div className="mt-2">
+                          {renderScoreInput(row.id, "exam", row.exam, true)}
+                        </div>
                       </label>
                     </div>
                   </div>
@@ -343,19 +363,26 @@ export function ReportEntryEditor({
                 <tbody className="bg-[color:var(--surface)] text-sm">
                   {rows.map((row, index) => {
                     const rowTotal = computeRowTotal(row);
+                    const rowIsActive = activeRowId === row.id;
 
                     return (
                       <tr
                         key={row.id}
                         className={`${index % 2 === 0 ? "table-row-odd" : ""} transition`}
-                        style={{ backgroundColor: index % 2 === 0 ? "var(--table-row-odd)" : undefined }}
+                        style={{
+                          backgroundColor: rowIsActive
+                            ? "var(--surface-raised)"
+                            : index % 2 === 0
+                              ? "var(--table-row-odd)"
+                              : undefined,
+                        }}
                       >
                         <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
                           {row.subject}
                         </td>
-                        <td className="px-4 py-4">{scoreInput(row.id, "a1", row.a1)}</td>
-                        <td className="px-4 py-4">{scoreInput(row.id, "a2", row.a2)}</td>
-                        <td className="px-4 py-4">{scoreInput(row.id, "exam", row.exam)}</td>
+                        <td className="px-4 py-4">{renderScoreInput(row.id, "a1", row.a1)}</td>
+                        <td className="px-4 py-4">{renderScoreInput(row.id, "a2", row.a2)}</td>
+                        <td className="px-4 py-4">{renderScoreInput(row.id, "exam", row.exam)}</td>
                         <td className="px-4 py-4 text-right">
                           <span className="soft-action-tint inline-flex min-w-12 items-center justify-center rounded-full px-3 py-1 font-semibold">
                             {rowTotal}
@@ -397,8 +424,9 @@ export function ReportEntryEditor({
                 setComment(event.target.value);
                 setSaveState("Unsaved");
               }}
+              onFocus={() => setActiveRowId(null)}
               onBlur={() => saveIfNeeded()}
-                className="surface-input mt-3 min-h-24 w-full rounded-[18px] px-4 py-3 text-sm leading-6 text-[color:var(--text-base)] outline-none"
+              className="surface-input mt-3 min-h-24 w-full rounded-[18px] px-4 py-3 text-sm leading-6 text-[color:var(--text-base)] outline-none transition focus:shadow-[0_0_0_1px_var(--accent-border),var(--shadow-frost)]"
             />
           </div>
 
@@ -412,27 +440,16 @@ export function ReportEntryEditor({
                 setTeacher(event.target.value);
                 setSaveState("Unsaved");
               }}
+              onFocus={() => setActiveRowId(null)}
               onBlur={() => saveIfNeeded()}
-                className="surface-input mt-3 w-full rounded-[18px] px-4 py-3 text-sm leading-6 text-[color:var(--text-base)] outline-none"
+              className="surface-input mt-3 w-full rounded-[18px] px-4 py-3 text-sm leading-6 text-[color:var(--text-base)] outline-none transition focus:shadow-[0_0_0_1px_var(--accent-border),var(--shadow-frost)]"
             />
           </div>
         </div>
 
         <div className="surface-pocket mt-3 rounded-[24px] px-4 py-4 sm:mt-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            <p className="text-sm text-[color:var(--text-muted)]">
-              {isPending
-                ? "Saving…"
-                : hasEnteredScores
-                  ? saveState === "Saved"
-                    ? "Saved. Totals stay in sync."
-                    : saveState === "Unsaved"
-                      ? "Unsaved changes."
-                      : saveState === "Retry"
-                        ? "Save didn’t complete. Try again."
-                        : "Saving…"
-                  : "Saved totals are shown until subject entry begins."}
-            </p>
+            <p className="text-sm text-[color:var(--text-muted)]">{renderSaveMessage()}</p>
             <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
               <button
                 type="button"
@@ -487,7 +504,7 @@ export function ReportEntryEditor({
                     href={previousReport.href}
                     className="soft-action rounded-full px-4 py-2 text-sm font-medium"
                   >
-                    Previous · {previousReport.label}
+                    Previous: {previousReport.label}
                   </Link>
                 ) : null}
                 {nextReport ? (
@@ -495,7 +512,7 @@ export function ReportEntryEditor({
                     href={nextReport.href}
                     className="soft-action rounded-full px-4 py-2 text-sm font-medium"
                   >
-                    Next · {nextReport.label}
+                    Next: {nextReport.label}
                   </Link>
                 ) : null}
               </div>
@@ -532,10 +549,10 @@ export function ReportEntryEditor({
             </div>
           ))}
 
-          <div className="rounded-[22px] bg-[color:rgba(232,246,238,0.84)] px-4 py-4 text-sm leading-6 text-[color:var(--success)] shadow-[var(--shadow-frost)]">
+          <div className="rounded-[22px] bg-[color:var(--success-soft)] px-4 py-4 text-sm leading-6 text-[color:var(--success)] shadow-[var(--shadow-frost)]">
             {hasEnteredScores
               ? "Totals update live."
-              : "Saved report totals are shown until subject entry begins."}
+              : "Saved report totals stay visible until subject entry begins."}
           </div>
         </div>
       </SectionCard>

@@ -66,7 +66,7 @@ export default async function ReportsPage({
         ))}
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.24fr_0.76fr]">
+      <section>
         <SectionCard title="Current">
           <div className="mb-4 flex flex-wrap gap-2">
             <Link
@@ -92,7 +92,7 @@ export default async function ReportsPage({
             ))}
           </div>
 
-          <div className="mb-4 flex flex-wrap gap-2">
+          <div className="mb-4 flex flex-wrap gap-2 xl:hidden">
             {visibleReports.slice(0, 6).map((report) => (
               <Link
                 key={`${report.id}-pill`}
@@ -152,18 +152,19 @@ export default async function ReportsPage({
                   {visibleReports.map((report, index) => (
                     <tr
                       key={report.id}
+                      className="transition hover:bg-[color:var(--surface-muted)]/70"
                       style={{
                         backgroundColor:
                           index % 2 === 0 ? "var(--table-row-odd)" : undefined,
                       }}
                     >
-                      <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
+                      <td className="px-4 py-3.5 font-semibold text-[color:var(--text-strong)]">
                         {report.student.fullName}
                       </td>
-                      <td className="px-4 py-4 text-[color:var(--text-muted)]">
+                      <td className="px-4 py-3.5 text-[color:var(--text-muted)]">
                         {report.classroom?.name ?? "Class"}
                       </td>
-                      <td className="px-4 py-4">
+                      <td className="px-4 py-3.5">
                         <span
                           className={`rounded-full px-3 py-1 text-xs font-semibold ${
                             report.status === "PUBLISHED"
@@ -176,13 +177,13 @@ export default async function ReportsPage({
                             .toLowerCase()}`}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-right font-semibold text-[color:var(--text-strong)]">
+                      <td className="px-4 py-3.5 text-right font-semibold text-[color:var(--text-strong)]">
                         {report.grandTotal}
                       </td>
-                      <td className="px-4 py-4 text-right text-[color:var(--text-base)]">
+                      <td className="px-4 py-3.5 text-right text-[color:var(--text-base)]">
                         {report.position ?? "--"}
                       </td>
-                      <td className="px-4 py-4 text-right">
+                      <td className="px-4 py-3.5 text-right">
                         <div className="flex justify-end gap-2">
                           <Link
                             href={`/reports/${report.id}`}
@@ -209,68 +210,6 @@ export default async function ReportsPage({
             )}
           </div>
         </SectionCard>
-
-        <div className="hidden xl:grid xl:gap-4">
-          <SectionCard title="Snapshot">
-            <div className="grid gap-3 sm:grid-cols-2">
-              {[
-                ["Visible", String(visibleReports.length)],
-                ["Published", String(published)],
-                ["Drafts", String(drafts)],
-                ["Ready", String(ready)],
-              ].map(([label, value], index) => (
-                <div
-                  key={label}
-                  className={`rounded-[22px] px-4 py-4 ${
-                    index === 1 ? "soft-action-tint" : "surface-pocket"
-                  }`}
-                >
-                  <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
-                  <p className="mt-2 text-3xl font-semibold text-[color:var(--text-strong)]">
-                    {value}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </SectionCard>
-
-          <SectionCard title="Top ready">
-            {visibleReports.slice(0, 4).length ? (
-              <div className="grid gap-3">
-                {visibleReports.slice(0, 4).map((report) => (
-                  <Link
-                    key={`${report.id}-side`}
-                    href={`/reports/${report.id}`}
-                    className="surface-pocket surface-hover block rounded-[22px] px-4 py-4 transition"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="font-semibold text-[color:var(--text-strong)]">
-                          {report.student.fullName}
-                        </p>
-                        <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-                          {report.classroom?.name ?? "Class"}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-[color:var(--text-strong)]">
-                          {report.grandTotal}
-                        </p>
-                        <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-                          {report.position ?? "--"}
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="soft-action rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
-                No reports yet in this class.
-              </div>
-            )}
-          </SectionCard>
-        </div>
       </section>
     </div>
   );
