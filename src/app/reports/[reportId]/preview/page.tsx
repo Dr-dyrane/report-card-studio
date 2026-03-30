@@ -31,34 +31,44 @@ export default async function ReportPreviewPage({
 
   return (
     <div className="report-preview-page space-y-4 sm:space-y-6">
-      <PageHeader
-        eyebrow="Report preview"
-        title="Preview"
-        description="Ready for print"
-      />
-      <ReportPreviewActions />
+      <div className="print:hidden">
+        <PageHeader
+          eyebrow="Report preview"
+          title="Preview"
+          description="Ready for print"
+        />
+      </div>
+      <div className="print:hidden">
+        <ReportPreviewActions />
+      </div>
 
-      <article className="report-print-card frost-panel rounded-[26px] px-4 py-4 sm:px-6 sm:py-6">
-        <header className="mb-4 flex flex-col gap-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
+      <article className="report-print-card frost-panel rounded-[28px] px-4 py-4 sm:px-6 sm:py-6 xl:px-8 xl:py-8">
+        <header className="mb-5 flex flex-col gap-1 border-b border-white/35 pb-4 print:mb-4 print:border-b print:border-slate-200 print:pb-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
             Report card
           </p>
-        </header>
-
-        <div className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
-          <section className="grid gap-4">
+          <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
-                School name
-              </p>
-              <h2 className="mt-3 font-display text-3xl leading-[0.98] text-[color:var(--text-strong)] sm:text-4xl">
+              <h1 className="font-display text-[2.2rem] leading-[0.98] text-[color:var(--text-strong)] sm:text-5xl print:text-[26pt]">
                 {report.classroom.name} Report Card
-              </h2>
-              <p className="mt-3 text-sm text-[color:var(--text-muted)]">
+              </h1>
+              <p className="mt-2 text-sm text-[color:var(--text-muted)] print:text-[10pt]">
                 {report.term.name} · {report.term.session.name}
               </p>
             </div>
+            <div className="soft-action rounded-[18px] px-4 py-3 text-sm print:rounded-[12px] print:border print:border-slate-200 print:bg-white print:px-3 print:py-2">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
+                Status
+              </p>
+              <p className="mt-1 font-semibold text-[color:var(--text-strong)]">
+                {report.status.toLowerCase()}
+              </p>
+            </div>
+          </div>
+        </header>
 
+        <div className="report-print-summary grid gap-4 xl:grid-cols-[1.08fr_0.92fr] print:grid-cols-[1.1fr_0.9fr]">
+          <section className="grid gap-4">
             <div className="grid gap-3 sm:grid-cols-2">
               {[
                 ["Student", report.student.fullName],
@@ -66,9 +76,9 @@ export default async function ReportPreviewPage({
                 ["Position", report.position ?? "--"],
                 ["Grand total", `${report.grandTotal} / ${report.grandMax}`],
               ].map(([label, value]) => (
-                <div key={label} className="surface-pocket rounded-[20px] px-4 py-4">
+                <div key={label} className="surface-pocket rounded-[20px] px-4 py-4 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">
                   <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
-                  <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)]">
+                  <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)] print:text-[11pt]">
                     {value}
                   </p>
                 </div>
@@ -85,12 +95,12 @@ export default async function ReportPreviewPage({
             ].map(([label, value], index) => (
               <div
                 key={label}
-                className={`rounded-[20px] px-4 py-4 ${
+                className={`rounded-[20px] px-4 py-4 print:rounded-[12px] print:border print:border-slate-200 print:bg-white ${
                   index === 3 ? "soft-action-tint" : "surface-pocket"
                 }`}
               >
                 <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
-                <p className="mt-2 text-2xl font-semibold text-[color:var(--text-strong)]">
+                <p className="mt-2 text-2xl font-semibold text-[color:var(--text-strong)] print:text-[13pt]">
                   {value}
                 </p>
               </div>
@@ -98,12 +108,12 @@ export default async function ReportPreviewPage({
           </aside>
         </div>
 
-        <section className="mt-5">
+        <section className="mt-6 print:mt-5">
           {hasSubjectScores ? (
             <>
-              <div className="hidden overflow-hidden rounded-[22px] bg-white/72 sm:block">
-                <table className="min-w-full border-separate border-spacing-0">
-                  <thead className="bg-white/50 text-left text-sm text-[color:var(--text-muted)]">
+              <div className="hidden overflow-hidden rounded-[22px] bg-white/72 ring-1 ring-white/40 print:block print:rounded-[12px] print:bg-white print:ring-slate-200 sm:block">
+                <table className="report-print-table min-w-full border-separate border-spacing-0">
+                  <thead className="bg-white/50 text-left text-sm text-[color:var(--text-muted)] print:bg-slate-50 print:text-[10pt]">
                     <tr>
                       <th className="px-4 py-3 font-medium">Subject</th>
                       <th className="px-4 py-3 text-right font-medium">A1 Max</th>
@@ -115,9 +125,9 @@ export default async function ReportPreviewPage({
                       <th className="px-4 py-3 text-right font-medium">Total</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white text-sm">
+                  <tbody className="bg-white text-sm print:text-[10pt]">
                     {report.scores.map((row) => (
-                      <tr key={row.id} className="odd:bg-white/10">
+                      <tr key={row.id} className="odd:bg-white/10 print:break-inside-avoid">
                         <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
                           {row.subject.name}
                         </td>
@@ -142,7 +152,7 @@ export default async function ReportPreviewPage({
                 </table>
               </div>
 
-              <div className="grid gap-3 sm:hidden">
+              <div className="grid gap-3 print:hidden sm:hidden">
                 {report.scores.map((row) => (
                   <div key={row.id} className="surface-pocket rounded-[20px] px-4 py-4">
                     <div className="flex items-start justify-between gap-3">
@@ -184,7 +194,7 @@ export default async function ReportPreviewPage({
               </div>
             </>
           ) : (
-            <div className="surface-pocket rounded-[22px] px-5 py-6 sm:px-6 sm:py-7">
+            <div className="surface-pocket rounded-[22px] px-5 py-6 sm:px-6 sm:py-7 print:border print:border-slate-200 print:bg-white">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
                 Subject rows
               </p>
@@ -200,6 +210,25 @@ export default async function ReportPreviewPage({
             </div>
           )}
         </section>
+
+        <footer className="mt-6 grid gap-3 sm:grid-cols-[1fr_0.4fr] print:mt-5">
+          <div className="surface-pocket rounded-[22px] px-4 py-4 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
+              Teacher comment
+            </p>
+            <p className="mt-3 text-sm leading-6 text-[color:var(--text-base)] print:text-[10pt]">
+              {report.teacherComment ?? "No comment yet."}
+            </p>
+          </div>
+          <div className="surface-pocket rounded-[22px] px-4 py-4 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
+              Teacher
+            </p>
+            <p className="mt-3 text-sm font-semibold text-[color:var(--text-strong)] print:text-[10pt]">
+              {report.classroom.teacherName ?? "Class teacher"}
+            </p>
+          </div>
+        </footer>
       </article>
     </div>
   );
