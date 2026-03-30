@@ -51,6 +51,16 @@ const fallbackClassrooms = [
     teacherName: "Mrs. Class Teacher",
     studentCount: 20,
     activeReports: 20,
+    students: [
+      "Student 1",
+      "Student 2",
+      "Student 3",
+      "Student 4",
+      "Student 5",
+      "Student 6",
+      "Student 7",
+      "Student 8",
+    ],
   },
   {
     id: "primary-5-rose",
@@ -58,6 +68,7 @@ const fallbackClassrooms = [
     teacherName: "Mrs. Rose Teacher",
     studentCount: 0,
     activeReports: 0,
+    students: [],
   },
   {
     id: "primary-4-iris",
@@ -65,6 +76,7 @@ const fallbackClassrooms = [
     teacherName: "Mr. Iris Teacher",
     studentCount: 0,
     activeReports: 0,
+    students: [],
   },
 ];
 
@@ -135,7 +147,8 @@ export async function getClassroomsList() {
       },
       include: {
         students: {
-          select: { id: true },
+          select: { id: true, fullName: true },
+          orderBy: [{ fullName: "asc" }],
         },
         reportCards: {
           select: { id: true },
@@ -152,6 +165,7 @@ export async function getClassroomsList() {
       teacherName: classroom.teacherName ?? null,
       studentCount: classroom.students.length,
       activeReports: classroom.reportCards.length,
+      students: classroom.students.map((student) => student.fullName),
     }));
   } catch {
     return fallbackClassrooms;

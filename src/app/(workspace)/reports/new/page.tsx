@@ -33,6 +33,7 @@ export default async function NewReportPage({
             name: classroom.name,
             studentCount: classroom.studentCount,
             activeReports: classroom.activeReports,
+            students: classroom.students ?? [],
           }))}
         />
       </NewReportFlowProvider>

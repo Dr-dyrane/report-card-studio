@@ -32,9 +32,11 @@ type ScanExtraction = {
 };
 
 type FlowMode = "manual" | "scan";
+type StudentMode = "new" | "existing";
 
 type PersistedState = {
   mode: FlowMode;
+  studentMode: StudentMode;
   selectedClassroomId: string;
   classQuery: string;
   studentName: string;
@@ -47,6 +49,7 @@ type PersistedState = {
 
 type NewReportFlowContextValue = PersistedState & {
   setMode: (mode: FlowMode) => void;
+  setStudentMode: (mode: StudentMode) => void;
   setSelectedClassroomId: (value: string) => void;
   setClassQuery: (value: string) => void;
   setStudentName: (value: string) => void;
@@ -73,6 +76,7 @@ export function NewReportFlowProvider({
 }) {
   const [hydrated, setHydrated] = useState(false);
   const [mode, setModeState] = useState<FlowMode>(initialMode);
+  const [studentMode, setStudentModeState] = useState<StudentMode>("new");
   const [selectedClassroomId, setSelectedClassroomId] = useState(initialClassroomId);
   const [classQuery, setClassQuery] = useState("");
   const [studentName, setStudentName] = useState("");
@@ -92,6 +96,7 @@ export function NewReportFlowProvider({
 
       const parsed = JSON.parse(raw) as Partial<PersistedState>;
       setModeState(parsed.mode === "scan" ? "scan" : initialMode);
+      setStudentModeState(parsed.studentMode === "existing" ? "existing" : "new");
       setSelectedClassroomId(parsed.selectedClassroomId || initialClassroomId);
       setClassQuery(parsed.classQuery || "");
       setStudentName(parsed.studentName || "");
@@ -116,6 +121,7 @@ export function NewReportFlowProvider({
 
     const payload: PersistedState = {
       mode,
+      studentMode,
       selectedClassroomId,
       classQuery,
       studentName,
@@ -132,6 +138,7 @@ export function NewReportFlowProvider({
     currentStep,
     hydrated,
     mode,
+    studentMode,
     scanExtraction,
     scanPreviewUrl,
     scanStatus,
@@ -152,6 +159,7 @@ export function NewReportFlowProvider({
 
     const setMode = (nextMode: FlowMode) => {
       setModeState(nextMode);
+      setStudentModeState("new");
       setCurrentStepState(0);
       setVisitedSteps([0]);
       setScanPreviewUrl(null);
@@ -159,8 +167,13 @@ export function NewReportFlowProvider({
       setScanStatus("Ready");
     };
 
+    const setStudentMode = (nextMode: StudentMode) => {
+      setStudentModeState(nextMode);
+    };
+
     const resetFlow = () => {
       setModeState(initialMode);
+      setStudentModeState("new");
       setSelectedClassroomId(initialClassroomId);
       setClassQuery("");
       setStudentName("");
@@ -174,6 +187,7 @@ export function NewReportFlowProvider({
 
     return {
       mode,
+      studentMode,
       selectedClassroomId,
       classQuery,
       studentName,
@@ -183,6 +197,7 @@ export function NewReportFlowProvider({
       currentStep,
       visitedSteps,
       setMode,
+      setStudentMode,
       setSelectedClassroomId,
       setClassQuery,
       setStudentName,
@@ -199,6 +214,7 @@ export function NewReportFlowProvider({
     initialClassroomId,
     initialMode,
     mode,
+    studentMode,
     scanExtraction,
     scanPreviewUrl,
     scanStatus,

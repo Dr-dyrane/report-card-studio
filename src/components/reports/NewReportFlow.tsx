@@ -25,6 +25,7 @@ type ClassroomOption = {
   name: string;
   studentCount: number;
   activeReports: number;
+  students: string[];
 };
 
 type ScanExtraction = {
@@ -60,6 +61,11 @@ function normalizeName(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
+function buildSuggestedStudentName(classroom: ClassroomOption | null) {
+  if (!classroom) return "";
+  return `Student ${classroom.studentCount + 1}`;
+}
+
 export function NewReportFlow({
   classrooms,
 }: {
@@ -70,6 +76,7 @@ export function NewReportFlow({
   const { notify } = useFeedback();
   const {
     mode,
+    studentMode,
     selectedClassroomId,
     classQuery,
     studentName,
@@ -79,6 +86,7 @@ export function NewReportFlow({
     currentStep,
     visitedSteps,
     setMode,
+    setStudentMode,
     setSelectedClassroomId,
     setClassQuery,
     setStudentName,
@@ -94,6 +102,7 @@ export function NewReportFlow({
   const [scanStageIndex, setScanStageIndex] = useState(0);
   const [isPending, startTransition] = useTransition();
   const studentInputRef = useRef<HTMLInputElement | null>(null);
+  const previousSuggestedNameRef = useRef("");
 
   const scanStages = useMemo(
     () => [
@@ -182,6 +191,21 @@ export function NewReportFlow({
 
     return classrooms.filter((classroom) => classroom.name.toLowerCase().includes(query));
   }, [classQuery, classrooms]);
+  const suggestedStudentName = useMemo(
+    () => buildSuggestedStudentName(selectedClassroom),
+    [selectedClassroom],
+  );
+  const classroomStudents = useMemo(
+    () => selectedClassroom?.students ?? [],
+    [selectedClassroom],
+  );
+  const studentQuery = studentName.trim().toLowerCase();
+  const filteredExistingStudents = useMemo(() => {
+    if (!studentQuery) return classroomStudents.slice(0, 8);
+    return classroomStudents
+      .filter((name) => name.toLowerCase().includes(studentQuery))
+      .slice(0, 8);
+  }, [classroomStudents, studentQuery]);
 
   useEffect(() => {
     if (!selectedClassroomId || current?.id !== "student") return;
@@ -192,6 +216,32 @@ export function NewReportFlow({
 
     return () => window.cancelAnimationFrame(frame);
   }, [current?.id, selectedClassroomId]);
+
+  useEffect(() => {
+    if (!selectedClassroom) return;
+
+    if (!selectedClassroom.students.length && studentMode !== "new") {
+      setStudentMode("new");
+      return;
+    }
+
+    if (studentMode === "existing" && !studentName.trim()) {
+      setStudentName(selectedClassroom.students[0] ?? "");
+    }
+  }, [selectedClassroom, setStudentMode, setStudentName, studentMode, studentName]);
+
+  useEffect(() => {
+    if (!selectedClassroom || studentMode !== "new") return;
+
+    const previousSuggestedName = previousSuggestedNameRef.current;
+    const trimmedStudentName = studentName.trim();
+
+    if (!trimmedStudentName || trimmedStudentName === previousSuggestedName) {
+      setStudentName(suggestedStudentName);
+    }
+
+    previousSuggestedNameRef.current = suggestedStudentName;
+  }, [selectedClassroom, setStudentName, studentMode, studentName, suggestedStudentName]);
 
   useEffect(() => {
     if (!isScanning) {
@@ -219,19 +269,35 @@ export function NewReportFlow({
   }, [currentStep, maxStep, setCurrentStep]);
 
   function syncDetectedContext(extraction: ScanExtraction) {
-    if (extraction.studentName?.trim()) {
-      setStudentName(studentName.trim() || extraction.studentName?.trim() || "");
-    }
+    let detectedClassroom = selectedClassroom;
 
     if (extraction.className?.trim()) {
-      const detectedClassroom = classrooms.find(
+      detectedClassroom =
+        classrooms.find(
         (classroom) =>
           normalizeName(classroom.name) === normalizeName(extraction.className ?? ""),
-      );
+        ) ?? selectedClassroom;
 
       if (detectedClassroom) {
         setSelectedClassroomId(detectedClassroom.id);
       }
+    }
+
+    if (extraction.studentName?.trim()) {
+      const detectedStudentName = extraction.studentName.trim();
+      const matchesExistingStudent = Boolean(
+        detectedClassroom?.students.some(
+          (name) => normalizeName(name) === normalizeName(detectedStudentName),
+        ),
+      );
+
+      setStudentMode(matchesExistingStudent ? "existing" : "new");
+      setStudentName(detectedStudentName);
+      return;
+    }
+
+    if (studentMode === "new" && detectedClassroom && !studentName.trim()) {
+      setStudentName(buildSuggestedStudentName(detectedClassroom));
     }
   }
 
@@ -511,27 +577,142 @@ export function NewReportFlow({
     if (current.id === "student") {
       return (
         <div className="grid gap-4">
-          <div className="surface-pocket rounded-[24px] px-5 py-5">
-            <p className="text-sm text-[color:var(--text-muted)]">Class</p>
-            <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)]">
-              {selectedClassroom?.name ?? "--"}
-            </p>
+          <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+            <div className="surface-pocket rounded-[24px] px-5 py-5">
+              <p className="text-sm text-[color:var(--text-muted)]">Class</p>
+              <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)]">
+                {selectedClassroom?.name ?? "--"}
+              </p>
+            </div>
           </div>
 
-          <input
-            ref={studentInputRef}
-            type="text"
-            value={studentName}
-            onChange={(event) => setStudentName(event.target.value)}
-            onKeyDown={handleStudentKeyDown}
-            placeholder="Student name"
-            className="surface-input w-full rounded-[22px] px-5 py-4 text-lg text-[color:var(--text-strong)] outline-none placeholder:text-[color:var(--text-muted)]"
-          />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => {
+                setStudentMode("existing");
+                if (!studentName.trim()) {
+                  setStudentName(classroomStudents[0] ?? "");
+                }
+              }}
+              disabled={!classroomStudents.length}
+              className={`rounded-[22px] px-5 py-5 text-left transition disabled:opacity-55 ${
+                studentMode === "existing" ? "soft-action-tint" : "soft-action"
+              }`}
+            >
+              <p className="text-sm text-[color:var(--text-muted)]">Existing</p>
+              <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)]">
+                Select a student
+              </p>
+              <p className="mt-2 text-sm leading-6 text-[color:var(--text-muted)]">
+                {classroomStudents.length
+                  ? `Open the current sheet for a student already in ${selectedClassroom?.name ?? "this class"}.`
+                  : "No students are in this class yet, so start with a new one."}
+              </p>
+            </button>
 
-          <div className="soft-action rounded-[22px] px-4 py-4 text-sm leading-6 text-[color:var(--text-muted)]">
-            {mode === "scan"
-              ? "The scan can suggest a name, but you can always adjust it before saving."
-              : "Press Enter to move on once the student name is ready."}
+            <button
+              type="button"
+              onClick={() => {
+                setStudentMode("new");
+                setStudentName(suggestedStudentName);
+              }}
+              disabled={!selectedClassroom}
+              className={`rounded-[22px] px-5 py-5 text-left transition disabled:opacity-55 ${
+                studentMode === "new" ? "soft-action-tint" : "soft-action"
+              }`}
+            >
+              <p className="text-sm text-[color:var(--text-muted)]">New</p>
+              <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)]">
+                {suggestedStudentName || "Create next student"}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-[color:var(--text-muted)]">
+                Start from the next student label, then rename it if you want.
+              </p>
+            </button>
+          </div>
+
+          {studentMode === "existing" ? (
+            <div className="grid gap-4">
+              {classroomStudents.length ? (
+                <>
+                  <input
+                    ref={studentInputRef}
+                    type="text"
+                    value={studentName}
+                    onChange={(event) => setStudentName(event.target.value)}
+                    onKeyDown={handleStudentKeyDown}
+                    placeholder="Find student"
+                    className="surface-input w-full rounded-[22px] px-5 py-4 text-lg text-[color:var(--text-strong)] outline-none placeholder:text-[color:var(--text-muted)]"
+                  />
+
+                  <div className="grid gap-2">
+                    {filteredExistingStudents.length ? (
+                      filteredExistingStudents.map((name) => (
+                        <button
+                          key={name}
+                          type="button"
+                          onClick={() => setStudentName(name)}
+                          className={`rounded-[18px] px-4 py-4 text-left transition ${
+                            studentName === name ? "soft-action-tint" : "soft-action"
+                          }`}
+                        >
+                          <p className="font-semibold text-[color:var(--text-strong)]">{name}</p>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="surface-pocket rounded-[18px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
+                        No student matches that name.
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="surface-pocket rounded-[22px] px-4 py-4 text-sm leading-6 text-[color:var(--text-muted)]">
+                  This class is still empty. Switch to <span className="font-semibold text-[color:var(--text-strong)]">New</span> to create the first student.
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+                <input
+                  ref={studentInputRef}
+                  type="text"
+                  value={studentName}
+                  onChange={(event) => setStudentName(event.target.value)}
+                  onKeyDown={handleStudentKeyDown}
+                  placeholder="Student name"
+                  className="surface-input w-full rounded-[22px] px-5 py-4 text-lg text-[color:var(--text-strong)] outline-none placeholder:text-[color:var(--text-muted)]"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setStudentName(suggestedStudentName)}
+                  disabled={!selectedClassroom}
+                  className="soft-action rounded-[22px] px-5 py-4 text-left disabled:opacity-60"
+                >
+                  <p className="text-sm text-[color:var(--text-muted)]">Next student</p>
+                  <p className="mt-2 font-semibold text-[color:var(--text-strong)]">
+                    {suggestedStudentName || "--"}
+                  </p>
+                </button>
+              </div>
+
+              <div className="surface-pocket rounded-[22px] px-4 py-4 text-sm leading-6 text-[color:var(--text-muted)]">
+                {mode === "scan"
+                  ? "Scan can replace the suggested name if the card provides one."
+                  : "The suggested next student name is ready, and you can edit it anytime."}
+              </div>
+            </div>
+          )}
+
+          <div className="surface-pocket rounded-[22px] px-4 py-4 text-sm leading-6 text-[color:var(--text-muted)]">
+            {studentMode === "existing"
+              ? classroomStudents.length
+                ? "Pick the student first, then Kradle opens the current term sheet."
+                : "This class has no saved students yet."
+              : "Create the next student quickly, with the option to rename before opening the sheet."}
           </div>
         </div>
       );
@@ -690,7 +871,9 @@ export function NewReportFlow({
             Open the new sheet
           </h3>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[color:var(--text-muted)]">
-            Kradle will create the student if needed, attach the active class, and open a clean report sheet with live totals.
+            {studentMode === "existing"
+              ? "Kradle will open the student's current term sheet if it already exists, or create it if the class is ready."
+              : "Kradle will create the student if needed, attach the active class, and open a clean report sheet with live totals."}
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="soft-action rounded-[20px] px-4 py-4">
