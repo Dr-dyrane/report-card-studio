@@ -43,7 +43,7 @@ export function SidebarNav() {
                   type="button"
                   onClick={() => setOpenGroupId(group.id)}
                   className={`flex w-full items-center justify-between rounded-[20px] px-3 py-2 text-left transition ${
-                    isOpen || hasActiveItem ? "surface-pocket" : "hover:bg-white/40"
+                isOpen || hasActiveItem ? "surface-pocket" : "surface-hover-soft"
                   }`}
                 >
                   <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
@@ -66,15 +66,15 @@ export function SidebarNav() {
                           href={item.href}
                           className={`group block rounded-[22px] px-4 py-4 transition ${
                             isActive
-                              ? "frost-panel bg-[color:rgba(231,240,255,0.86)] text-[color:var(--text-strong)]"
-                              : "text-[color:var(--text-base)] hover:bg-white/50"
+                              ? "soft-action-tint text-[color:var(--text-strong)]"
+                              : "text-[color:var(--text-base)] surface-hover-soft"
                           }`}
                         >
                           <div className="flex items-center gap-3">
                             <span
                               className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
                                 isActive
-                                  ? "bg-[color:var(--accent)] text-white"
+                                  ? "bg-[color:var(--accent)] text-[color:var(--surface)]"
                                   : "bg-[color:var(--highlight)] text-[color:var(--text-muted)]"
                               }`}
                             >

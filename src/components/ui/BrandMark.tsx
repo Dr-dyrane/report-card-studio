@@ -14,7 +14,7 @@ export function BrandMark({
   if (compact) {
     return (
       <div className="flex items-center gap-3">
-        <LogoCap className="h-11 w-11 rounded-[16px] bg-[rgba(231,240,255,0.92)] p-2.5 text-[color:var(--accent)] shadow-[0_20px_44px_rgba(47,111,237,0.16)]" />
+        <LogoCap className="surface-chip-strong h-11 w-11 rounded-[16px] p-2.5 text-[color:var(--accent)]" />
         <div className="min-w-0">
           <p className="truncate text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
             Kradle
@@ -31,7 +31,7 @@ export function BrandMark({
     <div className="surface-wash rounded-[28px] px-5 py-5">
       <div className={`flex items-start ${textOnly ? "" : "gap-4"}`}>
         {!textOnly ? (
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[22px] bg-[linear-gradient(145deg,rgba(231,240,255,0.98),rgba(255,255,255,0.9))] text-[color:var(--accent)] shadow-[0_22px_50px_rgba(47,111,237,0.14)]">
+          <div className="surface-chip-strong flex h-16 w-16 shrink-0 items-center justify-center rounded-[22px] text-[color:var(--accent)]">
             <LogoCap className="h-8 w-8" />
           </div>
         ) : null}

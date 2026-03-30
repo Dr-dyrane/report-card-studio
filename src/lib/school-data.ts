@@ -43,6 +43,30 @@ const fallbackStudents = [
   },
 ];
 
+const fallbackClassrooms = [
+  {
+    id: "primary-5-lavender",
+    name: "Primary 5 Lavender",
+    teacherName: "Mrs. Class Teacher",
+    studentCount: 20,
+    activeReports: 20,
+  },
+  {
+    id: "primary-5-rose",
+    name: "Primary 5 Rose",
+    teacherName: "Mrs. Rose Teacher",
+    studentCount: 0,
+    activeReports: 0,
+  },
+  {
+    id: "primary-4-iris",
+    name: "Primary 4 Iris",
+    teacherName: "Mr. Iris Teacher",
+    studentCount: 0,
+    activeReports: 0,
+  },
+];
+
 const fallbackSubjects = [
   {
     id: "mathematics",
@@ -96,6 +120,37 @@ const fallbackSubjects = [
 
 function slugify(value: string) {
   return value.toLowerCase().replace(/\s+/g, "-");
+}
+
+export async function getClassroomsList() {
+  try {
+    const db = await getDb();
+    if (!db) return fallbackClassrooms;
+
+    const classrooms = await db.classroom.findMany({
+      include: {
+        students: {
+          select: { id: true },
+        },
+        reportCards: {
+          select: { id: true },
+        },
+      },
+      orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
+    });
+
+    if (!classrooms.length) return fallbackClassrooms;
+
+    return classrooms.map((classroom) => ({
+      id: classroom.id,
+      name: classroom.name,
+      teacherName: classroom.teacherName ?? null,
+      studentCount: classroom.students.length,
+      activeReports: classroom.reportCards.length,
+    }));
+  } catch {
+    return fallbackClassrooms;
+  }
 }
 
 export async function getStudentsList() {

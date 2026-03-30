@@ -1,9 +1,16 @@
+import Link from "next/link";
+
+type HeaderAction = {
+  label: string;
+  href: string;
+};
+
 type PageHeaderProps = {
   eyebrow: string;
   title: string;
   description: string;
-  action?: string;
-  secondaryAction?: string;
+  action?: HeaderAction;
+  secondaryAction?: HeaderAction;
 };
 
 export function PageHeader({
@@ -29,14 +36,20 @@ export function PageHeader({
         </div>
         <div className="flex flex-wrap gap-2">
           {secondaryAction ? (
-            <button className="soft-action rounded-full px-4 py-2 text-sm font-medium transition hover:bg-white/84">
-              {secondaryAction}
-            </button>
+            <Link
+              href={secondaryAction.href}
+                className="soft-action surface-hover rounded-full px-4 py-2 text-sm font-medium transition"
+            >
+              {secondaryAction.label}
+            </Link>
           ) : null}
           {action ? (
-            <button className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold transition hover:bg-[rgba(231,240,255,0.96)]">
-              {action}
-            </button>
+            <Link
+              href={action.href}
+              className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold transition"
+            >
+              {action.label}
+            </Link>
           ) : null}
         </div>
       </div>

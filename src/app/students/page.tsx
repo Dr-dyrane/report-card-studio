@@ -1,51 +1,81 @@
 import Link from "next/link";
 
-import { getStudentsList } from "@/lib/school-data";
+import { getClassroomsList, getStudentsList } from "@/lib/school-data";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 
-export default async function StudentsPage() {
-  const students = await getStudentsList();
-  const published = students.filter((student) => student.status === "Published").length;
-  const drafts = students.length - published;
-  const average = students.length
+function slugify(value: string) {
+  return value.toLowerCase().replace(/\s+/g, "-");
+}
+
+export default async function StudentsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ class?: string }>;
+}) {
+  const [students, classrooms, resolvedSearchParams] = await Promise.all([
+    getStudentsList(),
+    getClassroomsList(),
+    searchParams,
+  ]);
+
+  const selectedClass = resolvedSearchParams?.class ?? "";
+  const visibleStudents = selectedClass
+    ? students.filter((student) => slugify(student.classroomName) === selectedClass)
+    : students;
+  const published = visibleStudents.filter(
+    (student) => student.status === "Published",
+  ).length;
+  const drafts = visibleStudents.length - published;
+  const average = visibleStudents.length
     ? Math.round(
-        students.reduce((sum, student) => sum + student.grandTotal, 0) / students.length,
+        visibleStudents.reduce((sum, student) => sum + student.grandTotal, 0) /
+          visibleStudents.length,
       )
     : 0;
-  const topStudent = students[0];
+  const topStudent = visibleStudents[0];
+  const selectedClassroomName =
+    classrooms.find((classroom) => slugify(classroom.name) === selectedClass)?.name ??
+    "All classes";
 
   return (
     <div className="space-y-4 sm:space-y-6">
       <PageHeader
         eyebrow="Students"
         title="Students"
-        description="Primary 5 Lavender"
-        action="Add"
-        secondaryAction="Import"
+        description={selectedClassroomName}
+        action={{ label: "Add", href: "/reports/new" }}
+        secondaryAction={{ label: "Import", href: "/reports/new?mode=scan" }}
       />
 
       <section className="grid gap-4 xl:grid-cols-[1.18fr_0.82fr]">
         <SectionCard title="Roster">
-          <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-5 sm:flex sm:flex-wrap sm:gap-3">
-            {[
-              "Search students",
-              "Class",
-              "Term",
-              "Status",
-              "Performance band",
-            ].map((filter) => (
-              <div
-                key={filter}
-                className="soft-action rounded-full px-3 py-2 text-center text-sm text-[color:var(--text-muted)] sm:px-4"
+          <div className="mb-4 flex flex-wrap gap-2 sm:mb-5 sm:gap-3">
+            <Link
+              href="/students"
+              className={`rounded-full px-3 py-2 text-center text-sm sm:px-4 ${
+                !selectedClass ? "soft-action-tint" : "soft-action"
+              }`}
+            >
+              All classes
+            </Link>
+            {classrooms.map((classroom) => (
+              <Link
+                key={classroom.id}
+                href={`/students?class=${slugify(classroom.name)}`}
+                className={`rounded-full px-3 py-2 text-center text-sm sm:px-4 ${
+                  selectedClass === slugify(classroom.name)
+                    ? "soft-action-tint"
+                    : "soft-action"
+                }`}
               >
-                {filter}
-              </div>
+                {classroom.name}
+              </Link>
             ))}
           </div>
 
           <div className="space-y-3 sm:hidden">
-            {students.map((student) => (
+            {visibleStudents.map((student) => (
               <div
                 key={student.id}
                 className="frost-panel-soft rounded-[24px] px-4 py-4"
@@ -99,11 +129,16 @@ export default async function StudentsPage() {
                 </div>
               </div>
             ))}
+            {!visibleStudents.length ? (
+              <div className="soft-action rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
+                No students yet in this class.
+              </div>
+            ) : null}
           </div>
 
           <div className="frost-panel-soft hidden overflow-hidden rounded-[22px] sm:block">
             <table className="min-w-full border-separate border-spacing-0">
-              <thead className="bg-white/40 text-left text-sm text-[color:var(--text-muted)]">
+              <thead className="table-head text-left text-sm text-[color:var(--text-muted)]">
                 <tr>
                   <th className="px-4 py-3 font-medium">Student</th>
                   <th className="px-4 py-3 font-medium">Class</th>
@@ -114,8 +149,13 @@ export default async function StudentsPage() {
                 </tr>
               </thead>
               <tbody className="bg-[color:var(--surface)] text-sm">
-                {students.map((student) => (
-                  <tr key={student.id} className="odd:bg-white/10">
+                {visibleStudents.map((student, index) => (
+                  <tr
+                    key={student.id}
+                    style={{
+                      backgroundColor: index % 2 === 0 ? "var(--table-row-odd)" : undefined,
+                    }}
+                  >
                     <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
                       {student.fullName}
                     </td>
@@ -153,21 +193,27 @@ export default async function StudentsPage() {
                 ))}
               </tbody>
             </table>
+            {!visibleStudents.length ? (
+              <div className="soft-action m-4 rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
+                No students yet in this class.
+              </div>
+            ) : null}
           </div>
         </SectionCard>
 
         <div className="grid gap-4">
           <SectionCard title="Snapshot">
-            <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-2">
               {[
-                ["Students", String(students.length)],
+                ["Students", String(visibleStudents.length)],
+                ["Classes", String(classrooms.length)],
                 ["Published", String(published)],
                 ["Average", String(average)],
               ].map(([label, value], index) => (
                 <div
                   key={label}
                   className={`rounded-[22px] px-4 py-4 ${
-                    index === 1 ? "soft-action-tint" : "surface-pocket"
+                    index === 2 ? "soft-action-tint" : "surface-pocket"
                   }`}
                 >
                   <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
@@ -183,7 +229,7 @@ export default async function StudentsPage() {
             {topStudent ? (
               <Link
                 href={topStudent.reportHref}
-                className="frost-panel-soft block rounded-[24px] px-4 py-4 transition hover:bg-[color:rgba(231,240,255,0.44)]"
+                className="frost-panel-soft block rounded-[24px] px-4 py-4 transition hover:bg-[color:var(--accent-soft)]"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div>
@@ -213,19 +259,23 @@ export default async function StudentsPage() {
                   </div>
                 </div>
               </Link>
-            ) : null}
+            ) : (
+              <div className="soft-action rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
+                No published totals yet in this class.
+              </div>
+            )}
           </SectionCard>
 
           <SectionCard title="Attention">
             <div className="grid gap-3">
-              {students
+              {visibleStudents
                 .filter((student) => student.grandTotal > 0)
                 .slice(-3)
                 .map((student) => (
                   <Link
                     key={student.id}
                     href={student.reportHref}
-                    className="surface-pocket block rounded-[22px] px-4 py-4 transition hover:bg-white/78"
+                    className="surface-pocket surface-hover block rounded-[22px] px-4 py-4 transition"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div>

@@ -1,9 +1,9 @@
 "use client";
 
+import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
 import { useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 
 import { BrandMark } from "@/components/ui/BrandMark";
 import { navItems } from "@/lib/navigation";
@@ -55,10 +55,7 @@ export function TopBar() {
               </button>
             ) : null}
             <div className="min-w-0">
-              <Link
-                href={breadcrumb.root.href}
-                className="inline-flex max-w-full items-center"
-              >
+              <Link href={breadcrumb.root.href} className="inline-flex max-w-full items-center">
                 {breadcrumb.isRootPage ? (
                   <BrandMark compact />
                 ) : (
@@ -77,9 +74,12 @@ export function TopBar() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2 sm:flex-wrap sm:gap-3">
-          <button className="soft-action-tint inline-flex items-center rounded-full px-3 py-2 text-sm font-semibold transition hover:bg-[rgba(231,240,255,0.96)] sm:px-4">
+          <Link
+            href="/reports/new"
+            className="soft-action-tint inline-flex items-center rounded-full px-3 py-2 text-sm font-semibold transition sm:px-4"
+          >
             New
-          </button>
+          </Link>
         </div>
       </div>
     </header>

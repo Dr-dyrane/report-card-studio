@@ -10,8 +10,8 @@ export default function ClassesPage() {
         eyebrow="Classes"
         title="Classes"
         description="Groups, teachers, progress."
-        action="Add"
-        secondaryAction="Assign"
+        action={{ label: "Add", href: "/classes" }}
+        secondaryAction={{ label: "Assign", href: "/subjects" }}
       />
 
       <SectionCard title="Class overview">
@@ -24,7 +24,7 @@ export default function ClassesPage() {
             <Link
               key={name}
               href={`/classes/${name.toLowerCase().replace(/\s+/g, "-")}`}
-              className="frost-panel-soft block rounded-[24px] px-5 py-5 transition hover:bg-white/75"
+              className="frost-panel-soft surface-hover block rounded-[24px] px-5 py-5 transition"
             >
               <p className="text-lg font-semibold text-[color:var(--text-strong)]">
                 {name}

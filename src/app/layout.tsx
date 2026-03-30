@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 
+import { FeedbackProvider } from "@/components/feedback/FeedbackProvider";
 import { AppShell } from "@/components/shell/AppShell";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { PwaRegistrar } from "@/components/pwa/PwaRegistrar";
 import "./globals.css";
 
@@ -37,10 +39,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (() => {
+                try {
+                  const stored = localStorage.getItem("kradle-theme");
+                  const theme = stored === "light" || stored === "dark" || stored === "system"
+                    ? stored
+                    : "system";
+                  const resolved = theme === "system"
+                    ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+                    : theme;
+                  document.documentElement.dataset.theme = resolved;
+                } catch {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-full font-sans">
-        <PwaRegistrar />
-        <AppShell>{children}</AppShell>
+        <FeedbackProvider>
+          <ThemeProvider>
+            <PwaRegistrar />
+            <AppShell>{children}</AppShell>
+          </ThemeProvider>
+        </FeedbackProvider>
       </body>
     </html>
   );

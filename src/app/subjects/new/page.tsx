@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Field, InputShell } from "@/components/ui/Field";
+import { FeedbackButton } from "@/components/ui/FeedbackButton";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 
@@ -11,8 +12,8 @@ export default function NewSubjectPage() {
         eyebrow="Subjects"
         title="New subject"
         description="Create a scoring rule."
-        action="Save"
-        secondaryAction="Back"
+        action={{ label: "Save", href: "/subjects" }}
+        secondaryAction={{ label: "Back", href: "/subjects" }}
       />
 
       <div className="grid gap-6 xl:grid-cols-[0.9fr_0.55fr]">
@@ -72,9 +73,12 @@ export default function NewSubjectPage() {
             >
               Cancel
             </Link>
-            <button className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold">
+            <FeedbackButton
+              message="Subject save is next."
+              className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold"
+            >
               Save
-            </button>
+            </FeedbackButton>
           </div>
         </div>
       </div>

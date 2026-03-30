@@ -20,7 +20,7 @@ export default async function ReportEntryPage({
           eyebrow="Report entry"
           title="Report"
           description="Not found"
-          action="New"
+          action={{ label: "New", href: "/reports/new" }}
         />
       </div>
     );

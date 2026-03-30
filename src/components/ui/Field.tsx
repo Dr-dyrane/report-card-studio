@@ -31,7 +31,7 @@ export function InputShell({
 }) {
   return (
     <div
-      className={`frost-pill rounded-[18px] px-4 py-3 text-[color:var(--text-base)] ${
+      className={`surface-input rounded-[18px] px-4 py-3 text-[color:var(--text-base)] ${
         compact ? "text-sm" : "text-sm leading-6"
       }`}
     >

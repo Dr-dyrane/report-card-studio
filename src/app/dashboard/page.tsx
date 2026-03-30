@@ -1,14 +1,71 @@
 import Link from "next/link";
 
+import { MetricExplorer } from "@/components/insights/MetricExplorer";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { StatCard } from "@/components/ui/StatCard";
 
 const stats = [
-  { label: "Students", value: "30", hint: "Primary 5 Lavender" },
-  { label: "Done", value: "20", hint: "This term" },
-  { label: "Average", value: "664", hint: "Class total" },
-  { label: "At risk", value: "6", hint: "Needs review" },
+  {
+    title: "Students",
+    value: "30",
+    hint: "Primary 5 Lavender",
+    details: {
+      summary: "Class roster coverage for the active term.",
+      points: [
+        "20 students already have working report sheets.",
+        "10 student records still need sheets created or reviewed.",
+        "Use the roster to jump straight into entry or preview.",
+      ],
+      actionLabel: "Open students",
+      actionHref: "/students",
+    },
+  },
+  {
+    title: "Done",
+    value: "20",
+    hint: "This term",
+    tone: "accent" as const,
+    details: {
+      summary: "Reports that are already ready for review or publication.",
+      points: [
+        "Published reports are available for print and PDF.",
+        "Draft reports can still be edited inline with live totals.",
+        "Use Reports to move quickly between active student sheets.",
+      ],
+      actionLabel: "Open reports",
+      actionHref: "/reports",
+    },
+  },
+  {
+    title: "Average",
+    value: "664",
+    hint: "Class total",
+    details: {
+      summary: "Current class average based on saved grand totals.",
+      points: [
+        "Top score is 825 and the lowest score is 530.",
+        "The spread suggests a healthy middle with a few students needing attention.",
+        "Open Insights for a fuller class-performance read.",
+      ],
+      actionLabel: "Open insights",
+      actionHref: "/analytics",
+    },
+  },
+  {
+    title: "At risk",
+    value: "6",
+    hint: "Needs review",
+    details: {
+      summary: "Students with weaker totals or incomplete score coverage.",
+      points: [
+        "Comprehension, dictation, and oral-reading areas still need attention.",
+        "These reports should be reviewed before final export.",
+        "Use the attention list to jump straight into the student sheet.",
+      ],
+      actionLabel: "Review students",
+      actionHref: "/students",
+    },
+  },
 ];
 
 const quickFlow = [
@@ -43,15 +100,13 @@ export default function DashboardPage() {
         eyebrow="Dashboard"
         title="Overview"
         description="Second Term, 2024/2025"
-        action="Students"
-        secondaryAction="Reports"
+        action={{ label: "Students", href: "/students" }}
+        secondaryAction={{ label: "Reports", href: "/reports" }}
       />
 
       <div className="grid w-full gap-3 md:grid-cols-[0.92fr_1.08fr]">
-        <section className="grid grid-cols-2 gap-3">
-          {stats.map((stat) => (
-            <StatCard key={stat.label} {...stat} />
-          ))}
+        <section>
+          <MetricExplorer title="Class performance" metrics={stats} />
         </section>
 
         <SectionCard title="Flow">
@@ -148,7 +203,7 @@ export default function DashboardPage() {
                     {subjects}
                   </p>
                 </div>
-                <span className="shrink-0 rounded-full bg-white/60 px-3 py-1 text-sm font-semibold text-[color:var(--text-strong)] shadow-[var(--shadow-frost)]">
+                    <span className="surface-chip shrink-0 rounded-full px-3 py-1 text-sm font-semibold text-[color:var(--text-strong)]">
                   {total}
                 </span>
               </Link>
@@ -162,7 +217,7 @@ export default function DashboardPage() {
               <p className="text-sm font-medium text-[color:var(--text-base)]">
                 Continue report entry
               </p>
-              <p className="mt-2 text-sm leading-5 text-[color:rgba(96,112,129,0.9)]">
+              <p className="mt-2 text-sm leading-5 text-[color:var(--text-muted)]">
                 Move from captured scores to checked totals and preview.
               </p>
               <div className="mt-4 flex gap-2">

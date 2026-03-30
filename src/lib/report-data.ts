@@ -7,6 +7,7 @@ const fallbackReportCards = [
     grandTotal: 678,
     position: "21st",
     student: { fullName: "Student 12" },
+    classroom: { name: "Primary 5 Lavender" },
   },
 ];
 
@@ -122,6 +123,7 @@ export async function getReportCards() {
     const reportCards = await db.reportCard.findMany({
       include: {
         student: true,
+        classroom: true,
       },
       orderBy: [{ grandTotal: "desc" }, { updatedAt: "desc" }],
     });

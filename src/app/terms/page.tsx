@@ -9,8 +9,8 @@ export default function TermsPage() {
         eyebrow="Terms"
         title="Terms"
         description="Sessions and academic periods."
-        action="New term"
-        secondaryAction="New session"
+        action={{ label: "New term", href: "/terms" }}
+        secondaryAction={{ label: "New session", href: "/terms" }}
       />
 
       <SectionCard title="Academic timeline">

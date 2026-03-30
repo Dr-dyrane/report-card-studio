@@ -30,15 +30,15 @@ export function BottomTabBar() {
                 aria-label={item.label}
                 className={`flex items-center justify-center rounded-[22px] px-2 py-2 transition ${
                   isActive
-                    ? "min-w-[4.65rem] gap-2 bg-[linear-gradient(180deg,rgba(231,240,255,0.98),rgba(221,233,255,0.88))] pr-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.75),0_10px_20px_rgba(47,111,237,0.12)]"
+                    ? "soft-action-tint min-w-[4.65rem] gap-2 pr-3"
                     : "h-11 w-11 bg-transparent"
                 }`}
               >
                 <div
                   className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
                     isActive
-                      ? "bg-white/80 text-[color:var(--accent-strong)]"
-                      : "bg-white/45 text-[color:var(--text-muted)]"
+                    ? "surface-chip-strong text-[color:var(--accent-strong)]"
+                    : "surface-chip text-[color:var(--text-muted)]"
                   }`}
                 >
                   <AppIcon name={item.icon} className="h-3.5 w-3.5" />

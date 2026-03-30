@@ -8,8 +8,8 @@ export default function ExportsPage() {
         eyebrow="Exports"
         title="Exports"
         description="PDF, Excel, CSV."
-        action="PDF"
-        secondaryAction="Excel"
+        action={{ label: "PDF", href: "/reports" }}
+        secondaryAction={{ label: "Excel", href: "/reports" }}
       />
 
       <SectionCard title="Files">

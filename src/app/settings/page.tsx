@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { Field, InputShell } from "@/components/ui/Field";
+import { ThemeToggleCard } from "@/components/theme/ThemeToggleCard";
 
 export default function SettingsPage() {
   return (
@@ -9,8 +10,8 @@ export default function SettingsPage() {
         eyebrow="Settings"
         title="Settings"
         description="School, grading, template."
-        action="Save"
-        secondaryAction="School"
+        action={{ label: "Save", href: "/settings" }}
+        secondaryAction={{ label: "School", href: "/settings" }}
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -42,6 +43,10 @@ export default function SettingsPage() {
           </div>
         </SectionCard>
       </div>
+
+      <SectionCard title="Appearance">
+        <ThemeToggleCard />
+      </SectionCard>
     </div>
   );
 }

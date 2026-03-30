@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useMemo, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
-import { updateReportScores } from "@/app/reports/actions";
+import { publishReportCard, updateReportScores } from "@/app/reports/actions";
+import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { SectionCard } from "@/components/ui/SectionCard";
 
 type ScoreRow = {
@@ -78,6 +80,8 @@ export function ReportEntryEditor({
   previousReport,
   nextReport,
 }: ReportEntryEditorProps) {
+  const router = useRouter();
+  const { notify } = useFeedback();
   const [rows, setRows] = useState(initialRows);
   const [comment, setComment] = useState(teacherComment);
   const [teacher, setTeacher] = useState(teacherName);
@@ -129,11 +133,14 @@ export function ReportEntryEditor({
     rows,
   ]);
 
-  function saveIfNeeded() {
+  function saveIfNeeded(announce = false) {
     const snapshot = createSnapshot(rows, comment, teacher);
 
     if (snapshot === lastSavedSnapshotRef.current) {
       setSaveState("Saved");
+      if (announce) {
+        notify("Nothing new to save.");
+      }
       return;
     }
 
@@ -159,10 +166,58 @@ export function ReportEntryEditor({
       if (result.ok) {
         lastSavedSnapshotRef.current = snapshot;
         setSaveState("Saved");
+        if (announce) {
+          notify("Saved.", "success");
+        }
         return;
       }
 
       setSaveState("Retry");
+      if (announce) {
+        notify("Save didn’t complete.", "error");
+      }
+    });
+  }
+
+  function handlePublish() {
+    startTransition(async () => {
+      const saveSnapshot = createSnapshot(rows, comment, teacher);
+      if (saveSnapshot !== lastSavedSnapshotRef.current) {
+        const saveResult = await updateReportScores({
+          reportCardId,
+          routeKey: reportId,
+          teacherComment: comment,
+          teacherName: teacher,
+          scores: rows.map((row) => ({
+            id: row.id,
+            a1: row.a1,
+            a2: row.a2,
+            exam: row.exam,
+          })),
+        });
+
+        if (!saveResult.ok) {
+          setSaveState("Retry");
+          notify("Save didn’t complete.", "error");
+          return;
+        }
+
+        lastSavedSnapshotRef.current = saveSnapshot;
+        setSaveState("Saved");
+      }
+
+      const publishResult = await publishReportCard({
+        reportCardId,
+        routeKey: reportId,
+      });
+
+      if (!publishResult.ok) {
+        notify("Publish didn’t complete.", "error");
+        return;
+      }
+
+      notify("Published.", "success");
+      router.refresh();
     });
   }
 
@@ -190,10 +245,10 @@ export function ReportEntryEditor({
       <input
         value={value}
         onChange={(event) => updateCell(rowId, field, event.target.value)}
-        onBlur={saveIfNeeded}
+        onBlur={() => saveIfNeeded()}
         inputMode="numeric"
         placeholder="--"
-        className={`rounded-[18px] bg-white/70 px-3 py-3 font-semibold text-[color:var(--text-strong)] shadow-[var(--shadow-frost)] outline-none ${
+                      className={`surface-input rounded-[18px] px-3 py-3 font-semibold text-[color:var(--text-strong)] outline-none ${
           mobile ? "w-full text-center text-lg" : "w-20 text-right"
         }`}
       />
@@ -252,7 +307,7 @@ export function ReportEntryEditor({
 
             <div className="surface-pocket hidden overflow-hidden rounded-[24px] sm:block">
               <table className="min-w-full border-separate border-spacing-y-2">
-                <thead className="bg-white/40 text-left text-sm text-[color:var(--text-muted)]">
+                <thead className="table-head text-left text-sm text-[color:var(--text-muted)]">
                   <tr>
                     <th className="px-4 py-3 font-medium">Subject</th>
                     <th className="px-4 py-3 text-right font-medium">A1</th>
@@ -262,13 +317,14 @@ export function ReportEntryEditor({
                   </tr>
                 </thead>
                 <tbody className="bg-[color:var(--surface)] text-sm">
-                  {rows.map((row) => {
+                  {rows.map((row, index) => {
                     const rowTotal = computeRowTotal(row);
 
                     return (
                       <tr
                         key={row.id}
-                        className="odd:bg-white/10 transition hover:bg-[color:rgba(231,240,255,0.56)]"
+                        className={`${index % 2 === 0 ? "table-row-odd" : ""} transition`}
+                        style={{ backgroundColor: index % 2 === 0 ? "var(--table-row-odd)" : undefined }}
                       >
                         <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
                           {row.subject}
@@ -317,8 +373,8 @@ export function ReportEntryEditor({
                 setComment(event.target.value);
                 setSaveState("Unsaved");
               }}
-              onBlur={saveIfNeeded}
-              className="mt-3 min-h-24 w-full rounded-[18px] bg-white/74 px-4 py-3 text-sm leading-6 text-[color:var(--text-base)] shadow-[var(--shadow-frost)] outline-none"
+              onBlur={() => saveIfNeeded()}
+                className="surface-input mt-3 min-h-24 w-full rounded-[18px] px-4 py-3 text-sm leading-6 text-[color:var(--text-base)] outline-none"
             />
           </div>
 
@@ -332,8 +388,8 @@ export function ReportEntryEditor({
                 setTeacher(event.target.value);
                 setSaveState("Unsaved");
               }}
-              onBlur={saveIfNeeded}
-              className="mt-3 w-full rounded-[18px] bg-white/74 px-4 py-3 text-sm leading-6 text-[color:var(--text-base)] shadow-[var(--shadow-frost)] outline-none"
+              onBlur={() => saveIfNeeded()}
+                className="surface-input mt-3 w-full rounded-[18px] px-4 py-3 text-sm leading-6 text-[color:var(--text-base)] outline-none"
             />
           </div>
         </div>
@@ -356,7 +412,7 @@ export function ReportEntryEditor({
             <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
               <button
                 type="button"
-                onClick={saveIfNeeded}
+                onClick={() => saveIfNeeded(true)}
                 disabled={isPending}
                 className="soft-action rounded-full px-4 py-2 text-sm font-medium"
               >
@@ -370,6 +426,8 @@ export function ReportEntryEditor({
               </Link>
               <button
                 type="button"
+                onClick={handlePublish}
+                disabled={isPending}
                 className="soft-action-tint col-span-2 rounded-full px-4 py-2 text-sm font-semibold sm:col-span-1"
               >
                 Publish

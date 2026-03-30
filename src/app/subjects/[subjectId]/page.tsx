@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Field, InputShell } from "@/components/ui/Field";
+import { FeedbackButton } from "@/components/ui/FeedbackButton";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 
@@ -21,8 +22,8 @@ export default async function SubjectDetailPage({
         eyebrow="Subjects"
         title={name}
         description="Rule and class assignment."
-        action="Save"
-        secondaryAction="Back"
+        action={{ label: "Save", href: "/subjects" }}
+        secondaryAction={{ label: "Back", href: "/subjects" }}
       />
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_0.55fr]">
@@ -68,18 +69,24 @@ export default async function SubjectDetailPage({
         <div className="flex flex-wrap items-center justify-between gap-4">
           <p className="text-sm text-[color:var(--text-muted)]">Last used this term.</p>
           <div className="flex flex-wrap gap-3">
-            <button className="soft-action rounded-full px-4 py-2 text-sm font-medium">
+            <FeedbackButton
+              message="Archive flow is next."
+              className="soft-action rounded-full px-4 py-2 text-sm font-medium"
+            >
               Archive
-            </button>
+            </FeedbackButton>
             <Link
               href="/subjects"
               className="soft-action rounded-full px-4 py-2 text-sm font-medium"
             >
               Back
             </Link>
-            <button className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold">
+            <FeedbackButton
+              message="Subject save is next."
+              className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold"
+            >
               Save
-            </button>
+            </FeedbackButton>
           </div>
         </div>
       </div>

@@ -19,7 +19,7 @@ export default async function StudentProfilePage({
           eyebrow="Student profile"
           title="Student"
           description="Not found"
-          action="New report"
+          action={{ label: "New report", href: "/reports/new" }}
         />
       </div>
     );
@@ -31,8 +31,8 @@ export default async function StudentProfilePage({
         eyebrow="Student profile"
         title={profile.fullName}
         description={profile.classroomName}
-        action="New report"
-        secondaryAction="Export"
+        action={{ label: "New report", href: "/reports/new" }}
+        secondaryAction={{ label: "Export", href: "/reports" }}
       />
 
       <section className="grid gap-4 xl:grid-cols-[0.74fr_1.26fr]">
@@ -111,7 +111,7 @@ export default async function StudentProfilePage({
             <Link
               key={`${report.termName}-${report.total}`}
               href={report.href}
-              className="frost-panel-soft block rounded-[24px] px-4 py-4 transition hover:bg-[color:rgba(231,240,255,0.4)]"
+              className="frost-panel-soft block rounded-[24px] px-4 py-4 transition hover:bg-[color:var(--accent-soft)]"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">

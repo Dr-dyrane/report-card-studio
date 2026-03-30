@@ -13,8 +13,8 @@ export default async function SubjectsPage() {
         eyebrow="Subjects"
         title="Subjects"
         description="Scoring rules and order"
-        action="Add"
-        secondaryAction="Reorder"
+        action={{ label: "Add", href: "/subjects/new" }}
+        secondaryAction={{ label: "Reorder", href: "/subjects" }}
       />
 
       <SectionCard title="Subject catalog">
@@ -52,7 +52,7 @@ export default async function SubjectsPage() {
                 </span>
               </div>
               <div className="mt-4 grid gap-2 text-sm">
-                <div className="rounded-[18px] bg-white/55 px-3 py-3 shadow-[var(--shadow-frost)]">
+                <div className="surface-chip rounded-[18px] px-3 py-3">
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-[color:var(--text-muted)]">Mode</span>
                     <span className="font-medium text-[color:var(--text-strong)]">
@@ -60,7 +60,7 @@ export default async function SubjectsPage() {
                     </span>
                   </div>
                 </div>
-                <div className="rounded-[18px] bg-white/55 px-3 py-3 shadow-[var(--shadow-frost)]">
+                <div className="surface-chip rounded-[18px] px-3 py-3">
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-[color:var(--text-muted)]">Max</span>
                     <span className="font-medium text-[color:var(--text-strong)]">
@@ -75,7 +75,7 @@ export default async function SubjectsPage() {
 
         <div className="frost-panel-soft hidden overflow-hidden rounded-[22px] sm:block">
           <table className="min-w-full border-separate border-spacing-0">
-            <thead className="bg-white/40 text-left text-sm text-[color:var(--text-muted)]">
+            <thead className="table-head text-left text-sm text-[color:var(--text-muted)]">
               <tr>
                 <th className="px-4 py-3 font-medium">Subject</th>
                 <th className="px-4 py-3 font-medium">Category</th>
@@ -86,8 +86,13 @@ export default async function SubjectsPage() {
               </tr>
             </thead>
             <tbody className="bg-[color:var(--surface)] text-sm">
-              {subjects.map((subject) => (
-                <tr key={subject.id} className="odd:bg-white/10">
+              {subjects.map((subject, index) => (
+                <tr
+                  key={subject.id}
+                  style={{
+                    backgroundColor: index % 2 === 0 ? "var(--table-row-odd)" : undefined,
+                  }}
+                >
                   <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
                     {subject.name}
                   </td>

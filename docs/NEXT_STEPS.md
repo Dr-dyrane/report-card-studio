@@ -19,6 +19,12 @@ The app should stay aligned with Apple-style product principles:
 - fast transitions between students
 - print/export fidelity from the same rendered source
 
+Clarified product rule:
+
+- `New report` means `new student + new report sheet`
+- scan intake should prefill a new sheet, not attach a report to an already existing student by default
+- class context must stay visible across intake, roster, and reports
+
 ## Current Status
 
 Implemented:
@@ -31,6 +37,8 @@ Implemented:
 - live row totals and live assessment/grand totals
 - report preview and browser print/PDF flow
 - faster direct access from students and reports into report entry and preview
+- class-aware new-sheet intake for manual and scan flows
+- class segregation on students and reports via lightweight class filters
 
 Partially implemented:
 

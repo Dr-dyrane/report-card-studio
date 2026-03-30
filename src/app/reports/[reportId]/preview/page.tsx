@@ -43,7 +43,10 @@ export default async function ReportPreviewPage({
       </div>
 
       <article className="report-print-card frost-panel rounded-[28px] px-4 py-4 sm:px-6 sm:py-6 xl:px-8 xl:py-8">
-        <header className="mb-5 flex flex-col gap-1 border-b border-white/35 pb-4 print:mb-4 print:border-b print:border-slate-200 print:pb-3">
+        <header
+          className="mb-5 flex flex-col gap-1 border-b pb-4 print:mb-4 print:border-b print:border-slate-200 print:pb-3"
+          style={{ borderColor: "var(--border-soft)" }}
+        >
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
             Report card
           </p>
@@ -76,7 +79,7 @@ export default async function ReportPreviewPage({
                 ["Position", report.position ?? "--"],
                 ["Grand total", `${report.grandTotal} / ${report.grandMax}`],
               ].map(([label, value]) => (
-                <div key={label} className="surface-pocket rounded-[20px] px-4 py-4 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">
+              <div key={label} className="surface-pocket rounded-[20px] px-4 py-4 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">
                   <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
                   <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)] print:text-[11pt]">
                     {value}
@@ -111,9 +114,9 @@ export default async function ReportPreviewPage({
         <section className="mt-6 print:mt-5">
           {hasSubjectScores ? (
             <>
-              <div className="hidden overflow-hidden rounded-[22px] bg-white/72 ring-1 ring-white/40 print:block print:rounded-[12px] print:bg-white print:ring-slate-200 sm:block">
+              <div className="surface-chip hidden overflow-hidden rounded-[22px] print:block print:rounded-[12px] print:bg-white print:ring-slate-200 sm:block">
                 <table className="report-print-table min-w-full border-separate border-spacing-0">
-                  <thead className="bg-white/50 text-left text-sm text-[color:var(--text-muted)] print:bg-slate-50 print:text-[10pt]">
+                  <thead className="table-head text-left text-sm text-[color:var(--text-muted)] print:bg-slate-50 print:text-[10pt]">
                     <tr>
                       <th className="px-4 py-3 font-medium">Subject</th>
                       <th className="px-4 py-3 text-right font-medium">A1 Max</th>
@@ -125,9 +128,15 @@ export default async function ReportPreviewPage({
                       <th className="px-4 py-3 text-right font-medium">Total</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white text-sm print:text-[10pt]">
-                    {report.scores.map((row) => (
-                      <tr key={row.id} className="odd:bg-white/10 print:break-inside-avoid">
+                  <tbody className="bg-[color:var(--surface)] text-sm print:text-[10pt]">
+                    {report.scores.map((row, index) => (
+                      <tr
+                        key={row.id}
+                        className="print:break-inside-avoid"
+                        style={{
+                          backgroundColor: index % 2 === 0 ? "var(--table-row-odd)" : undefined,
+                        }}
+                      >
                         <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
                           {row.subject.name}
                         </td>
