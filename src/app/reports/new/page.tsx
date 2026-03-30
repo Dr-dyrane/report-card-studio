@@ -1,4 +1,5 @@
 import { NewReportFlow } from "@/components/reports/NewReportFlow";
+import { NewReportFlowProvider } from "@/components/reports/NewReportFlowContext";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { getClassroomsList } from "@/lib/school-data";
 
@@ -21,15 +22,20 @@ export default async function NewReportPage({
         secondaryAction={{ label: "Reports", href: "/reports" }}
       />
 
-      <NewReportFlow
+      <NewReportFlowProvider
         initialMode={initialMode}
-        classrooms={classrooms.map((classroom) => ({
-          id: classroom.id,
-          name: classroom.name,
-          studentCount: classroom.studentCount,
-          activeReports: classroom.activeReports,
-        }))}
-      />
+        initialClassroomId={classrooms[0]?.id ?? ""}
+      >
+        <NewReportFlow
+          initialMode={initialMode}
+          classrooms={classrooms.map((classroom) => ({
+            id: classroom.id,
+            name: classroom.name,
+            studentCount: classroom.studentCount,
+            activeReports: classroom.activeReports,
+          }))}
+        />
+      </NewReportFlowProvider>
     </div>
   );
 }

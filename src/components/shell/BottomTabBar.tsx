@@ -16,7 +16,7 @@ export function BottomTabBar() {
   const pathname = usePathname();
 
   return (
-    <nav className="app-bottomtab fixed inset-x-0 bottom-0 z-30 px-2 pb-[calc(0.45rem+env(safe-area-inset-bottom))] pt-2 sm:px-3 lg:hidden">
+    <nav className="app-bottomtab fixed inset-x-0 bottom-0 z-[var(--z-bottomtab)] px-2 pb-[calc(0.45rem+env(safe-area-inset-bottom))] pt-2 sm:px-3 lg:hidden">
       <div className="frost-panel-strong rounded-[30px] px-1.5 py-1.5 shadow-[0_26px_60px_rgba(17,24,39,0.14)]">
         <div className="flex items-center justify-between gap-1">
           {mobileNav.map((item) => {

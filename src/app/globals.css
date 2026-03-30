@@ -29,6 +29,12 @@
   --accent-strong: #1d4ed8;
   --surface-inset: rgba(255, 255, 255, 0.7);
   --overlay-backdrop: rgba(11, 18, 26, 0.38);
+  --z-base: 0;
+  --z-sidebar: 20;
+  --z-topbar: 30;
+  --z-bottomtab: 35;
+  --z-overlay: 180;
+  --z-dialog: 190;
   --success: #198754;
   --success-soft: #e8f6ee;
   --warning: #c98900;
@@ -70,6 +76,12 @@ html[data-theme="dark"] {
   --accent-strong: #b6c7ff;
   --surface-inset: rgba(255, 255, 255, 0.06);
   --overlay-backdrop: rgba(5, 8, 14, 0.62);
+  --z-base: 0;
+  --z-sidebar: 20;
+  --z-topbar: 30;
+  --z-bottomtab: 35;
+  --z-overlay: 180;
+  --z-dialog: 190;
   --success: #76ddb0;
   --success-soft: rgba(34, 74, 56, 0.72);
   --warning: #f3cf86;

@@ -84,13 +84,13 @@ export function MetricExplorer({
       {canPortal && activeMetric
         ? createPortal(
         <div
-          className="fixed inset-0 z-[120] flex items-end bg-[color:var(--overlay-backdrop)] px-2 pb-2 pt-10 md:items-center md:justify-center md:p-8"
+          className="fixed inset-0 z-[var(--z-overlay)] flex items-end bg-[color:var(--overlay-backdrop)] px-2 pb-2 pt-10 md:items-center md:justify-center md:p-8"
           onClick={() => setActiveMetric(null)}
         >
           <div
             role={surfaceLabel === "dialog" ? "dialog" : "region"}
             aria-modal="true"
-            className={`frost-panel-strong relative z-[121] w-full max-w-2xl overflow-hidden ${
+            className={`frost-panel-strong relative z-[var(--z-dialog)] w-full max-w-2xl overflow-hidden ${
               desktop
                 ? "rounded-[32px] px-6 py-6 md:px-7 md:py-7"
                 : "rounded-[28px] rounded-b-[20px] px-5 py-5"

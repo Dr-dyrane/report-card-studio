@@ -26,7 +26,7 @@ export function SidebarNav() {
   }, [activeGroupId]);
 
   return (
-    <aside className="app-sidebar frost-panel-strong sticky top-3 hidden h-[calc(100vh-1.5rem)] w-[276px] shrink-0 overflow-hidden rounded-[34px] lg:flex lg:flex-col">
+    <aside className="app-sidebar frost-panel-strong sticky top-3 z-[var(--z-sidebar)] hidden h-[calc(100vh-1.5rem)] w-[276px] shrink-0 overflow-hidden rounded-[34px] lg:flex lg:flex-col">
       <div className="flex h-full min-h-0 flex-col gap-6 px-5 py-6">
         <BrandMark textOnly />
 
@@ -43,7 +43,7 @@ export function SidebarNav() {
                   type="button"
                   onClick={() => setOpenGroupId(group.id)}
                   className={`flex w-full items-center justify-between rounded-[20px] px-3 py-2 text-left transition ${
-                isOpen || hasActiveItem ? "surface-pocket" : "surface-hover-soft"
+                    isOpen || hasActiveItem ? "surface-pocket" : "surface-hover-soft"
                   }`}
                 >
                   <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
@@ -95,9 +95,7 @@ export function SidebarNav() {
         </nav>
 
         <div className="frost-panel-soft rounded-[24px] px-4 py-4">
-          <p className="text-sm font-semibold text-[color:var(--text-strong)]">
-            Context
-          </p>
+          <p className="text-sm font-semibold text-[color:var(--text-strong)]">Context</p>
           <dl className="mt-3 space-y-2 text-sm text-[color:var(--text-muted)]">
             <div className="flex items-center justify-between gap-3">
               <dt>Session</dt>
