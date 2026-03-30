@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { getDb } from "@/lib/db";
 import { requireServerSession } from "@/lib/auth-session";
+import { requireOwnedSchool } from "@/lib/owned-school";
 
 type ScoreUpdateInput = {
   id: string;
@@ -44,9 +45,27 @@ export async function updateReportScores(input: {
   scores: ScoreUpdateInput[];
 }) {
   await requireServerSession();
+  const ownedSchool = await requireOwnedSchool();
 
   const db = await getDb();
   if (!db) {
+    return { ok: false };
+  }
+
+  const reportCard = await db.reportCard.findFirst({
+    where: {
+      id: input.reportCardId,
+      classroom: {
+        schoolId: ownedSchool.id,
+      },
+    },
+    select: {
+      id: true,
+      classroomId: true,
+    },
+  });
+
+  if (!reportCard) {
     return { ok: false };
   }
 
@@ -85,7 +104,7 @@ export async function updateReportScores(input: {
   const grandTotal = reportScores.reduce((sum, score) => sum + score.totalScore, 0);
 
   const classroom = await db.reportCard.findUnique({
-    where: { id: input.reportCardId },
+    where: { id: reportCard.id },
     select: { classroomId: true },
   });
 
@@ -131,14 +150,29 @@ export async function publishReportCard(input: {
   routeKey: string;
 }) {
   await requireServerSession();
+  const ownedSchool = await requireOwnedSchool();
 
   const db = await getDb();
   if (!db) {
     return { ok: false };
   }
 
+  const reportCard = await db.reportCard.findFirst({
+    where: {
+      id: input.reportCardId,
+      classroom: {
+        schoolId: ownedSchool.id,
+      },
+    },
+    select: { id: true },
+  });
+
+  if (!reportCard) {
+    return { ok: false };
+  }
+
   await db.reportCard.update({
-    where: { id: input.reportCardId },
+    where: { id: reportCard.id },
     data: {
       status: "PUBLISHED",
     },
@@ -155,6 +189,7 @@ export async function publishReportCard(input: {
 
 export async function createOrOpenReportCard(input: { studentRouteKey: string }) {
   await requireServerSession();
+  const ownedSchool = await requireOwnedSchool();
 
   const db = await getDb();
   if (!db) {
@@ -164,6 +199,7 @@ export async function createOrOpenReportCard(input: { studentRouteKey: string })
   const studentName = slugToStudentName(input.studentRouteKey);
   const student = await db.student.findFirst({
     where: {
+      schoolId: ownedSchool.id,
       fullName: studentName,
     },
     include: {
@@ -189,10 +225,11 @@ export async function createOrOpenReportCard(input: { studentRouteKey: string })
 
   const term =
     (await db.term.findFirst({
-      where: { isActive: true },
+      where: { isActive: true, session: { schoolId: ownedSchool.id } },
       orderBy: [{ sequence: "desc" }, { updatedAt: "desc" }],
     })) ??
     (await db.term.findFirst({
+      where: { session: { schoolId: ownedSchool.id } },
       orderBy: [{ sequence: "desc" }, { updatedAt: "desc" }],
     }));
 
@@ -246,6 +283,7 @@ export async function createStudentReportCard(input: {
   classroomId: string;
 }) {
   await requireServerSession();
+  const ownedSchool = await requireOwnedSchool();
 
   const db = await getDb();
   if (!db) {
@@ -273,16 +311,17 @@ export async function createStudentReportCard(input: {
     },
   });
 
-  if (!classroom) {
+  if (!classroom || classroom.schoolId !== ownedSchool.id) {
     return { ok: false, message: "Class not found." };
   }
 
   const term =
     (await db.term.findFirst({
-      where: { isActive: true },
+      where: { isActive: true, session: { schoolId: ownedSchool.id } },
       orderBy: [{ sequence: "desc" }, { updatedAt: "desc" }],
     })) ??
     (await db.term.findFirst({
+      where: { session: { schoolId: ownedSchool.id } },
       orderBy: [{ sequence: "desc" }, { updatedAt: "desc" }],
     }));
 
@@ -408,6 +447,7 @@ export async function applyScannedReportPrefill(input: {
   };
 }) {
   await requireServerSession();
+  const ownedSchool = await requireOwnedSchool();
 
   const created = await createStudentReportCard({
     fullName: input.fullName,
@@ -431,10 +471,15 @@ export async function applyScannedReportPrefill(input: {
           subject: true,
         },
       },
+      classroom: {
+        select: {
+          schoolId: true,
+        },
+      },
     },
   });
 
-  if (!reportCard) {
+  if (!reportCard || reportCard.classroom.schoolId !== ownedSchool.id) {
     return { ok: false, message: "Report sheet not found." };
   }
 

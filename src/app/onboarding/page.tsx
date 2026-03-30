@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 
+import { OnboardingFlow } from "@/components/auth/OnboardingFlow";
 import { getServerSession } from "@/lib/auth-session";
 import { getOwnedSchoolForUser } from "@/lib/owned-school";
 
-export default async function HomePage() {
+export default async function OnboardingPage() {
   const session = await getServerSession();
 
   if (!session?.user) {
@@ -12,5 +13,14 @@ export default async function HomePage() {
 
   const ownedSchool = await getOwnedSchoolForUser(session.user.id);
 
-  redirect(ownedSchool ? "/students" : "/onboarding");
+  if (ownedSchool) {
+    redirect("/students");
+  }
+
+  return (
+    <OnboardingFlow
+      email={session.user.email}
+      displayName={session.user.name ?? session.user.username ?? ""}
+    />
+  );
 }

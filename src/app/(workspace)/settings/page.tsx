@@ -2,6 +2,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { Field, InputShell } from "@/components/ui/Field";
 import { ThemeToggleCard } from "@/components/theme/ThemeToggleCard";
+import { ChangePasswordCard } from "@/components/settings/ChangePasswordCard";
 
 export default function SettingsPage() {
   return (
@@ -46,6 +47,10 @@ export default function SettingsPage() {
 
       <SectionCard title="Appearance">
         <ThemeToggleCard />
+      </SectionCard>
+
+      <SectionCard title="Password">
+        <ChangePasswordCard />
       </SectionCard>
     </div>
   );

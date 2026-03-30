@@ -1,4 +1,5 @@
 import { getDb } from "@/lib/db";
+import { getOwnedSchool } from "@/lib/owned-school";
 
 const fallbackReportCards = [
   {
@@ -115,12 +116,18 @@ function studentNameToRouteKey(value: string) {
 
 export async function getReportCards() {
   try {
+    const ownedSchool = await getOwnedSchool();
     const db = await getDb();
-    if (!db) {
+    if (!db || !ownedSchool) {
       return fallbackReportCards;
     }
 
     const reportCards = await db.reportCard.findMany({
+      where: {
+        classroom: {
+          schoolId: ownedSchool.id,
+        },
+      },
       include: {
         student: true,
         classroom: true,
@@ -138,8 +145,9 @@ export async function getReportCardByRouteKey(routeKey: string) {
   const candidateName = slugToStudentName(routeKey);
 
   try {
+    const ownedSchool = await getOwnedSchool();
     const db = await getDb();
-    if (!db) {
+    if (!db || !ownedSchool) {
       return routeKey === "student-12" || candidateName === "Student 12"
         ? fallbackReportCard
         : null;
@@ -147,6 +155,9 @@ export async function getReportCardByRouteKey(routeKey: string) {
 
     const reportCard = await db.reportCard.findFirst({
       where: {
+        classroom: {
+          schoolId: ownedSchool.id,
+        },
         OR: [{ id: routeKey }, { student: { fullName: candidateName } }],
       },
       include: {

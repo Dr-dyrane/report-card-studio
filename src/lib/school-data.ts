@@ -1,4 +1,5 @@
 import { getDb } from "@/lib/db";
+import { getOwnedSchool } from "@/lib/owned-school";
 
 const fallbackStudents = [
   {
@@ -124,10 +125,14 @@ function slugify(value: string) {
 
 export async function getClassroomsList() {
   try {
+    const ownedSchool = await getOwnedSchool();
     const db = await getDb();
-    if (!db) return fallbackClassrooms;
+    if (!db || !ownedSchool) return fallbackClassrooms;
 
     const classrooms = await db.classroom.findMany({
+      where: {
+        schoolId: ownedSchool.id,
+      },
       include: {
         students: {
           select: { id: true },
@@ -155,10 +160,14 @@ export async function getClassroomsList() {
 
 export async function getStudentsList() {
   try {
+    const ownedSchool = await getOwnedSchool();
     const db = await getDb();
-    if (!db) return fallbackStudents;
+    if (!db || !ownedSchool) return fallbackStudents;
 
     const students = await db.student.findMany({
+      where: {
+        schoolId: ownedSchool.id,
+      },
       include: {
         classroom: true,
         reportCards: {
@@ -199,10 +208,14 @@ export async function getStudentsList() {
 
 export async function getSubjectsList() {
   try {
+    const ownedSchool = await getOwnedSchool();
     const db = await getDb();
-    if (!db) return fallbackSubjects;
+    if (!db || !ownedSchool) return fallbackSubjects;
 
     const subjects = await db.subject.findMany({
+      where: {
+        schoolId: ownedSchool.id,
+      },
       orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
     });
 
@@ -235,8 +248,9 @@ export async function getStudentProfileByRouteKey(routeKey: string) {
     .join(" ");
 
   try {
+    const ownedSchool = await getOwnedSchool();
     const db = await getDb();
-    if (!db) {
+    if (!db || !ownedSchool) {
       if (candidateName !== "Student 3") {
         return null;
       }
@@ -268,6 +282,7 @@ export async function getStudentProfileByRouteKey(routeKey: string) {
 
     const student = await db.student.findFirst({
       where: {
+        schoolId: ownedSchool.id,
         fullName: candidateName,
       },
       include: {

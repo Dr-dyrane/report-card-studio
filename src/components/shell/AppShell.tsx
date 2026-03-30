@@ -10,7 +10,12 @@ import { TopBar } from "@/components/shell/TopBar";
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
-  if (pathname.startsWith("/sign-in")) {
+  if (
+    pathname.startsWith("/sign-in") ||
+    pathname.startsWith("/onboarding") ||
+    pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/reset-password")
+  ) {
     return (
       <div className="min-h-screen bg-[color:var(--canvas)] text-[color:var(--text-base)]">
         {children}

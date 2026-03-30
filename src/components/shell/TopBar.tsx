@@ -23,6 +23,7 @@ export function TopBar() {
   const router = useRouter();
   const { notify } = useFeedback();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
   const session = authClient.useSession();
   const currentUser = session.data?.user;
 
@@ -81,34 +82,82 @@ export function TopBar() {
 
         <div className="flex shrink-0 items-center gap-2 sm:flex-wrap sm:gap-3">
           {currentUser ? (
-            <div className="hidden items-center gap-2 rounded-full surface-chip px-3 py-2 sm:flex">
-              <p className="max-w-[220px] truncate text-sm font-semibold text-[color:var(--text-strong)]">
-                {currentUser.email}
-              </p>
+            <div className="relative hidden sm:block">
               <button
                 type="button"
-                onClick={async () => {
-                  setIsSigningOut(true);
-                  try {
-                    const result = await authClient.signOut();
-
-                    if (result.error) {
-                      throw result.error;
-                    }
-
-                    notify("Signed out.", "success");
-                    router.push("/sign-in");
-                    router.refresh();
-                  } catch {
-                    notify("Could not sign out.", "error");
-                  } finally {
-                    setIsSigningOut(false);
-                  }
-                }}
-                className="soft-action inline-flex items-center rounded-full px-3 py-2 text-sm font-medium"
+                onClick={() => setIsAccountOpen((current) => !current)}
+                className="surface-chip inline-flex items-center gap-2 rounded-full px-3 py-2"
+                aria-expanded={isAccountOpen}
+                aria-haspopup="dialog"
               >
-                {isSigningOut ? "Signing out..." : "Sign out"}
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--accent-soft)] text-sm font-semibold text-[color:var(--accent-strong)]">
+                  {(currentUser.name ?? currentUser.email ?? "K").slice(0, 1).toUpperCase()}
+                </span>
+                <span className="min-w-0 text-left">
+                  <span className="block max-w-[180px] truncate text-sm font-semibold text-[color:var(--text-strong)]">
+                    {currentUser.name ?? currentUser.email}
+                  </span>
+                  <span className="block max-w-[180px] truncate text-xs text-[color:var(--text-muted)]">
+                    {currentUser.email}
+                  </span>
+                </span>
               </button>
+
+              {isAccountOpen ? (
+                <div className="frost-panel-strong absolute right-0 top-[calc(100%+0.75rem)] z-[var(--z-overlay)] w-[280px] rounded-[24px] p-4">
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
+                      Account
+                    </p>
+                    <p className="text-base font-semibold text-[color:var(--text-strong)]">
+                      {currentUser.name ?? "Kradle"}
+                    </p>
+                    <p className="truncate text-sm text-[color:var(--text-muted)]">
+                      {currentUser.email}
+                    </p>
+                    {currentUser.username ? (
+                      <p className="text-sm text-[color:var(--text-muted)]">
+                        @{currentUser.username}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-4 flex items-center gap-2">
+                    <Link
+                      href="/settings"
+                      onClick={() => setIsAccountOpen(false)}
+                      className="soft-action inline-flex items-center rounded-full px-3 py-2 text-sm font-medium"
+                    >
+                      Settings
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setIsSigningOut(true);
+                        try {
+                          const result = await authClient.signOut();
+
+                          if (result.error) {
+                            throw result.error;
+                          }
+
+                          notify("Signed out.", "success");
+                          setIsAccountOpen(false);
+                          router.push("/sign-in");
+                          router.refresh();
+                        } catch {
+                          notify("Could not sign out.", "error");
+                        } finally {
+                          setIsSigningOut(false);
+                        }
+                      }}
+                      className="soft-action-tint inline-flex items-center rounded-full px-3 py-2 text-sm font-semibold"
+                    >
+                      {isSigningOut ? "Signing out..." : "Sign out"}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </div>
           ) : null}
 

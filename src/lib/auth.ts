@@ -31,12 +31,35 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
+    revokeSessionsOnPasswordReset: true,
+    async sendResetPassword({ user, url }) {
+      if (!resend) {
+        console.warn("[auth] Password reset email skipped because RESEND_API_KEY is not set.");
+        console.info(`[auth] Password reset for ${user.email}: ${url}`);
+        return;
+      }
+
+      await resend.emails.send({
+        from: resendFrom,
+        to: user.email,
+        subject: "Reset your Kradle password",
+        text: `Open this secure link to reset your Kradle password:\n\n${url}\n\nIf you did not request this, you can ignore this email.`,
+        html: `
+          <div style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.5; color: #111827;">
+            <p style="margin: 0 0 16px;">Open this secure link to reset your Kradle password.</p>
+            <p style="margin: 0 0 20px;">
+              <a href="${url}" style="display: inline-block; padding: 12px 18px; border-radius: 999px; background: #2563eb; color: white; text-decoration: none;">Reset password</a>
+            </p>
+            <p style="margin: 0; color: #6b7280;">If you did not request this, you can ignore this email.</p>
+          </div>
+        `,
+      });
+    },
   },
   plugins: [
     nextCookies(),
     username(),
     magicLink({
-      disableSignUp: true,
       async sendMagicLink({ email, url }) {
         if (!resend) {
           console.warn("[auth] Magic link skipped because RESEND_API_KEY is not set.");

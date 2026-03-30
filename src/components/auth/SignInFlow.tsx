@@ -2,6 +2,7 @@
 
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { FormEvent, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
@@ -115,6 +116,7 @@ export function SignInFlow() {
       const result = await authClient.signIn.magicLink({
         email: normalizedIdentifier,
         callbackURL: "/students",
+        newUserCallbackURL: "/onboarding",
       });
 
       if (result.error) {
@@ -262,6 +264,12 @@ export function SignInFlow() {
                 >
                   Magic link
                 </button>
+                <Link
+                  href="/forgot-password"
+                  className="text-sm font-medium text-[color:var(--text-muted)] transition hover:text-[color:var(--text-strong)]"
+                >
+                  Reset password
+                </Link>
               </div>
             </form>
           ) : (
