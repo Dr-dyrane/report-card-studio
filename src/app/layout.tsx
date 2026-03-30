@@ -4,9 +4,9 @@ import { AppShell } from "@/components/shell/AppShell";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Report Card Studio",
+  title: "Kradle",
   description:
-    "A premium academic reporting workspace for students, subjects, analytics, and export.",
+    "A calm academic reporting workspace for fast score entry, review, and export.",
 };
 
 export const viewport: Viewport = {

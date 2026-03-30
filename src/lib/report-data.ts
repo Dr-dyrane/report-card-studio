@@ -1,4 +1,4 @@
-import { db } from "@/lib/db";
+import { getDb } from "@/lib/db";
 
 const fallbackReportCards = [
   {
@@ -110,6 +110,11 @@ function slugToStudentName(value: string) {
 
 export async function getReportCards() {
   try {
+    const db = await getDb();
+    if (!db) {
+      return fallbackReportCards;
+    }
+
     const reportCards = await db.reportCard.findMany({
       include: {
         student: true,
@@ -127,6 +132,13 @@ export async function getReportCardByRouteKey(routeKey: string) {
   const candidateName = slugToStudentName(routeKey);
 
   try {
+    const db = await getDb();
+    if (!db) {
+      return routeKey === "student-12" || candidateName === "Student 12"
+        ? fallbackReportCard
+        : null;
+    }
+
     const reportCard = await db.reportCard.findFirst({
       where: {
         OR: [{ id: routeKey }, { student: { fullName: candidateName } }],

@@ -12,13 +12,13 @@ export function SidebarNav() {
     <aside className="frost-panel-strong hidden w-[276px] shrink-0 rounded-[34px] px-5 py-6 lg:flex lg:flex-col lg:gap-6">
       <div className="surface-wash rounded-[28px] px-5 py-5">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
-          Report Card Studio
+          Kradle
         </p>
         <h1 className="mt-3 font-display text-3xl leading-none text-[color:var(--text-strong)]">
-          Academic workspace
+          School reports
         </h1>
         <p className="mt-3 text-sm leading-6 text-[color:var(--text-muted)]">
-          Scores, reports, exports.
+          Enter. Review. Export.
         </p>
       </div>
 
@@ -37,7 +37,7 @@ export function SidebarNav() {
                   : "text-[color:var(--text-base)] hover:bg-white/50"
               }`}
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-center gap-3">
                 <span
                   className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
                     isActive
@@ -47,11 +47,8 @@ export function SidebarNav() {
                 >
                   {item.shortLabel}
                 </span>
-                <div className="space-y-1">
+                <div>
                   <p className="text-sm font-semibold">{item.label}</p>
-                  <p className="text-sm leading-5 text-[color:var(--text-muted)]">
-                    {item.description}
-                  </p>
                 </div>
               </div>
             </Link>

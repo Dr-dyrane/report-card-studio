@@ -36,12 +36,6 @@ const attentionRows = [
   ["Student 20", "Dictation, Oral Reading, Aptitude", "530"],
 ];
 
-const activity = [
-  "Student 20 added",
-  "Preview ready",
-  "Subject rules locked",
-];
-
 export default function DashboardPage() {
   return (
     <div className="w-full space-y-3 sm:space-y-6">
@@ -80,7 +74,7 @@ export default function DashboardPage() {
           <div className="mt-4 grid grid-cols-2 gap-2">
             <Link
               href="/reports/student-12"
-              className="rounded-full bg-[color:var(--accent)] px-4 py-2 text-center text-sm font-semibold text-white shadow-[var(--shadow-frost)]"
+              className="frost-pill rounded-full px-4 py-2 text-center text-sm font-semibold text-[color:var(--text-base)]"
             >
               Continue
             </Link>
@@ -160,16 +154,30 @@ export default function DashboardPage() {
           </div>
         </SectionCard>
 
-        <SectionCard title="Recent">
-          <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1">
-            {activity.map((item) => (
-              <div
-                key={item}
-                className="frost-panel-soft rounded-[22px] px-4 py-4 text-sm leading-6 text-[color:var(--text-base)]"
-              >
-                {item}
+        <SectionCard title="Next">
+          <div className="grid gap-3">
+            <div className="frost-panel-soft rounded-[22px] px-4 py-4">
+              <p className="text-sm font-semibold text-[color:var(--text-strong)]">
+                Continue report entry
+              </p>
+              <p className="mt-2 text-sm leading-5 text-[color:var(--text-muted)]">
+                Move from captured scores to checked totals and preview.
+              </p>
+              <div className="mt-4 flex gap-2">
+                <Link
+                  href="/reports/student-12"
+                  className="rounded-full bg-[color:var(--accent)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-frost)]"
+                >
+                  Open report
+                </Link>
+                <Link
+                  href="/reports/student-12/preview"
+                  className="frost-pill rounded-full px-4 py-2 text-sm font-semibold text-[color:var(--text-base)]"
+                >
+                  Preview
+                </Link>
               </div>
-            ))}
+            </div>
           </div>
         </SectionCard>
       </div>

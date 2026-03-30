@@ -212,7 +212,7 @@ export default async function ReportEntryPage({
                 </button>
                 <Link
                   href={`/reports/${reportId}/preview`}
-                  className="rounded-full bg-[color:var(--accent)] px-4 py-2 text-center text-sm font-semibold text-white shadow-[var(--shadow-frost)]"
+                  className="frost-pill rounded-full px-4 py-2 text-center text-sm font-semibold text-[color:var(--text-base)]"
                 >
                   Preview
                 </Link>
