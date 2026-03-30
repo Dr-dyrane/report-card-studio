@@ -48,13 +48,11 @@ export function MobileContextFab() {
     return (
       <Link
         href={action.href}
-        className="app-fab frost-panel-strong fixed bottom-[calc(0.45rem+env(safe-area-inset-bottom))] right-3 z-[var(--z-fab)] inline-flex h-[59px] items-center justify-center gap-2 rounded-full px-4 shadow-[0_18px_40px_rgba(13,20,32,0.18)] lg:hidden"
+        className="app-fab frost-panel-strong fixed bottom-[calc(0.85rem+env(safe-area-inset-bottom))] right-3 z-[var(--z-fab)] inline-flex h-[59px] w-[59px] items-center justify-center rounded-full shadow-[0_18px_40px_rgba(13,20,32,0.18)] lg:hidden"
+        aria-label={action.label}
       >
         <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)]">
           {iconFor(action.icon)}
-        </span>
-        <span className="pr-1 text-sm font-semibold text-[color:var(--text-strong)]">
-          {action.label}
         </span>
       </Link>
     );
@@ -70,7 +68,7 @@ export function MobileContextFab() {
             className="absolute inset-0 bg-[color:var(--overlay-backdrop)]"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute bottom-[calc(4.8rem+env(safe-area-inset-bottom))] right-3 grid gap-2">
+          <div className="absolute bottom-[calc(5.2rem+env(safe-area-inset-bottom))] right-3 grid gap-2">
             {actions.map((action) => (
               <Link
                 key={action.href}
@@ -93,7 +91,7 @@ export function MobileContextFab() {
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
-        className="app-fab frost-panel-strong fixed bottom-[calc(0.45rem+env(safe-area-inset-bottom))] right-3 z-[var(--z-fab)] inline-flex h-[59px] w-[59px] items-center justify-center rounded-full shadow-[0_18px_40px_rgba(13,20,32,0.18)] lg:hidden"
+        className="app-fab frost-panel-strong fixed bottom-[calc(0.85rem+env(safe-area-inset-bottom))] right-3 z-[var(--z-fab)] inline-flex h-[59px] w-[59px] items-center justify-center rounded-full shadow-[0_18px_40px_rgba(13,20,32,0.18)] lg:hidden"
         aria-expanded={open}
         aria-label="Open quick actions"
       >
