@@ -10,7 +10,29 @@ function cleanEnv(value: string | undefined) {
   return value?.trim();
 }
 
-const appUrl = cleanEnv(process.env.BETTER_AUTH_URL) ?? "http://localhost:3001";
+function resolveAppUrl() {
+  const explicit = cleanEnv(process.env.BETTER_AUTH_URL);
+
+  if (explicit) {
+    return explicit;
+  }
+
+  const publicUrl = cleanEnv(process.env.NEXT_PUBLIC_AUTH_URL);
+
+  if (publicUrl) {
+    return publicUrl;
+  }
+
+  const vercelUrl = cleanEnv(process.env.VERCEL_URL);
+
+  if (vercelUrl) {
+    return vercelUrl.startsWith("http") ? vercelUrl : `https://${vercelUrl}`;
+  }
+
+  return "http://localhost:3001";
+}
+
+const appUrl = resolveAppUrl();
 const authSecret =
   cleanEnv(process.env.BETTER_AUTH_SECRET) ??
   "kradle-dev-secret-change-me-please-replace";
@@ -27,7 +49,17 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  trustedOrigins: [appUrl],
+  trustedOrigins: Array.from(
+    new Set(
+      [
+        appUrl,
+        cleanEnv(process.env.NEXT_PUBLIC_AUTH_URL),
+        cleanEnv(process.env.VERCEL_URL)
+          ? `https://${cleanEnv(process.env.VERCEL_URL)}`
+          : undefined,
+      ].filter((value): value is string => Boolean(value)),
+    ),
+  ),
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,

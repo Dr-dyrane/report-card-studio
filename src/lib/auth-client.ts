@@ -7,13 +7,22 @@ function cleanEnv(value: string | undefined) {
   return value?.trim();
 }
 
-const baseURL =
-  cleanEnv(process.env.NEXT_PUBLIC_AUTH_URL) ??
-  cleanEnv(process.env.BETTER_AUTH_URL) ??
-  "http://localhost:3001";
+function resolveBaseURL() {
+  const explicit = cleanEnv(process.env.NEXT_PUBLIC_AUTH_URL);
+
+  if (explicit) {
+    return explicit;
+  }
+
+  if (typeof window !== "undefined") {
+    return window.location.origin;
+  }
+
+  return "http://localhost:3001";
+}
 
 export const authClient = createAuthClient({
-  baseURL,
+  baseURL: resolveBaseURL(),
   basePath: "/api/auth",
   plugins: [usernameClient(), magicLinkClient()],
 });
