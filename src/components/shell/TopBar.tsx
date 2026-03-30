@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
+import { MobileUtilitySheet } from "@/components/shell/MobileUtilitySheet";
 import { BrandMark } from "@/components/ui/BrandMark";
 import { authClient } from "@/lib/auth-client";
 import { navItems } from "@/lib/navigation";
@@ -73,14 +74,27 @@ export function TopBar() {
               </Link>
               <p className="mt-1 truncate text-xs text-[color:var(--text-muted)] sm:text-sm">
                 {breadcrumb.detailLabel
-                  ? `${breadcrumb.detailLabel} · Second Term, 2024/2025`
-                  : "Second Term, 2024/2025 · Primary 5 Lavender"}
+                  ? `${breadcrumb.detailLabel} / Second Term, 2024/2025`
+                  : "Second Term, 2024/2025 / Primary 5 Lavender"}
               </p>
             </div>
           </div>
         </div>
 
         <div className="flex shrink-0 items-center gap-2 sm:flex-wrap sm:gap-3">
+          {currentUser ? (
+            <button
+              type="button"
+              onClick={() => setIsAccountOpen(true)}
+              className="surface-chip inline-flex h-11 w-11 items-center justify-center rounded-full sm:hidden"
+              aria-label="Open account"
+            >
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--accent-soft)] text-sm font-semibold text-[color:var(--accent-strong)]">
+                {(currentUser.name ?? currentUser.email ?? "K").slice(0, 1).toUpperCase()}
+              </span>
+            </button>
+          ) : null}
+
           {currentUser ? (
             <div className="relative hidden sm:block">
               <button
@@ -163,12 +177,18 @@ export function TopBar() {
 
           <Link
             href="/reports/new"
-            className="soft-action-tint inline-flex items-center rounded-full px-3 py-2 text-sm font-semibold transition sm:px-4"
+            className="soft-action-tint hidden items-center rounded-full px-3 py-2 text-sm font-semibold transition sm:inline-flex sm:px-4"
           >
             New
           </Link>
         </div>
       </div>
+
+      <MobileUtilitySheet
+        open={isAccountOpen}
+        onClose={() => setIsAccountOpen(false)}
+        currentUser={currentUser ?? null}
+      />
     </header>
   );
 }

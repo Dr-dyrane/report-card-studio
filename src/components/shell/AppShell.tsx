@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 import { BottomTabBar } from "@/components/shell/BottomTabBar";
+import { MobileContextFab } from "@/components/shell/MobileContextFab";
 import { SidebarNav } from "@/components/shell/SidebarNav";
 import { TopBar } from "@/components/shell/TopBar";
 
@@ -35,6 +36,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </div>
       <BottomTabBar />
+      <MobileContextFab />
     </div>
   );
 }
