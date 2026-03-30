@@ -113,6 +113,9 @@ export default async function ReportEntryPage({
         teacherComment={report.teacherComment ?? ""}
         teacherName={report.classroom.teacherName ?? "Class teacher"}
         position={report.position ?? "--"}
+        initialAssessment1Total={report.assessment1Total}
+        initialAssessment2Total={report.assessment2Total}
+        initialExamTotal={report.examTotal}
         initialGrandTotal={report.grandTotal}
       />
     </div>

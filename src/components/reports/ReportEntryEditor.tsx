@@ -22,6 +22,9 @@ type ReportEntryEditorProps = {
   teacherComment: string;
   teacherName: string;
   position: string;
+  initialAssessment1Total: number;
+  initialAssessment2Total: number;
+  initialExamTotal: number;
   initialGrandTotal: number;
 };
 
@@ -47,12 +50,26 @@ export function ReportEntryEditor({
   teacherComment,
   teacherName,
   position,
+  initialAssessment1Total,
+  initialAssessment2Total,
+  initialExamTotal,
+  initialGrandTotal,
 }: ReportEntryEditorProps) {
   const [rows, setRows] = useState(initialRows);
   const [comment, setComment] = useState(teacherComment);
   const [teacher, setTeacher] = useState(teacherName);
   const [saveState, setSaveState] = useState("Ready");
   const [isPending, startTransition] = useTransition();
+  const hasEnteredScores = useMemo(
+    () =>
+      rows.some(
+        (row) =>
+          parseScore(row.a1) !== null ||
+          parseScore(row.a2) !== null ||
+          parseScore(row.exam) !== null,
+      ),
+    [rows],
+  );
 
   const summary = useMemo(() => {
     const assessment1Total = rows.reduce(
@@ -70,12 +87,19 @@ export function ReportEntryEditor({
     const grandTotal = rows.reduce((sum, row) => sum + computeRowTotal(row), 0);
 
     return {
-      assessment1Total,
-      assessment2Total,
-      examTotal,
-      grandTotal,
+      assessment1Total: hasEnteredScores ? assessment1Total : initialAssessment1Total,
+      assessment2Total: hasEnteredScores ? assessment2Total : initialAssessment2Total,
+      examTotal: hasEnteredScores ? examTotal : initialExamTotal,
+      grandTotal: hasEnteredScores ? grandTotal : initialGrandTotal,
     };
-  }, [rows]);
+  }, [
+    hasEnteredScores,
+    initialAssessment1Total,
+    initialAssessment2Total,
+    initialExamTotal,
+    initialGrandTotal,
+    rows,
+  ]);
 
   function updateCell(rowId: string, field: "a1" | "a2" | "exam", value: string) {
     setRows((current) =>
@@ -133,88 +157,108 @@ export function ReportEntryEditor({
   return (
     <div className="grid gap-3 sm:gap-6 xl:grid-cols-[1.25fr_0.42fr]">
       <SectionCard title="Entry">
-        <form className="space-y-3 sm:hidden">
-          {rows.map((row) => {
-            const rowTotal = computeRowTotal(row);
-
-            return (
-              <div key={row.id} className="frost-panel-soft rounded-[24px] px-4 py-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-semibold text-[color:var(--text-strong)]">
-                      {row.subject}
-                    </p>
-                    <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-                      Live totals
-                    </p>
-                  </div>
-                  <span className="soft-action-tint inline-flex min-w-14 items-center justify-center rounded-full px-3 py-1.5 text-sm font-semibold">
-                    {rowTotal}
-                  </span>
-                </div>
-
-                <div className="mt-4 grid grid-cols-3 gap-2">
-                  <label className="block">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
-                      A1
-                    </p>
-                    <div className="mt-2">{scoreInput(row.id, "a1", row.a1, true)}</div>
-                  </label>
-                  <label className="block">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
-                      A2
-                    </p>
-                    <div className="mt-2">{scoreInput(row.id, "a2", row.a2, true)}</div>
-                  </label>
-                  <label className="block">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
-                      Exam
-                    </p>
-                    <div className="mt-2">{scoreInput(row.id, "exam", row.exam, true)}</div>
-                  </label>
-                </div>
-              </div>
-            );
-          })}
-        </form>
-
-        <div className="surface-pocket hidden overflow-hidden rounded-[24px] sm:block">
-          <table className="min-w-full border-separate border-spacing-y-2">
-            <thead className="bg-white/40 text-left text-sm text-[color:var(--text-muted)]">
-              <tr>
-                <th className="px-4 py-3 font-medium">Subject</th>
-                <th className="px-4 py-3 text-right font-medium">A1</th>
-                <th className="px-4 py-3 text-right font-medium">A2</th>
-                <th className="px-4 py-3 text-right font-medium">Exam</th>
-                <th className="px-4 py-3 text-right font-medium">Total</th>
-              </tr>
-            </thead>
-            <tbody className="bg-[color:var(--surface)] text-sm">
+        {hasEnteredScores ? (
+          <>
+            <form className="space-y-3 sm:hidden">
               {rows.map((row) => {
                 const rowTotal = computeRowTotal(row);
 
                 return (
-                  <tr
-                    key={row.id}
-                    className="odd:bg-white/10 transition hover:bg-[color:rgba(231,240,255,0.56)]"
-                  >
-                    <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
-                      {row.subject}
-                    </td>
-                    <td className="px-4 py-4">{scoreInput(row.id, "a1", row.a1)}</td>
-                    <td className="px-4 py-4">{scoreInput(row.id, "a2", row.a2)}</td>
-                    <td className="px-4 py-4">{scoreInput(row.id, "exam", row.exam)}</td>
-                    <td className="px-4 py-4 text-right">
-                      <span className="soft-action-tint inline-flex min-w-12 items-center justify-center rounded-full px-3 py-1 font-semibold">
+                  <div key={row.id} className="frost-panel-soft rounded-[24px] px-4 py-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-[color:var(--text-strong)]">
+                          {row.subject}
+                        </p>
+                        <p className="mt-1 text-sm text-[color:var(--text-muted)]">
+                          Live totals
+                        </p>
+                      </div>
+                      <span className="soft-action-tint inline-flex min-w-14 items-center justify-center rounded-full px-3 py-1.5 text-sm font-semibold">
                         {rowTotal}
                       </span>
-                    </td>
-                  </tr>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-3 gap-2">
+                      <label className="block">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                          A1
+                        </p>
+                        <div className="mt-2">{scoreInput(row.id, "a1", row.a1, true)}</div>
+                      </label>
+                      <label className="block">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                          A2
+                        </p>
+                        <div className="mt-2">{scoreInput(row.id, "a2", row.a2, true)}</div>
+                      </label>
+                      <label className="block">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                          Exam
+                        </p>
+                        <div className="mt-2">{scoreInput(row.id, "exam", row.exam, true)}</div>
+                      </label>
+                    </div>
+                  </div>
                 );
               })}
-            </tbody>
-          </table>
-        </div>
+            </form>
+
+            <div className="surface-pocket hidden overflow-hidden rounded-[24px] sm:block">
+              <table className="min-w-full border-separate border-spacing-y-2">
+                <thead className="bg-white/40 text-left text-sm text-[color:var(--text-muted)]">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Subject</th>
+                    <th className="px-4 py-3 text-right font-medium">A1</th>
+                    <th className="px-4 py-3 text-right font-medium">A2</th>
+                    <th className="px-4 py-3 text-right font-medium">Exam</th>
+                    <th className="px-4 py-3 text-right font-medium">Total</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-[color:var(--surface)] text-sm">
+                  {rows.map((row) => {
+                    const rowTotal = computeRowTotal(row);
+
+                    return (
+                      <tr
+                        key={row.id}
+                        className="odd:bg-white/10 transition hover:bg-[color:rgba(231,240,255,0.56)]"
+                      >
+                        <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
+                          {row.subject}
+                        </td>
+                        <td className="px-4 py-4">{scoreInput(row.id, "a1", row.a1)}</td>
+                        <td className="px-4 py-4">{scoreInput(row.id, "a2", row.a2)}</td>
+                        <td className="px-4 py-4">{scoreInput(row.id, "exam", row.exam)}</td>
+                        <td className="px-4 py-4 text-right">
+                          <span className="soft-action-tint inline-flex min-w-12 items-center justify-center rounded-full px-3 py-1 font-semibold">
+                            {rowTotal}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : (
+          <div className="surface-pocket rounded-[24px] p-4 sm:p-5">
+            <div className="soft-action rounded-[24px] px-5 py-6 sm:px-6 sm:py-7">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
+                Entry
+              </p>
+              <h3 className="mt-3 text-xl font-semibold text-[color:var(--text-strong)]">
+                Subject scores are still empty
+              </h3>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[color:var(--text-muted)]">
+                This report already has saved term totals, but the subject-by-subject
+                score grid has not been captured yet. Add scores from the image when you
+                are ready and the live review totals will take over automatically.
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="surface-pocket mt-4 grid gap-3 rounded-[24px] p-3 sm:mt-5 sm:grid-cols-[1fr_0.42fr] sm:gap-4 sm:p-4">
           <div className="soft-action rounded-[22px] px-4 py-4 sm:px-5 sm:py-5">
@@ -249,7 +293,11 @@ export function ReportEntryEditor({
         <div className="surface-pocket mt-3 rounded-[24px] px-4 py-4 sm:mt-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
             <p className="text-sm text-[color:var(--text-muted)]">
-              {isPending ? "Saving changes..." : `${saveState}. Totals are live.`}
+              {isPending
+                ? "Saving changes..."
+                : hasEnteredScores
+                  ? `${saveState}. Totals are live.`
+                  : "Saved totals are shown until subject entry begins."}
             </p>
             <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
               <button
@@ -300,7 +348,9 @@ export function ReportEntryEditor({
           ))}
 
           <div className="rounded-[22px] bg-[color:rgba(232,246,238,0.84)] px-4 py-4 text-sm leading-6 text-[color:var(--success)] shadow-[var(--shadow-frost)]">
-            Totals update live.
+            {hasEnteredScores
+              ? "Totals update live."
+              : "Saved report totals are shown until subject entry begins."}
           </div>
         </div>
       </SectionCard>
