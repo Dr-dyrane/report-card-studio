@@ -51,6 +51,13 @@ async function recomputeClassroomTermRanking(classroomId: string, termId: string
   const db = await getDb();
   if (!db) return;
 
+  const classSize = await db.student.count({
+    where: {
+      classroomId,
+      isActive: true,
+    },
+  });
+
   const reportCards = await db.reportCard.findMany({
     where: {
       classroomId,
@@ -62,8 +69,6 @@ async function recomputeClassroomTermRanking(classroomId: string, termId: string
     orderBy: [{ grandTotal: "desc" }, { updatedAt: "asc" }],
     select: { id: true },
   });
-
-  const classSize = reportCards.length;
 
   await Promise.all(
     reportCards.map((report, index) =>

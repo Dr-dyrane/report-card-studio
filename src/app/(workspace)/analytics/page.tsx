@@ -1,87 +1,13 @@
 import { MetricExplorer } from "@/components/insights/MetricExplorer";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
+import { getAnalyticsSnapshot } from "@/lib/school-data";
 
-const metrics = [
-  {
-    title: "Class average",
-    value: "664",
-    hint: "Current term mean",
-    details: {
-      summary: "A steady middle with enough spread to show where review time matters.",
-      points: [
-        "Most students are clustering in the low-to-mid 600s.",
-        "The class is stable, but a few reports still need accuracy checks before final print.",
-        "Comparing class average against top and low totals helps surface whether the gap is widening or settling.",
-      ],
-      actionLabel: "Open reports",
-      actionHref: "/reports",
-    },
-  },
-  {
-    title: "Top total",
-    value: "825",
-    hint: "Best saved total",
-    tone: "accent" as const,
-    details: {
-      summary: "The strongest saved report in the active class right now.",
-      points: [
-        "Student 2 currently leads the class.",
-        "This report is useful as a calibration sheet for subject-level balance.",
-        "The top score is strongest in Mathematics, Grammar, and Computer.",
-      ],
-      actionLabel: "Open students",
-      actionHref: "/students",
-    },
-  },
-  {
-    title: "Lowest total",
-    value: "530",
-    hint: "Needs support",
-    details: {
-      summary: "The lowest saved total should guide the next review pass.",
-      points: [
-        "The biggest pressure points usually show up in reading-heavy and language rows.",
-        "This is the report group to check for missing scores, weak exams, or both.",
-        "Use this as the practical review priority before publishing every sheet.",
-      ],
-      actionLabel: "Review roster",
-      actionHref: "/students",
-    },
-  },
-  {
-    title: "Published reports",
-    value: "20",
-    hint: "Ready to print",
-    details: {
-      summary: "Published sheets are the ones ready for preview, print, and export.",
-      points: [
-        "These reports should already have totals, comments, and print-ready preview.",
-        "Preview remains the source of truth for browser print and PDF.",
-        "As parity improves, every published report will mirror the Excel-derived sheet more precisely.",
-      ],
-      actionLabel: "Open preview flow",
-      actionHref: "/reports",
-    },
-  },
-];
-
-const subjectPerformance = [
-  { subject: "Computer", value: 84, highlight: true },
-  { subject: "Mathematics", value: 78 },
-  { subject: "Grammar", value: 76 },
-  { subject: "Social Studies", value: 69 },
-  { subject: "Science", value: 58 },
-  { subject: "Comprehension", value: 34, low: true },
-];
-
-const distribution = [
-  { label: "Strong", value: 8, color: "var(--accent-strong)" },
-  { label: "Steady", value: 14, color: "var(--text-muted)" },
-  { label: "Attention", value: 8, color: "var(--warning)" },
-];
-
-const trendPoints = [590, 612, 628, 651, 664, 678, 690];
+type DistributionItem = {
+  label: string;
+  value: number;
+  color: string;
+};
 
 function buildTrendPath(points: number[]) {
   const width = 320;
@@ -120,7 +46,7 @@ function buildAreaPath(points: number[]) {
   return `${line} L ${width} ${height} L 0 ${height} Z`;
 }
 
-function buildDonutSegments(items: typeof distribution) {
+function buildDonutSegments(items: DistributionItem[]) {
   const total = items.reduce((sum, item) => sum + item.value, 0);
   let offset = 0;
 
@@ -136,7 +62,82 @@ function buildDonutSegments(items: typeof distribution) {
   });
 }
 
-export default function AnalyticsPage() {
+export default async function AnalyticsPage() {
+  const snapshot = await getAnalyticsSnapshot();
+  const metrics = [
+    {
+      title: "Class average",
+      value: String(snapshot.metrics.classAverage),
+      hint: "Current term mean",
+      details: {
+        summary: "A steady middle with enough spread to show where review time matters.",
+        points: [
+          "This mean is calculated from the active report set in the current workspace.",
+          "Use it to sense whether the class is climbing, settling, or drifting during review.",
+          "When this shifts after edits, ranking and report balance should move with it.",
+        ],
+        actionLabel: "Open reports",
+        actionHref: "/reports",
+      },
+    },
+    {
+      title: "Top total",
+      value: String(snapshot.metrics.topTotal),
+      hint: "Best saved total",
+      tone: "accent" as const,
+      details: {
+        summary: "The strongest saved report in the active class right now.",
+        points: [
+          "This top score should stay aligned with the report list and the current ranking order.",
+          "A sudden drop or jump here is usually the first signal that a row edit changed the class picture.",
+          "Use it as a quick quality check against the live report sheet.",
+        ],
+        actionLabel: "Open students",
+        actionHref: "/students",
+      },
+    },
+    {
+      title: "Lowest total",
+      value: String(snapshot.metrics.lowestTotal),
+      hint: "Needs support",
+      details: {
+        summary: "The lowest saved total should guide the next review pass.",
+        points: [
+          "This is the report group to inspect for weak exams, missing subject rows, or both.",
+          "When edits land, this number should update with the same truth as reports and rankings.",
+          "It is the most useful signal for deciding what to check next before print.",
+        ],
+        actionLabel: "Review roster",
+        actionHref: "/students",
+      },
+    },
+    {
+      title: "Published reports",
+      value: String(snapshot.metrics.publishedReports),
+      hint: "Ready to print",
+      details: {
+        summary: "Published sheets are the ones ready for preview, print, and export.",
+        points: [
+          "These reports should already have totals, comments, and print-ready preview.",
+          "Preview remains the source of truth for browser print and PDF.",
+          "When publish state changes, this should stay aligned with the reports list immediately.",
+        ],
+        actionLabel: "Open preview flow",
+        actionHref: "/reports",
+      },
+    },
+  ];
+  const subjectPerformance = snapshot.subjectPerformance;
+  const distribution = snapshot.distribution.map((item) => ({
+    ...item,
+    color:
+      item.label === "Strong"
+        ? "var(--accent-strong)"
+        : item.label === "Attention"
+          ? "var(--warning)"
+          : "var(--text-muted)",
+  }));
+  const trendPoints = snapshot.trendPoints;
   const trendPath = buildTrendPath(trendPoints);
   const areaPath = buildAreaPath(trendPoints);
   const donutSegments = buildDonutSegments(distribution);

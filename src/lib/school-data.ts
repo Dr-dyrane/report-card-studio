@@ -562,3 +562,144 @@ export async function getStudentEditorDetail(routeKey: string) {
     return null;
   }
 }
+
+const fallbackAnalyticsSnapshot = {
+  metrics: {
+    classAverage: 664,
+    topTotal: 825,
+    lowestTotal: 530,
+    publishedReports: 20,
+  },
+  subjectPerformance: [
+    { subject: "Computer", value: 84, highlight: true, low: false },
+    { subject: "Mathematics", value: 78, highlight: false, low: false },
+    { subject: "Grammar", value: 76, highlight: false, low: false },
+    { subject: "Social Studies", value: 69, highlight: false, low: false },
+    { subject: "Science", value: 58, highlight: false, low: false },
+    { subject: "Comprehension", value: 34, highlight: false, low: true },
+  ],
+  distribution: [
+    { label: "Strong", value: 8 },
+    { label: "Steady", value: 14 },
+    { label: "Attention", value: 8 },
+  ],
+  trendPoints: [590, 612, 628, 651, 664, 678, 690],
+};
+
+export async function getAnalyticsSnapshot() {
+  try {
+    const ownedSchool = await getOwnedSchool();
+    const db = await getDb();
+    if (!db || !ownedSchool) {
+      return fallbackAnalyticsSnapshot;
+    }
+
+    const reportCards = await db.reportCard.findMany({
+      where: {
+        classroom: {
+          schoolId: ownedSchool.id,
+        },
+        status: {
+          not: "LOCKED",
+        },
+      },
+      include: {
+        scores: {
+          include: {
+            subject: true,
+          },
+        },
+      },
+      orderBy: [{ grandTotal: "desc" }, { updatedAt: "desc" }],
+    });
+
+    if (!reportCards.length) {
+      return fallbackAnalyticsSnapshot;
+    }
+
+    const totals = reportCards.map((report) => report.grandTotal);
+    const classAverage = Math.round(
+      totals.reduce((sum, value) => sum + value, 0) / totals.length,
+    );
+    const topTotal = Math.max(...totals);
+    const lowestTotal = Math.min(...totals);
+    const publishedReports = reportCards.filter(
+      (report) => report.status === "PUBLISHED",
+    ).length;
+
+    const subjectMap = new Map<
+      string,
+      {
+        subject: string;
+        total: number;
+        count: number;
+      }
+    >();
+
+    reportCards.forEach((report) => {
+      report.scores.forEach((score) => {
+        const current = subjectMap.get(score.subjectId) ?? {
+          subject: score.subject.name,
+          total: 0,
+          count: 0,
+        };
+
+        current.total += score.totalScore;
+        current.count += 1;
+        subjectMap.set(score.subjectId, current);
+      });
+    });
+
+    const subjectPerformance = [...subjectMap.values()]
+      .map((subject) => ({
+        subject: subject.subject,
+        value: Math.round(subject.total / Math.max(subject.count, 1)),
+      }))
+      .sort((left, right) => right.value - left.value)
+      .slice(0, 6)
+      .map((subject, index, all) => ({
+        ...subject,
+        highlight: index === 0,
+        low: index === all.length - 1,
+      }));
+
+    const distribution = [
+      {
+        label: "Strong",
+        value: reportCards.filter((report) => report.grandTotal >= 700).length,
+      },
+      {
+        label: "Steady",
+        value: reportCards.filter(
+          (report) => report.grandTotal >= 600 && report.grandTotal < 700,
+        ).length,
+      },
+      {
+        label: "Attention",
+        value: reportCards.filter((report) => report.grandTotal < 600).length,
+      },
+    ];
+
+    const trendPoints = [...totals]
+      .sort((left, right) => left - right)
+      .slice(-7);
+
+    return {
+      metrics: {
+        classAverage,
+        topTotal,
+        lowestTotal,
+        publishedReports,
+      },
+      subjectPerformance: subjectPerformance.length
+        ? subjectPerformance
+        : fallbackAnalyticsSnapshot.subjectPerformance,
+      distribution,
+      trendPoints: trendPoints.length >= 2
+        ? trendPoints
+        : fallbackAnalyticsSnapshot.trendPoints,
+    };
+  } catch {
+    return fallbackAnalyticsSnapshot;
+  }
+}
