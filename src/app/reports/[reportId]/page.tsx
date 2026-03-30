@@ -42,17 +42,17 @@ export default async function ReportEntryPage({
   const { reportId } = await params;
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-3 sm:space-y-6">
       <PageHeader
         eyebrow="Report entry"
         title="Student 12"
-        description="Primary 5 Lavender · Second Term."
+        description="Primary 5 Lavender · Second Term"
         action="Publish"
         secondaryAction="Save"
       />
 
       <section className="grid gap-3 xl:grid-cols-[1.2fr_0.8fr]">
-        <div className="frost-panel-soft rounded-[24px] px-4 py-4 sm:rounded-[26px] sm:px-5 sm:py-5">
+        <div className="frost-panel-soft rounded-[26px] px-4 py-4 sm:px-5 sm:py-5">
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {[
               ["Status", "Draft"],
@@ -73,7 +73,7 @@ export default async function ReportEntryPage({
           </div>
         </div>
 
-        <div className="frost-panel-soft rounded-[24px] px-4 py-4 sm:rounded-[26px] sm:px-5 sm:py-5">
+        <div className="frost-panel-soft rounded-[26px] px-4 py-4 sm:px-5 sm:py-5">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {summary.map(([label, value]) => (
               <div
@@ -92,13 +92,13 @@ export default async function ReportEntryPage({
         </div>
       </section>
 
-      <div className="grid gap-4 sm:gap-6 xl:grid-cols-[1.25fr_0.42fr]">
+      <div className="grid gap-3 sm:gap-6 xl:grid-cols-[1.25fr_0.42fr]">
         <SectionCard title="Scores">
-          <div className="space-y-3 sm:hidden">
+          <div className="-mx-1 space-y-2 sm:hidden">
             {rows.map((row) => (
               <div
                 key={row.subject}
-                className="frost-panel-soft rounded-[22px] px-4 py-4"
+                className="frost-panel-soft rounded-[24px] px-4 py-4"
               >
                 <div className="flex items-start justify-between gap-3">
                   <p className="font-semibold text-[color:var(--text-strong)]">
@@ -186,18 +186,16 @@ export default async function ReportEntryPage({
             </div>
           </div>
 
-          <div className="frost-panel mt-4 rounded-[22px] px-4 py-4 sm:mt-5 sm:rounded-[24px]">
+          <div className="frost-panel mt-4 rounded-[24px] px-4 py-4 sm:mt-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-              <p className="text-sm text-[color:var(--text-muted)]">
-                Ready to review.
-              </p>
-              <div className="flex flex-wrap gap-2 sm:gap-3">
+              <p className="text-sm text-[color:var(--text-muted)]">Ready to review.</p>
+              <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-3">
                 <button className="frost-pill rounded-full px-4 py-2 text-sm font-semibold text-[color:var(--text-base)]">
                   Save
                 </button>
                 <Link
                   href={`/reports/${reportId}/preview`}
-                  className="rounded-full bg-[color:var(--accent)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-frost)]"
+                  className="rounded-full bg-[color:var(--accent)] px-4 py-2 text-center text-sm font-semibold text-white shadow-[var(--shadow-frost)]"
                 >
                   Preview
                 </Link>

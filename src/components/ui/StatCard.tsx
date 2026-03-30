@@ -6,12 +6,12 @@ type StatCardProps = {
 
 export function StatCard({ label, value, hint }: StatCardProps) {
   return (
-    <article className="frost-panel rounded-[24px] px-5 py-5">
+    <article className="frost-panel rounded-[22px] px-4 py-4 sm:px-5 sm:py-5">
       <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
-      <p className="mt-3 text-3xl font-semibold tracking-tight text-[color:var(--text-strong)]">
+      <p className="mt-2 text-[2rem] font-semibold tracking-tight text-[color:var(--text-strong)] sm:mt-3 sm:text-[2rem]">
         {value}
       </p>
-      <p className="mt-2 text-sm leading-6 text-[color:var(--text-muted)]">
+      <p className="mt-2 text-sm leading-5 text-[color:var(--text-muted)]">
         {hint}
       </p>
     </article>

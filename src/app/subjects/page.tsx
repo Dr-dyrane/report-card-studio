@@ -14,7 +14,7 @@ const subjects = [
 
 export default function SubjectsPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         eyebrow="Subjects"
         title="Subjects"
@@ -24,12 +24,12 @@ export default function SubjectsPage() {
       />
 
       <SectionCard title="Subject catalog">
-        <div className="mb-4 flex flex-wrap gap-2 sm:mb-5 sm:gap-3">
+        <div className="mb-4 flex snap-x gap-2 overflow-x-auto pb-1 sm:mb-5 sm:flex-wrap sm:overflow-visible sm:pb-0 sm:gap-3">
           {["Search subjects", "Category", "Assessment mode", "Class", "Active"].map(
             (filter) => (
               <div
                 key={filter}
-                className="frost-pill rounded-full px-4 py-2 text-sm text-[color:var(--text-muted)]"
+                className="frost-pill shrink-0 rounded-full px-4 py-2 text-sm text-[color:var(--text-muted)]"
               >
                 {filter}
               </div>
