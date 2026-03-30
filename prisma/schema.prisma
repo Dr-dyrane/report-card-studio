@@ -30,14 +30,14 @@ model School {
 }
 
 model Session {
-  id         String      @id @default(cuid())
-  name       String
-  isActive   Boolean     @default(false)
-  schoolId   String
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  school     School      @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  terms      Term[]
+  id        String   @id @default(cuid())
+  name      String
+  isActive  Boolean  @default(false)
+  schoolId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  terms     Term[]
 }
 
 model Term {
@@ -88,19 +88,19 @@ model Student {
 }
 
 model Subject {
-  id             String          @id @default(cuid())
+  id             String         @id @default(cuid())
   name           String
   category       String?
   assessmentMode AssessmentMode
   a1Max          Int?
   a2Max          Int?
   examMax        Int?
-  displayOrder   Int             @default(0)
-  isActive       Boolean         @default(true)
+  displayOrder   Int            @default(0)
+  isActive       Boolean        @default(true)
   schoolId       String
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  school         School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  school         School         @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   classSubjects  ClassSubject[]
   reportScores   ReportScore[]
 
@@ -119,25 +119,25 @@ model ClassSubject {
 }
 
 model ReportCard {
-  id                 String       @id @default(cuid())
+  id                 String        @id @default(cuid())
   studentId          String
   classroomId        String
   termId             String
-  status             ReportStatus @default(DRAFT)
+  status             ReportStatus  @default(DRAFT)
   position           String?
   classSize          Int?
-  grandTotal         Int          @default(0)
-  grandMax           Int          @default(1000)
-  assessment1Total   Int          @default(0)
-  assessment2Total   Int          @default(0)
-  examTotal          Int          @default(0)
+  grandTotal         Int           @default(0)
+  grandMax           Int           @default(1000)
+  assessment1Total   Int           @default(0)
+  assessment2Total   Int           @default(0)
+  examTotal          Int           @default(0)
   teacherComment     String?
   headTeacherComment String?
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
-  student            Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  classroom          Classroom    @relation(fields: [classroomId], references: [id], onDelete: Cascade)
-  term               Term         @relation(fields: [termId], references: [id], onDelete: Cascade)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  student            Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  classroom          Classroom     @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  term               Term          @relation(fields: [termId], references: [id], onDelete: Cascade)
   scores             ReportScore[]
 
   @@unique([studentId, termId])

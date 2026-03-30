@@ -1,16 +1,17 @@
 import Link from "next/link";
 
+import { getReportCards } from "@/lib/report-data";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 
-const reportStates = [
-  ["Student 12", "Draft", "678", "21st"],
-  ["Student 3", "Published", "733", "12th"],
-  ["Student 2", "Published", "825", "2nd"],
-  ["Student 20", "Published", "530", "30th"],
-];
+export default async function ReportsPage() {
+  const reportCards = await getReportCards();
+  const drafts = reportCards.filter((report) => report.status === "DRAFT").length;
+  const published = reportCards.filter(
+    (report) => report.status === "PUBLISHED",
+  ).length;
+  const ready = reportCards.filter((report) => report.grandTotal > 0).length;
 
-export default function ReportsPage() {
   return (
     <div className="space-y-4 sm:space-y-6">
       <PageHeader
@@ -25,10 +26,10 @@ export default function ReportsPage() {
         <SectionCard title="Queue">
           <div className="grid grid-cols-2 gap-3">
             {[
-              ["Drafts", "1"],
-              ["Published", "19"],
-              ["Ready", "4"],
-              ["Exported", "12"],
+              ["Drafts", String(drafts)],
+              ["Published", String(published)],
+              ["Ready", String(ready)],
+              ["Exported", "0"],
             ].map(([label, value]) => (
               <div
                 key={label}
@@ -45,30 +46,42 @@ export default function ReportsPage() {
 
         <SectionCard title="Current">
           <div className="grid gap-3">
-            {reportStates.map(([student, status, total, position]) => (
-              <Link
-                key={student}
-                href={`/reports/${student.toLowerCase().replace(/\s+/g, "-")}`}
-                className="frost-panel-soft flex items-center justify-between rounded-[24px] px-4 py-4 transition hover:bg-[color:rgba(231,240,255,0.72)]"
-              >
-                <div className="min-w-0">
-                  <p className="font-semibold text-[color:var(--text-strong)]">
-                    {student}
-                  </p>
-                  <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-                    {status}
-                  </p>
-                </div>
-                <div className="rounded-[18px] bg-white/55 px-3 py-2 text-right shadow-[var(--shadow-frost)]">
-                  <p className="font-semibold text-[color:var(--text-strong)]">
-                    {total}
-                  </p>
-                  <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-                    {position}
-                  </p>
-                </div>
-              </Link>
-            ))}
+            {reportCards.length ? (
+              reportCards.map((report) => {
+                const hrefStudent = report.student.fullName
+                  .toLowerCase()
+                  .replace(/\s+/g, "-");
+
+                return (
+                  <Link
+                    key={report.id}
+                    href={`/reports/${hrefStudent}`}
+                    className="frost-panel-soft flex items-center justify-between rounded-[24px] px-4 py-4 transition hover:bg-[color:rgba(231,240,255,0.72)]"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-semibold text-[color:var(--text-strong)]">
+                        {report.student.fullName}
+                      </p>
+                      <p className="mt-1 text-sm text-[color:var(--text-muted)]">
+                        {report.status.toLowerCase()}
+                      </p>
+                    </div>
+                    <div className="rounded-[18px] bg-white/55 px-3 py-2 text-right shadow-[var(--shadow-frost)]">
+                      <p className="font-semibold text-[color:var(--text-strong)]">
+                        {report.grandTotal}
+                      </p>
+                      <p className="mt-1 text-sm text-[color:var(--text-muted)]">
+                        {report.position ?? "--"}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })
+            ) : (
+              <div className="frost-panel-soft rounded-[24px] px-4 py-5 text-sm text-[color:var(--text-muted)]">
+                No reports yet. Seed or create a report to start.
+              </div>
+            )}
           </div>
         </SectionCard>
       </section>
