@@ -1,4 +1,4 @@
-const CACHE_NAME = "kradle-shell-v1";
+const CACHE_NAME = "kradle-shell-v2";
 const APP_SHELL = ["/dashboard", "/manifest.webmanifest", "/icons/icon-192.svg", "/icons/icon-512.svg"];
 
 self.addEventListener("install", (event) => {
@@ -43,24 +43,19 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  const isStaticAsset =
-    url.pathname.startsWith("/_next/static/") ||
-    url.pathname.startsWith("/icons/") ||
-    url.pathname === "/manifest.webmanifest";
+  const isShellAsset =
+    url.pathname === "/manifest.webmanifest" ||
+    url.pathname.startsWith("/icons/");
 
-  if (isStaticAsset) {
-    event.respondWith(
-      caches.match(request).then((cachedResponse) => {
-        const networkFetch = fetch(request)
-          .then((networkResponse) => {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
-            return networkResponse;
-          })
-          .catch(() => cachedResponse);
+  if (!isShellAsset) return;
 
-        return cachedResponse || networkFetch;
-      }),
-    );
-  }
+  event.respondWith(
+    fetch(request)
+      .then((networkResponse) => {
+        const responseClone = networkResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+        return networkResponse;
+      })
+      .catch(() => caches.match(request)),
+  );
 });
