@@ -27,7 +27,7 @@ export default function ReportPreviewPage() {
       <SectionCard title="Report card">
         <div className="frost-panel-strong rounded-[26px] px-4 py-4 sm:px-6 sm:py-6">
           <div className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="rounded-[24px] bg-white/55 px-6 py-6 shadow-[var(--shadow-frost)]">
+            <div className="rounded-[24px] bg-white/55 px-4 py-5 shadow-[var(--shadow-frost)] sm:px-6 sm:py-6">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
                 School name
               </p>
@@ -45,7 +45,10 @@ export default function ReportPreviewPage() {
                   ["Position", "21st"],
                   ["Grand total", "678 / 1000"],
                 ].map(([label, value]) => (
-                  <div key={label} className="rounded-[18px] bg-[color:rgba(246,247,244,0.8)] px-4 py-4">
+                  <div
+                    key={label}
+                    className="rounded-[18px] bg-[color:rgba(246,247,244,0.8)] px-4 py-4"
+                  >
                     <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
                     <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)]">
                       {value}

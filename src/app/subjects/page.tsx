@@ -24,12 +24,12 @@ export default function SubjectsPage() {
       />
 
       <SectionCard title="Subject catalog">
-        <div className="mb-4 flex snap-x gap-2 overflow-x-auto pb-1 sm:mb-5 sm:flex-wrap sm:overflow-visible sm:pb-0 sm:gap-3">
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-5 sm:flex sm:flex-wrap sm:gap-3">
           {["Search subjects", "Category", "Assessment mode", "Class", "Active"].map(
             (filter) => (
               <div
                 key={filter}
-                className="frost-pill shrink-0 rounded-full px-4 py-2 text-sm text-[color:var(--text-muted)]"
+                className="frost-pill rounded-full px-4 py-2 text-center text-sm text-[color:var(--text-muted)]"
               >
                 {filter}
               </div>
@@ -42,7 +42,7 @@ export default function SubjectsPage() {
             <Link
               key={subject}
               href={`/subjects/${subject.toLowerCase().replace(/\s+/g, "-")}`}
-              className="frost-panel-soft block rounded-[22px] px-4 py-4"
+              className="frost-panel-soft block rounded-[24px] px-4 py-4"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -58,17 +58,21 @@ export default function SubjectsPage() {
                 </span>
               </div>
               <div className="mt-4 grid gap-2 text-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-[color:var(--text-muted)]">Mode</span>
-                  <span className="font-medium text-[color:var(--text-strong)]">
-                    {mode}
-                  </span>
+                <div className="rounded-[18px] bg-white/55 px-3 py-3 shadow-[var(--shadow-frost)]">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-[color:var(--text-muted)]">Mode</span>
+                    <span className="font-medium text-[color:var(--text-strong)]">
+                      {mode}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-[color:var(--text-muted)]">Max</span>
-                  <span className="font-medium text-[color:var(--text-strong)]">
-                    {maxScores}
-                  </span>
+                <div className="rounded-[18px] bg-white/55 px-3 py-3 shadow-[var(--shadow-frost)]">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-[color:var(--text-muted)]">Max</span>
+                    <span className="font-medium text-[color:var(--text-strong)]">
+                      {maxScores}
+                    </span>
+                  </div>
                 </div>
               </div>
             </Link>

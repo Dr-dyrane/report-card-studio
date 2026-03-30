@@ -74,7 +74,7 @@ export default async function ReportEntryPage({
         </div>
 
         <div className="frost-panel-soft rounded-[26px] px-4 py-4 sm:px-5 sm:py-5">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {summary.map(([label, value]) => (
               <div
                 key={label}
@@ -189,7 +189,7 @@ export default async function ReportEntryPage({
           <div className="frost-panel mt-4 rounded-[24px] px-4 py-4 sm:mt-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
               <p className="text-sm text-[color:var(--text-muted)]">Ready to review.</p>
-              <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
                 <button className="frost-pill rounded-full px-4 py-2 text-sm font-semibold text-[color:var(--text-base)]">
                   Save
                 </button>
@@ -199,7 +199,7 @@ export default async function ReportEntryPage({
                 >
                   Preview
                 </Link>
-                <button className="rounded-full bg-[color:var(--text-strong)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-frost)]">
+                <button className="col-span-2 rounded-full bg-[color:var(--text-strong)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-frost)] sm:col-span-1">
                   Publish
                 </button>
               </div>
@@ -208,7 +208,7 @@ export default async function ReportEntryPage({
         </SectionCard>
 
         <SectionCard title="Summary">
-          <div className="space-y-3 sm:space-y-4 xl:sticky xl:top-28">
+          <div className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:sticky xl:top-28 xl:grid-cols-1">
             {[
               ["A1 total", "134"],
               ["A2 total", "113"],

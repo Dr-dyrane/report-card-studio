@@ -22,7 +22,7 @@ export default function StudentsPage() {
       />
 
       <SectionCard title="All students">
-        <div className="mb-4 flex snap-x gap-2 overflow-x-auto pb-1 sm:mb-5 sm:flex-wrap sm:overflow-visible sm:pb-0 sm:gap-3">
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-5 sm:flex sm:flex-wrap sm:gap-3">
           {[
             "Search students",
             "Class",
@@ -32,7 +32,7 @@ export default function StudentsPage() {
           ].map((filter) => (
               <div
                 key={filter}
-                className="frost-pill shrink-0 rounded-full px-3 py-2 text-sm text-[color:var(--text-muted)] sm:px-4"
+                className="frost-pill rounded-full px-3 py-2 text-center text-sm text-[color:var(--text-muted)] sm:px-4"
               >
                 {filter}
               </div>
@@ -44,7 +44,7 @@ export default function StudentsPage() {
             <Link
               key={name}
               href={`/students/${name.toLowerCase().replace(/\s+/g, "-")}`}
-              className="frost-panel-soft block rounded-[22px] px-4 py-4"
+              className="frost-panel-soft block rounded-[24px] px-4 py-4"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -60,13 +60,13 @@ export default function StudentsPage() {
                 </span>
               </div>
               <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                <div>
+                <div className="rounded-[18px] bg-white/55 px-3 py-3 shadow-[var(--shadow-frost)]">
                   <p className="text-[color:var(--text-muted)]">Total</p>
                   <p className="mt-1 font-semibold text-[color:var(--text-strong)]">
                     {total}
                   </p>
                 </div>
-                <div>
+                <div className="rounded-[18px] bg-white/55 px-3 py-3 shadow-[var(--shadow-frost)]">
                   <p className="text-[color:var(--text-muted)]">Position</p>
                   <p className="mt-1 font-semibold text-[color:var(--text-strong)]">
                     {position}

@@ -59,7 +59,7 @@ export default function ReportsPage() {
                     {status}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="rounded-[18px] bg-white/55 px-3 py-2 text-right shadow-[var(--shadow-frost)]">
                   <p className="font-semibold text-[color:var(--text-strong)]">
                     {total}
                   </p>
