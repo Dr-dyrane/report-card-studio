@@ -74,14 +74,14 @@ export default async function ReportsPage({
 
       <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {[
-          ["Drafts", String(drafts)],
-          ["Published", String(published)],
-          ["Ready", String(ready)],
-          ["Archived", String(archived)],
-        ].map(([label, value]) => (
+          ["Drafts", String(drafts), ""],
+          ["Published", String(published), "mood-surface-success"],
+          ["Ready", String(ready), "mood-surface-focus"],
+          ["Archived", String(archived), ""],
+        ].map(([label, value, toneClass]) => (
           <div
             key={label}
-            className="frost-panel rounded-[24px] px-4 py-4 sm:px-5 sm:py-5"
+            className={`frost-panel rounded-[24px] px-4 py-4 sm:px-5 sm:py-5 ${toneClass}`}
           >
             <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
             <p className="mt-2 text-3xl font-semibold text-[color:var(--text-strong)]">
@@ -92,7 +92,10 @@ export default async function ReportsPage({
       </section>
 
       <section>
-        <SectionCard title={selectedView === "archived" ? "Archived" : "Current"}>
+        <SectionCard
+          title={selectedView === "archived" ? "Archived" : "Current"}
+          tone={selectedView === "archived" ? "warning" : "default"}
+        >
           <div className="mb-4 flex flex-wrap gap-2">
             <Link
               href={filterHref("current", selectedClass || undefined)}
@@ -137,7 +140,7 @@ export default async function ReportsPage({
             })}
           </div>
 
-          <div className="mb-4 rounded-[18px] soft-action px-4 py-3 text-sm text-[color:var(--text-muted)]">
+          <div className="mb-4 rounded-[18px] quiet-note px-4 py-3 text-sm text-[color:var(--text-muted)]">
             {selectedView === "archived"
               ? "Archived reports stay readable and can be restored from the sheet."
               : "Positions and totals refresh after saved edits and publish."}
@@ -198,17 +201,17 @@ export default async function ReportsPage({
             }
           />
 
-          <div className="frost-panel-soft hidden overflow-hidden rounded-[22px] sm:block">
+          <div className="frost-panel-soft hidden overflow-hidden rounded-[20px] sm:block">
             {visibleReports.length ? (
               <table className="min-w-full border-separate border-spacing-0">
                 <thead className="table-head text-left text-sm text-[color:var(--text-muted)]">
                   <tr>
-                    <th className="px-4 py-3 font-medium">Student</th>
-                    <th className="px-4 py-3 font-medium">Class</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
-                    <th className="px-4 py-3 text-right font-medium">Total</th>
-                    <th className="px-4 py-3 text-right font-medium">Position</th>
-                    <th className="px-4 py-3 text-right font-medium">Open</th>
+                    <th className="px-4 py-2.5 font-medium">Student</th>
+                    <th className="px-4 py-2.5 font-medium">Class</th>
+                    <th className="px-4 py-2.5 font-medium">Status</th>
+                    <th className="px-4 py-2.5 text-right font-medium">Total</th>
+                    <th className="px-4 py-2.5 text-right font-medium">Position</th>
+                    <th className="px-4 py-2.5 text-right font-medium">Open</th>
                   </tr>
                 </thead>
                 <tbody className="bg-[color:var(--surface)] text-sm">
@@ -221,30 +224,32 @@ export default async function ReportsPage({
                           index % 2 === 0 ? "var(--table-row-odd)" : undefined,
                       }}
                     >
-                      <td className="px-4 py-3.5 font-semibold text-[color:var(--text-strong)]">
+                      <td className="px-4 py-3 font-semibold text-[color:var(--text-strong)]">
                         {report.student.fullName}
                       </td>
-                      <td className="px-4 py-3.5 text-[color:var(--text-muted)]">
+                      <td className="px-4 py-3 text-[color:var(--text-muted)]">
                         {report.classroom?.name ?? "Class"}
                       </td>
-                      <td className="px-4 py-3.5">
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                            report.status === "PUBLISHED"
-                              ? "bg-[color:var(--success-soft)] text-[color:var(--success)]"
-                              : "soft-action text-[color:var(--text-base)]"
+                      <td className="px-4 py-3">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          report.status === "PUBLISHED"
+                              ? "mood-badge-success"
+                              : report.status === "LOCKED"
+                                ? "mood-badge-warning"
+                              : "surface-chip text-[color:var(--text-base)]"
                           }`}
                         >
                           {toStatusLabel(report.status)}
                         </span>
                       </td>
-                      <td className="px-4 py-3.5 text-right font-semibold text-[color:var(--text-strong)]">
+                      <td className="px-4 py-3 text-right font-semibold text-[color:var(--text-strong)]">
                         {report.grandTotal}
                       </td>
-                      <td className="px-4 py-3.5 text-right text-[color:var(--text-base)]">
+                      <td className="px-4 py-3 text-right text-[color:var(--text-base)]">
                         {report.position ?? "--"}
                       </td>
-                      <td className="px-4 py-3.5 text-right">
+                      <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-2">
                           <Link
                             href={`/reports/${report.id}`}
@@ -265,7 +270,7 @@ export default async function ReportsPage({
                 </tbody>
               </table>
             ) : (
-              <div className="m-4 rounded-[22px] px-4 py-5 text-sm text-[color:var(--text-muted)] soft-action">
+              <div className="empty-state m-4 rounded-[22px] px-4 py-5 text-sm text-[color:var(--text-muted)]">
                 {selectedView === "archived"
                   ? "No archived reports yet in this class."
                   : "No reports yet in this class. Create a new student sheet to start."}

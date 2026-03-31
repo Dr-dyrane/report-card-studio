@@ -40,7 +40,7 @@ export function FocusSurface({
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[var(--z-dialog)]">
+    <div className="overlay-fade fixed inset-0 z-[var(--z-dialog)]">
       <button
         type="button"
         aria-label="Close"
@@ -52,7 +52,7 @@ export function FocusSurface({
         <div
           role="dialog"
           aria-modal="true"
-          className="frost-panel-strong premium-sheen relative w-full max-w-2xl rounded-[30px] rounded-b-[22px] px-4 py-4 shadow-[0_32px_90px_rgba(16,24,40,0.22)] sm:rounded-[32px] sm:px-6 sm:py-6"
+          className="surface-enter frost-panel-strong premium-sheen relative w-full max-w-2xl rounded-[30px] rounded-b-[22px] px-4 py-4 shadow-[0_24px_68px_rgba(16,24,40,0.18)] sm:rounded-[32px] sm:px-6 sm:py-6"
           onClick={(event) => event.stopPropagation()}
         >
           <div className="flex items-start justify-between gap-4">

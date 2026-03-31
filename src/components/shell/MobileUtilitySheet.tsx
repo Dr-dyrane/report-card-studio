@@ -84,7 +84,7 @@ export function MobileUtilitySheet({
             className="soft-action inline-flex h-11 w-11 items-center justify-center rounded-full"
             aria-label="Close utility sheet"
           >
-            <XMarkIcon className="h-5 w-5 text-[color:var(--text-strong)]" />
+            <XMarkIcon className="h-5 w-5 stroke-[1.75] text-[color:var(--text-strong)]" />
           </button>
         </div>
 
@@ -121,7 +121,7 @@ export function MobileUtilitySheet({
                 </p>
               ) : null}
             </div>
-            <ChevronRightIcon className="h-4.5 w-4.5 shrink-0 text-[color:var(--text-muted)]" />
+            <ChevronRightIcon className="h-4.5 w-4.5 shrink-0 stroke-[1.75] text-[color:var(--text-muted)]" />
           </div>
         </Link>
 
@@ -133,11 +133,11 @@ export function MobileUtilitySheet({
           >
             <span className="inline-flex items-center gap-3">
               <span className="surface-chip inline-flex h-9 w-9 items-center justify-center rounded-full text-[color:var(--accent-strong)]">
-                <PlusIcon className="h-4.5 w-4.5" />
+                <PlusIcon className="h-4.5 w-4.5 stroke-[1.75]" />
               </span>
               <span className="font-semibold">New report</span>
             </span>
-            <ChevronRightIcon className="h-4 w-4" />
+            <ChevronRightIcon className="h-4 w-4 stroke-[1.75]" />
           </Link>
 
           <div className="px-3">
@@ -152,11 +152,11 @@ export function MobileUtilitySheet({
             >
               <span className="inline-flex items-center gap-3">
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--surface-glass)] text-[color:var(--text-muted)]">
-                  <AppIcon name={item.icon} className="h-4.5 w-4.5" />
+                  <AppIcon name={item.icon} className="h-4.5 w-4.5 stroke-[1.75]" />
                 </span>
                 <span className="font-medium text-[color:var(--text-strong)]">{item.label}</span>
               </span>
-              <ChevronRightIcon className="h-4 w-4 text-[color:var(--text-muted)]" />
+              <ChevronRightIcon className="h-4 w-4 stroke-[1.75] text-[color:var(--text-muted)]" />
             </Link>
             ))}
           </div>
@@ -186,11 +186,11 @@ export function MobileUtilitySheet({
           >
             <span className="inline-flex items-center gap-3">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--surface-glass)]">
-                <ArrowRightStartOnRectangleIcon className="h-4.5 w-4.5" />
+                <ArrowRightStartOnRectangleIcon className="h-4.5 w-4.5 stroke-[1.75]" />
               </span>
               <span className="font-semibold">Sign out</span>
             </span>
-            <ChevronRightIcon className="h-4 w-4" />
+            <ChevronRightIcon className="h-4 w-4 stroke-[1.75]" />
           </button>
         </div>
       </aside>

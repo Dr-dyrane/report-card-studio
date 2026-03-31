@@ -50,7 +50,7 @@ export default async function StudentsPage({
       />
 
       <section className="grid gap-4 xl:grid-cols-[1.18fr_0.82fr]">
-        <SectionCard title="Roster">
+        <SectionCard title="Roster" tone="focus">
           <div className="mb-4 flex flex-wrap gap-2 sm:mb-5 sm:gap-3">
             <Link
               href="/students"
@@ -104,16 +104,16 @@ export default async function StudentsPage({
             emptyMessage="No students yet in this class."
           />
 
-          <div className="frost-panel-soft hidden overflow-hidden rounded-[22px] sm:block">
+          <div className="frost-panel-soft hidden overflow-hidden rounded-[20px] sm:block">
             <table className="min-w-full border-separate border-spacing-0">
               <thead className="table-head text-left text-sm text-[color:var(--text-muted)]">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Student</th>
-                  <th className="px-4 py-3 font-medium">Class</th>
-                  <th className="px-4 py-3 text-right font-medium">Total</th>
-                  <th className="px-4 py-3 text-right font-medium">Position</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 text-right font-medium">Report</th>
+                  <th className="px-4 py-2.5 font-medium">Student</th>
+                  <th className="px-4 py-2.5 font-medium">Class</th>
+                  <th className="px-4 py-2.5 text-right font-medium">Total</th>
+                  <th className="px-4 py-2.5 text-right font-medium">Position</th>
+                  <th className="px-4 py-2.5 font-medium">Status</th>
+                  <th className="px-4 py-2.5 text-right font-medium">Report</th>
                 </tr>
               </thead>
               <tbody className="bg-[color:var(--surface)] text-sm">
@@ -124,24 +124,24 @@ export default async function StudentsPage({
                       backgroundColor: index % 2 === 0 ? "var(--table-row-odd)" : undefined,
                     }}
                   >
-                    <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
+                    <td className="px-4 py-3.5 font-semibold text-[color:var(--text-strong)]">
                       {student.fullName}
                     </td>
-                    <td className="px-4 py-4 text-[color:var(--text-muted)]">
+                    <td className="px-4 py-3.5 text-[color:var(--text-muted)]">
                       {student.classroomName}
                     </td>
-                    <td className="px-4 py-4 text-right font-semibold text-[color:var(--text-strong)]">
+                    <td className="px-4 py-3.5 text-right font-semibold text-[color:var(--text-strong)]">
                       {student.grandTotal}
                     </td>
-                    <td className="px-4 py-4 text-right text-[color:var(--text-base)]">
+                    <td className="px-4 py-3.5 text-right text-[color:var(--text-base)]">
                       {student.position}
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-3.5">
                       <span className="rounded-full bg-[color:var(--success-soft)] px-3 py-1 text-xs font-semibold text-[color:var(--success)]">
                         {student.status}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-right">
+                    <td className="px-4 py-3.5 text-right">
                       <div className="flex justify-end gap-2">
                         <Link
                           href={student.reportHref}
@@ -162,7 +162,7 @@ export default async function StudentsPage({
               </tbody>
             </table>
             {!visibleStudents.length ? (
-              <div className="soft-action m-4 rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
+              <div className="empty-state m-4 rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
                 No students yet in this class.
               </div>
             ) : null}
@@ -170,7 +170,7 @@ export default async function StudentsPage({
         </SectionCard>
 
         <div className="grid gap-4">
-        <SectionCard title="Snapshot">
+        <SectionCard title="Snapshot" tone="focus">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-2">
               {[
                 ["Students", String(visibleStudents.length)],
@@ -181,7 +181,11 @@ export default async function StudentsPage({
                 <div
                   key={label}
                   className={`rounded-[22px] px-4 py-4 ${
-                    index === 2 ? "soft-action-tint" : "surface-pocket"
+                    index === 2
+                      ? "mood-surface-success"
+                      : index === 3
+                        ? "mood-surface-focus"
+                        : "surface-pocket"
                   }`}
                 >
                   <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
@@ -191,12 +195,12 @@ export default async function StudentsPage({
                 </div>
               ))}
             </div>
-            <div className="mt-3 rounded-[18px] soft-action px-4 py-3 text-sm text-[color:var(--text-muted)]">
+            <div className="mt-3 rounded-[18px] quiet-note px-4 py-3 text-sm text-[color:var(--text-muted)]">
               Positions stay in sync with saved report totals.
             </div>
           </SectionCard>
 
-          <SectionCard title="Top student">
+          <SectionCard title="Top student" tone="success">
             {topStudent ? (
               <Link
                 href={topStudent.reportHref}
@@ -211,7 +215,7 @@ export default async function StudentsPage({
                       {topStudent.classroomName}
                     </p>
                   </div>
-                  <span className="soft-action-tint rounded-full px-3 py-1.5 text-sm font-semibold">
+                  <span className="mood-badge-focus rounded-full px-3 py-1.5 text-sm font-semibold">
                     {topStudent.grandTotal}
                   </span>
                 </div>
@@ -231,13 +235,13 @@ export default async function StudentsPage({
                 </div>
               </Link>
             ) : (
-              <div className="soft-action rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
-                No published totals yet in this class.
-              </div>
+                <div className="empty-state rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
+                  No published totals yet in this class.
+                </div>
             )}
           </SectionCard>
 
-          <SectionCard title="Attention">
+          <SectionCard title="Attention" tone="warning">
             <div className="grid gap-3">
               {visibleStudents
                 .filter((student) => student.grandTotal > 0)
@@ -257,16 +261,16 @@ export default async function StudentsPage({
                           Needs review
                         </p>
                       </div>
-                      <span className="soft-action rounded-full px-3 py-1.5 text-sm font-semibold">
+                      <span className="mood-badge-warning rounded-full px-3 py-1.5 text-sm font-semibold">
                         {student.grandTotal}
                       </span>
                     </div>
                   </Link>
                 ))}
               {drafts ? (
-                <div className="soft-action rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
-                  {drafts} student records are still draft-only.
-                </div>
+                  <div className="quiet-note rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
+                    {drafts} student records are still draft-only.
+                  </div>
               ) : null}
             </div>
           </SectionCard>

@@ -1,42 +1,42 @@
 @import "tailwindcss";
 
 :root {
-  --canvas: #e7ddd6;
-  --surface: #f2eae4;
-  --surface-muted: #e8ddd5;
-  --surface-raised: #ede3dc;
+  --canvas: #eeeae5;
+  --surface: #fbf8f4;
+  --surface-muted: #f3eee8;
+  --surface-raised: #f7f2ec;
   --canvas-gradient:
-    radial-gradient(circle at 0% 0%, rgba(199, 118, 58, 0.16), transparent 24%),
-    radial-gradient(circle at 100% 8%, rgba(214, 154, 84, 0.14), transparent 22%),
-    radial-gradient(circle at 54% 100%, rgba(120, 116, 181, 0.08), transparent 28%),
-    linear-gradient(180deg, #e9dfd7 0%, #dfd3ca 48%, #d4c7bd 100%);
+    radial-gradient(circle at 0% 0%, rgba(184, 132, 89, 0.04), transparent 22%),
+    radial-gradient(circle at 100% 10%, rgba(190, 162, 119, 0.035), transparent 20%),
+    radial-gradient(circle at 54% 100%, rgba(122, 130, 177, 0.03), transparent 26%),
+    linear-gradient(180deg, #f1eeea 0%, #e8e2db 48%, #ddd5cd 100%);
   --surface-gradient:
-    linear-gradient(180deg, rgba(244, 237, 232, 0.98) 0%, rgba(232, 224, 217, 0.97) 100%);
+    linear-gradient(180deg, rgba(252, 249, 245, 0.985) 0%, rgba(245, 239, 232, 0.97) 100%);
   --surface-gradient-soft:
-    linear-gradient(180deg, rgba(236, 228, 222, 0.95) 0%, rgba(223, 214, 206, 0.93) 100%);
+    linear-gradient(180deg, rgba(247, 242, 236, 0.95) 0%, rgba(239, 232, 225, 0.93) 100%);
   --surface-gradient-tint:
-    linear-gradient(135deg, rgba(214, 226, 250, 0.96) 0%, rgba(226, 214, 239, 0.95) 55%, rgba(236, 222, 210, 0.94) 100%);
-  --canvas-glow: rgba(188, 122, 62, 0.1);
-  --canvas-top: #eadfd7;
-  --frost: rgba(241, 232, 226, 0.74);
-  --frost-strong: rgba(236, 226, 219, 0.84);
-  --frost-soft: rgba(227, 216, 209, 0.78);
-  --highlight: #ddd0c7;
-  --table-head: rgba(242, 234, 228, 0.58);
-  --table-row-odd: rgba(242, 234, 228, 0.22);
-  --pill-bg: rgba(238, 229, 223, 0.9);
-  --input-bg: rgba(234, 224, 217, 0.92);
-  --surface-glass: rgba(233, 223, 216, 0.66);
-  --surface-glass-strong: rgba(228, 218, 210, 0.78);
-  --surface-hover: rgba(239, 230, 224, 0.95);
-  --surface-hover-soft: rgba(233, 223, 216, 0.74);
-  --border-soft: #ccbeb4;
-  --border-strong: #b8a89d;
+    linear-gradient(135deg, rgba(210, 223, 252, 0.98) 0%, rgba(228, 222, 244, 0.94) 52%, rgba(247, 241, 234, 0.94) 100%);
+  --canvas-glow: rgba(176, 126, 89, 0.028);
+  --canvas-top: #f0ece7;
+  --frost: rgba(250, 246, 240, 0.74);
+  --frost-strong: rgba(246, 241, 234, 0.82);
+  --frost-soft: rgba(242, 235, 228, 0.76);
+  --highlight: #e4dcd4;
+  --table-head: rgba(245, 238, 232, 0.56);
+  --table-row-odd: rgba(245, 238, 232, 0.12);
+  --pill-bg: rgba(246, 241, 235, 0.9);
+  --input-bg: rgba(241, 235, 228, 0.9);
+  --surface-glass: rgba(244, 238, 231, 0.68);
+  --surface-glass-strong: rgba(239, 232, 225, 0.78);
+  --surface-hover: rgba(245, 239, 233, 0.94);
+  --surface-hover-soft: rgba(239, 233, 226, 0.74);
+  --border-soft: #ddd2ca;
+  --border-strong: #cabeb6;
   --text-strong: #241c19;
   --text-base: #3d342f;
   --text-muted: #746861;
   --accent: #2f6fed;
-  --accent-soft: #eef4ff;
+  --accent-soft: #f2f6ff;
   --accent-strong: #1b4bcf;
   --surface-inset: rgba(255, 248, 241, 0.42);
   --overlay-backdrop: rgba(11, 18, 26, 0.38);
@@ -48,15 +48,20 @@
   --z-overlay: 180;
   --z-dialog: 220;
   --success: #198754;
-  --success-soft: #edf7f1;
+  --success-soft: #eef8f3;
   --warning: #b9851f;
-  --warning-soft: #fff2dd;
+  --warning-soft: #f7edd7;
   --danger: #bf4c63;
-  --danger-soft: #fbebf0;
-  --shadow-1: 0 10px 30px rgba(39, 26, 64, 0.08);
-  --shadow-2: 0 24px 60px rgba(39, 26, 64, 0.14);
-  --shadow-frost: 0 10px 24px rgba(39, 26, 64, 0.08), inset 0 1px 0 rgba(255, 247, 255, 0.34);
-  --shadow-frost-strong: 0 18px 42px rgba(39, 26, 64, 0.14), inset 0 1px 0 rgba(255, 247, 255, 0.38);
+  --danger-soft: #fcedf1;
+  --focus-soft: rgba(209, 222, 250, 0.98);
+  --focus-border: rgba(73, 113, 211, 0.22);
+  --success-border: rgba(25, 135, 84, 0.18);
+  --warning-border: rgba(185, 133, 31, 0.18);
+  --danger-border: rgba(191, 76, 99, 0.18);
+  --shadow-1: 0 8px 24px rgba(39, 26, 64, 0.055);
+  --shadow-2: 0 20px 48px rgba(39, 26, 64, 0.1);
+  --shadow-frost: 0 8px 20px rgba(39, 26, 64, 0.055), inset 0 1px 0 rgba(255, 247, 255, 0.34);
+  --shadow-frost-strong: 0 14px 34px rgba(39, 26, 64, 0.1), inset 0 1px 0 rgba(255, 247, 255, 0.38);
 }
 
 html[data-theme="dark"] {
@@ -109,9 +114,14 @@ html[data-theme="dark"] {
   --success: #76ddb0;
   --success-soft: rgba(34, 74, 56, 0.72);
   --warning: #f3cf86;
-  --warning-soft: rgba(114, 85, 22, 0.72);
+  --warning-soft: rgba(92, 74, 28, 0.64);
   --danger: #ff9bb1;
   --danger-soft: rgba(105, 39, 57, 0.78);
+  --focus-soft: rgba(58, 75, 132, 0.86);
+  --focus-border: rgba(140, 180, 255, 0.18);
+  --success-border: rgba(118, 221, 176, 0.16);
+  --warning-border: rgba(243, 207, 134, 0.16);
+  --danger-border: rgba(255, 155, 177, 0.16);
   --shadow-1: 0 10px 30px rgba(0, 0, 0, 0.3);
   --shadow-2: 0 24px 60px rgba(0, 0, 0, 0.38);
   --shadow-frost: 0 10px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.025);
@@ -216,6 +226,8 @@ button {
   backdrop-filter: blur(12px) saturate(136%);
   box-shadow: var(--shadow-frost);
   color: var(--text-base);
+  min-height: 2.5rem;
+  line-height: 1;
 }
 
 .soft-action-tint {
@@ -227,6 +239,8 @@ button {
     var(--shadow-frost),
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
   color: var(--accent-strong);
+  min-height: 2.5rem;
+  line-height: 1;
 }
 
 .premium-wash {
@@ -274,6 +288,153 @@ button {
   box-shadow: var(--shadow-frost);
 }
 
+.quiet-note {
+  background: color-mix(in srgb, var(--surface-muted) 56%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.empty-state {
+  background: color-mix(in srgb, var(--surface-muted) 46%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  color: color-mix(in srgb, var(--text-muted) 92%, var(--surface) 8%);
+}
+
+.mood-surface-focus {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--focus-soft) 34%, transparent) 0%, transparent 42%),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--focus-soft) 66%, var(--surface) 34%) 0%,
+      color-mix(in srgb, var(--focus-soft) 46%, var(--surface-raised) 54%) 100%
+    );
+  box-shadow:
+    var(--shadow-frost),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.mood-surface-success {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--success-soft) 28%, transparent) 0%, transparent 44%),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--success-soft) 56%, var(--surface) 44%) 0%,
+      color-mix(in srgb, var(--success-soft) 40%, var(--surface-raised) 60%) 100%
+    );
+  box-shadow:
+    var(--shadow-frost),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.mood-surface-warning {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--warning-soft) 24%, transparent) 0%, transparent 46%),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--warning-soft) 58%, var(--surface) 42%) 0%,
+      color-mix(in srgb, var(--warning-soft) 40%, var(--surface-raised) 60%) 100%
+    );
+  box-shadow:
+    var(--shadow-frost),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.mood-surface-danger {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--danger-soft) 28%, transparent) 0%, transparent 44%),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--danger-soft) 62%, var(--surface) 38%) 0%,
+      color-mix(in srgb, var(--danger-soft) 44%, var(--surface-raised) 56%) 100%
+    );
+  box-shadow:
+    var(--shadow-frost),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.mood-badge-focus {
+  background: color-mix(in srgb, var(--focus-soft) 88%, var(--surface) 12%);
+  color: var(--accent-strong);
+}
+
+.mood-badge-success {
+  background: color-mix(in srgb, var(--success-soft) 88%, var(--surface) 12%);
+  color: var(--success);
+}
+
+.mood-badge-warning {
+  background: color-mix(in srgb, var(--warning-soft) 88%, var(--surface) 12%);
+  color: var(--warning);
+}
+
+.mood-badge-danger {
+  background: color-mix(in srgb, var(--danger-soft) 88%, var(--surface) 12%);
+  color: var(--danger);
+}
+
+.mood-surface-focus .surface-pocket,
+.mood-surface-focus .quiet-note,
+.mood-surface-focus .empty-state,
+.mood-surface-focus .soft-action {
+  background: color-mix(in srgb, var(--focus-soft) 16%, var(--surface) 84%);
+}
+
+.mood-surface-focus .soft-action-tint {
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--focus-soft) 44%, var(--surface) 56%) 0%,
+      color-mix(in srgb, var(--focus-soft) 24%, var(--surface-raised) 76%) 100%
+    );
+}
+
+.mood-surface-success .surface-pocket,
+.mood-surface-success .quiet-note,
+.mood-surface-success .empty-state,
+.mood-surface-success .soft-action {
+  background: color-mix(in srgb, var(--success-soft) 14%, var(--surface) 86%);
+}
+
+.mood-surface-success .soft-action-tint {
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--success-soft) 28%, var(--surface) 72%) 0%,
+      color-mix(in srgb, var(--success-soft) 16%, var(--surface-raised) 84%) 100%
+    );
+}
+
+.mood-surface-warning .surface-pocket,
+.mood-surface-warning .quiet-note,
+.mood-surface-warning .empty-state,
+.mood-surface-warning .soft-action {
+  background: color-mix(in srgb, var(--warning-soft) 16%, var(--surface) 84%);
+}
+
+.mood-surface-warning .soft-action-tint {
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--warning-soft) 30%, var(--surface) 70%) 0%,
+      color-mix(in srgb, var(--warning-soft) 18%, var(--surface-raised) 82%) 100%
+    );
+}
+
+.mood-surface-danger .surface-pocket,
+.mood-surface-danger .quiet-note,
+.mood-surface-danger .empty-state,
+.mood-surface-danger .soft-action {
+  background: color-mix(in srgb, var(--danger-soft) 16%, var(--surface) 84%);
+}
+
+.mood-surface-danger .soft-action-tint {
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--danger-soft) 32%, var(--surface) 68%) 0%,
+      color-mix(in srgb, var(--danger-soft) 18%, var(--surface-raised) 82%) 100%
+    );
+}
+
 .surface-hover:hover {
   background: var(--surface-hover);
 }
@@ -297,6 +458,35 @@ button {
 
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
+}
+
+.overlay-fade {
+  animation: overlay-fade-in 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.surface-enter {
+  animation: surface-enter 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: top center;
+}
+
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes surface-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 body[data-mobile-utility-sheet="open"] .app-bottomtab,

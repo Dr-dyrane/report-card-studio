@@ -84,7 +84,7 @@ export default async function AnalyticsPage() {
       title: "Top total",
       value: String(snapshot.metrics.topTotal),
       hint: "Best saved total",
-      tone: "accent" as const,
+      tone: "focus" as const,
       details: {
         summary: "The strongest saved report in the active class right now.",
         points: [

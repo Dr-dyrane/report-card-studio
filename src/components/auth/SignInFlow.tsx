@@ -3,8 +3,6 @@
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { BrandMark } from "@/components/ui/BrandMark";
 import { authClient } from "@/lib/auth-client";
@@ -40,7 +38,6 @@ function getErrorMessage(error: unknown) {
 }
 
 export function SignInFlow() {
-  const router = useRouter();
   const { notify } = useFeedback();
   const [mode, setMode] = useState<AuthMode>("password");
   const [identifier, setIdentifier] = useState("");
@@ -85,8 +82,7 @@ export function SignInFlow() {
       }
 
       notify("Signed in.", "success");
-      router.push("/students");
-      router.refresh();
+      window.location.assign("/students");
     } catch (submissionError) {
       setError(getErrorMessage(submissionError));
       notify("Sign-in failed.", "error");

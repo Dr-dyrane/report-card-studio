@@ -41,7 +41,7 @@ export function BottomTabBar() {
                     : "surface-chip text-[color:var(--text-muted)]"
                   }`}
                 >
-                  <AppIcon name={item.icon} className="h-3.5 w-3.5" />
+                  <AppIcon name={item.icon} className="h-3.5 w-3.5 stroke-[1.75]" />
                 </div>
                 {isActive ? (
                   <p className="truncate text-[11px] font-semibold tracking-[0.01em] text-[color:var(--text-strong)]">

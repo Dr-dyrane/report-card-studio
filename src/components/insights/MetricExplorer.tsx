@@ -9,7 +9,7 @@ type MetricDetail = {
   title: string;
   value: string;
   hint: string;
-  tone?: "default" | "accent";
+  tone?: "default" | "focus" | "success" | "warning" | "danger";
   details: {
     summary: string;
     points: string[];
@@ -61,24 +61,35 @@ export function MetricExplorer({
   return (
     <>
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        {metrics.map((metric) => (
-          <button
-            key={metric.title}
-            type="button"
-            onClick={() => setActiveMetric(metric)}
-            className={`frost-panel-soft rounded-[22px] px-4 py-4 text-left transition hover:translate-y-[-1px] hover:shadow-[var(--shadow-frost-strong)] sm:px-5 sm:py-5 ${
-              metric.tone === "accent" ? "soft-action-tint" : ""
-            }`}
-          >
-            <p className="text-sm text-[color:var(--text-muted)]">{metric.title}</p>
-            <p className="mt-2 text-2xl font-semibold text-[color:var(--text-strong)] sm:text-3xl">
-              {metric.value}
-            </p>
-            <p className="mt-2 text-sm leading-5 text-[color:var(--text-muted)]">
-              {metric.hint}
-            </p>
-          </button>
-        ))}
+        {metrics.map((metric) => {
+          const toneClass =
+            metric.tone === "focus"
+              ? "mood-surface-focus"
+              : metric.tone === "success"
+                ? "mood-surface-success"
+                : metric.tone === "warning"
+                  ? "mood-surface-warning"
+                  : metric.tone === "danger"
+                    ? "mood-surface-danger"
+                    : "";
+
+          return (
+            <button
+              key={metric.title}
+              type="button"
+              onClick={() => setActiveMetric(metric)}
+              className={`frost-panel-soft rounded-[22px] px-4 py-4 text-left transition hover:translate-y-[-1px] hover:shadow-[var(--shadow-frost-strong)] sm:px-5 sm:py-5 ${toneClass}`}
+            >
+              <p className="text-sm text-[color:var(--text-muted)]">{metric.title}</p>
+              <p className="mt-2 text-2xl font-semibold text-[color:var(--text-strong)] sm:text-3xl">
+                {metric.value}
+              </p>
+              <p className="mt-2 text-sm leading-5 text-[color:var(--text-muted)]">
+                {metric.hint}
+              </p>
+            </button>
+          );
+        })}
       </div>
 
       {canPortal && activeMetric

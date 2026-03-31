@@ -23,7 +23,7 @@ export default async function ExportsPage() {
       />
 
       <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-        <SectionCard title="Class files">
+        <SectionCard title="Class files" tone="focus">
           <MobileBladeList
             items={exportsData.classes.map((classroom) => ({
               id: classroom.id,
@@ -112,14 +112,14 @@ export default async function ExportsPage() {
                 </div>
               ))
             ) : (
-              <div className="soft-action rounded-[24px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
+              <div className="empty-state rounded-[24px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
                 No class files are ready yet.
               </div>
             )}
           </div>
         </SectionCard>
 
-        <SectionCard title="Ready files">
+        <SectionCard title="Ready files" tone="success">
           <div className="grid gap-3">
             {[
               ["Student exports", `${exportsData.studentPdfs.length} ready`],
@@ -129,7 +129,11 @@ export default async function ExportsPage() {
               <div
                 key={title}
                 className={`rounded-[22px] px-4 py-4 ${
-                  index === 0 ? "soft-action-tint" : "surface-pocket"
+                  index === 0
+                    ? "mood-surface-focus"
+                    : index === 1
+                      ? "mood-surface-success"
+                      : "surface-pocket"
                 }`}
               >
                 <p className="text-sm text-[color:var(--text-muted)]">{title}</p>
@@ -142,7 +146,7 @@ export default async function ExportsPage() {
         </SectionCard>
       </section>
 
-      <SectionCard title="Student exports">
+      <SectionCard title="Student exports" tone="focus">
         <MobileBladeList
           items={exportsData.studentPdfs.map((file) => ({
             id: file.id,
@@ -208,7 +212,7 @@ export default async function ExportsPage() {
               </Link>
             ))
           ) : (
-            <div className="soft-action rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
+            <div className="empty-state rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
               No published student sheets are ready yet.
             </div>
           )}

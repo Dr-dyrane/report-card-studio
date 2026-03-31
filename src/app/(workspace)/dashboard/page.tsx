@@ -53,7 +53,7 @@ export default async function DashboardPage() {
       title: "Done",
       value: String(publishedReports.length),
       hint: "Published now",
-      tone: "accent" as const,
+      tone: "focus" as const,
       details: {
         summary: "Reports already ready for preview, print, and export.",
         points: [
@@ -84,6 +84,7 @@ export default async function DashboardPage() {
       title: "At risk",
       value: String(attentionRows.length),
       hint: "Needs review",
+      tone: "warning" as const,
       details: {
         summary: "The weakest saved totals that should be reviewed before final export.",
         points: [
@@ -111,12 +112,12 @@ export default async function DashboardPage() {
           <MetricExplorer title="Class performance" metrics={stats} />
         </section>
 
-        <SectionCard title="Flow">
+        <SectionCard title="Flow" tone="focus">
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {quickFlow.map(([label, hint]) => (
               <div
                 key={label}
-                className="frost-panel-soft rounded-[20px] px-3 py-3 sm:rounded-[22px] sm:px-4 sm:py-4"
+                className="surface-pocket rounded-[20px] px-3 py-3 sm:rounded-[22px] sm:px-4 sm:py-4"
               >
                 <p className="text-sm font-semibold text-[color:var(--text-strong)]">
                   {label}
@@ -128,7 +129,7 @@ export default async function DashboardPage() {
             ))}
           </div>
 
-          <div className="surface-pocket mt-4 grid grid-cols-2 gap-2 rounded-[24px] p-2">
+          <div className="quiet-note mt-4 grid grid-cols-2 gap-2 rounded-[24px] p-2">
             <Link
               href="/students"
               className="soft-action-tint rounded-full px-4 py-2 text-center text-sm font-medium"
@@ -153,11 +154,18 @@ export default async function DashboardPage() {
                 ? Math.round((classroom.activeReports / classroom.studentCount) * 100)
                 : 0;
 
+              const classTone =
+                completion >= 95
+                  ? "mood-surface-success"
+                  : completion <= 70
+                    ? "mood-surface-warning"
+                    : "";
+
               return (
                 <Link
                   key={classroom.id}
                   href={`/students?class=${classroom.name.toLowerCase().replace(/\s+/g, "-")}`}
-                  className="frost-panel-soft rounded-[22px] px-4 py-4 transition hover:translate-y-[-1px]"
+                  className={`surface-pocket rounded-[22px] px-4 py-4 transition hover:translate-y-[-1px] hover:shadow-[var(--shadow-frost)] ${classTone}`}
                 >
                   <p className="font-semibold text-[color:var(--text-strong)]">
                     {classroom.name}
@@ -174,16 +182,16 @@ export default async function DashboardPage() {
           </div>
         </SectionCard>
 
-        <SectionCard title="Top">
+        <SectionCard title="Top" tone="success">
           <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1">
             {topPerformers.map((student, index) => (
               <Link
                 key={student.id}
                 href={student.reportHref}
-                className="frost-panel-soft flex items-center justify-between rounded-[22px] px-4 py-4"
+                className="surface-pocket flex items-center justify-between rounded-[22px] px-4 py-4"
               >
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent-soft)] text-sm font-semibold text-[color:var(--accent-strong)]">
+                  <span className="mood-badge-focus inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
                     {index + 1}
                   </span>
                   <p className="truncate font-semibold text-[color:var(--text-strong)]">
@@ -200,13 +208,13 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid w-full gap-3 xl:grid-cols-[1.15fr_0.85fr]">
-        <SectionCard title="Attention">
+        <SectionCard title="Attention" tone="warning">
           <div className="grid gap-3">
             {attentionRows.map((student) => (
               <Link
                 key={student.id}
                 href={student.reportHref}
-                className="frost-panel-soft flex items-start justify-between gap-4 rounded-[22px] px-4 py-4"
+                className="surface-pocket flex items-start justify-between gap-4 rounded-[22px] px-4 py-4"
               >
                 <div className="min-w-0">
                   <p className="font-semibold text-[color:var(--text-strong)]">
@@ -216,7 +224,7 @@ export default async function DashboardPage() {
                     {student.classroomName} · Position {student.position}
                   </p>
                 </div>
-                <span className="surface-chip shrink-0 rounded-full px-3 py-1 text-sm font-semibold text-[color:var(--text-strong)]">
+                <span className="mood-badge-warning shrink-0 rounded-full px-3 py-1 text-sm font-semibold">
                   {student.grandTotal}
                 </span>
               </Link>
@@ -224,9 +232,9 @@ export default async function DashboardPage() {
           </div>
         </SectionCard>
 
-        <SectionCard title="Next">
+        <SectionCard title="Next" tone="focus">
           <div className="grid gap-3">
-            <div className="surface-pocket rounded-[24px] px-4 py-4">
+            <div className="quiet-note rounded-[24px] px-4 py-4">
               <p className="text-sm font-medium text-[color:var(--text-base)]">
                 Continue report entry
               </p>

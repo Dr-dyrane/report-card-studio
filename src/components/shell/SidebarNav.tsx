@@ -28,7 +28,7 @@ export function SidebarNav() {
 
   return (
     <aside className="app-sidebar frost-panel-strong sticky top-3 z-[var(--z-sidebar)] hidden h-[calc(100vh-1.5rem)] w-[276px] shrink-0 overflow-hidden rounded-[34px] lg:flex lg:flex-col">
-      <div className="flex h-full min-h-0 flex-col gap-6 px-5 py-6">
+      <div className="flex h-full min-h-0 flex-col gap-4 px-5 py-6">
         <BrandMark textOnly />
 
         <nav className="scrollbar-hidden flex flex-1 flex-col gap-3 overflow-y-auto pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
@@ -39,11 +39,11 @@ export function SidebarNav() {
             );
 
             return (
-              <section key={group.id} className="space-y-2">
+              <section key={group.id} className="space-y-1.5">
                 <button
                   type="button"
                   onClick={() => setOpenGroupId(group.id)}
-                  className={`flex w-full items-center justify-between rounded-[20px] px-3 py-2 text-left transition ${
+                  className={`flex w-full items-center justify-between rounded-[18px] px-3 py-2 text-left transition ${
                     isOpen || hasActiveItem ? "surface-pocket" : "surface-hover-soft"
                   }`}
                 >
@@ -56,7 +56,7 @@ export function SidebarNav() {
                 </button>
 
                 {isOpen ? (
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     {group.items.map((item) => {
                       const isActive =
                         pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -65,7 +65,7 @@ export function SidebarNav() {
                         <Link
                           key={item.href}
                           href={item.href}
-                          className={`group block rounded-[22px] px-4 py-4 transition ${
+                          className={`group block rounded-[20px] px-4 py-3.5 transition ${
                             isActive
                               ? "soft-action-tint text-[color:var(--text-strong)]"
                               : "text-[color:var(--text-base)] surface-hover-soft"
@@ -73,13 +73,13 @@ export function SidebarNav() {
                         >
                           <div className="flex items-center gap-3">
                             <span
-                              className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+                              className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
                                 isActive
                                   ? "bg-[color:var(--accent)] text-[color:var(--surface)]"
                                   : "bg-[color:var(--highlight)] text-[color:var(--text-muted)]"
                               }`}
                             >
-                              <AppIcon name={item.icon} className="h-4.5 w-4.5" />
+                              <AppIcon name={item.icon} className="h-4 w-4 stroke-[1.75]" />
                             </span>
                             <div>
                               <p className="text-sm font-semibold">{item.label}</p>
@@ -95,9 +95,11 @@ export function SidebarNav() {
           })}
         </nav>
 
-        <div className="frost-panel-soft rounded-[24px] px-4 py-4">
-          <p className="text-sm font-semibold text-[color:var(--text-strong)]">Appearance</p>
-          <div className="mt-3">
+        <div className="surface-pocket rounded-[20px] px-3 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-semibold text-[color:var(--text-strong)]">Appearance</p>
+          </div>
+          <div className="mt-2">
             <ThemeToggleInline />
           </div>
         </div>

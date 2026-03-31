@@ -62,7 +62,7 @@ export function ConfirmSurface({
   if (!open || typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[var(--z-overlay)]">
+    <div className="overlay-fade fixed inset-0 z-[var(--z-overlay)]">
       <button
         type="button"
         aria-label="Close confirmation"
@@ -74,11 +74,11 @@ export function ConfirmSurface({
 
       {isMobile ? (
         <div className="absolute inset-x-0 bottom-0 z-[calc(var(--z-overlay)+1)] px-2 pb-2">
-          <div className="frost-panel-strong rounded-[30px] px-5 py-5 shadow-[var(--shadow-frost)]">
+          <div className="surface-enter frost-panel-strong rounded-[30px] px-5 py-5 shadow-[var(--shadow-frost)]">
             <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-[color:var(--highlight-strong)]" />
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
+            <span className="mood-badge-danger inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]">
               {dangerLabel}
-            </p>
+            </span>
             <h3 className="mt-3 text-2xl font-semibold text-[color:var(--text-strong)]">
               {title}
             </h3>
@@ -89,7 +89,7 @@ export function ConfirmSurface({
             <div className="mt-6 grid gap-2">
               <button
                 type="button"
-                className="rounded-full bg-[color:var(--danger-soft)] px-4 py-3 text-sm font-semibold text-[color:var(--danger)] transition disabled:opacity-60"
+                className="mood-surface-danger rounded-full px-4 py-3 text-sm font-semibold text-[color:var(--danger)] transition disabled:opacity-60"
                 onClick={onConfirm}
                 disabled={busy}
               >
@@ -108,10 +108,10 @@ export function ConfirmSurface({
         </div>
       ) : (
         <div className="absolute inset-0 z-[calc(var(--z-overlay)+1)] grid place-items-center px-6">
-          <div className="frost-panel-strong w-full max-w-xl rounded-[34px] px-7 py-7 shadow-[var(--shadow-frost)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
+          <div className="surface-enter frost-panel-strong w-full max-w-xl rounded-[34px] px-7 py-7 shadow-[var(--shadow-frost)]">
+            <span className="mood-badge-danger inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]">
               {dangerLabel}
-            </p>
+            </span>
             <h3 className="mt-3 text-3xl font-semibold text-[color:var(--text-strong)]">
               {title}
             </h3>
@@ -130,7 +130,7 @@ export function ConfirmSurface({
               </button>
               <button
                 type="button"
-                className="rounded-full bg-[color:var(--danger-soft)] px-4 py-2 text-sm font-semibold text-[color:var(--danger)] transition disabled:opacity-60"
+                className="mood-surface-danger rounded-full px-4 py-2 text-sm font-semibold text-[color:var(--danger)] transition disabled:opacity-60"
                 onClick={onConfirm}
                 disabled={busy}
               >
