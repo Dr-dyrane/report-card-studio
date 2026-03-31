@@ -105,14 +105,6 @@ export function MobileUtilitySheet({
               ) : null}
             </div>
           </div>
-          <div className="mt-3 flex items-center gap-2 text-sm">
-            <span className="surface-chip rounded-full px-3 py-1 font-medium text-[color:var(--text-strong)]">
-              Teacher
-            </span>
-            <span className="surface-chip rounded-full px-3 py-1 font-medium text-[color:var(--text-muted)]">
-              Kradle
-            </span>
-          </div>
         </div>
 
         <div className="mt-4 overflow-hidden rounded-[22px] premium-wash shadow-[var(--shadow-frost-strong)]">
