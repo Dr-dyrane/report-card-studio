@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 21,
     lineHeight: 1.02,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Times-Bold",
   },
   subline: {
     marginTop: 4,

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
+import { getDb } from "@/lib/db";
+import { requireOwnedSchool } from "@/lib/owned-school";
 
 function cleanEnv(value?: string | null) {
   return value?.trim().replace(/^['"]|['"]$/g, "") || "";
@@ -15,6 +17,10 @@ function extractFirstJsonObject(value: string) {
   }
 
   return JSON.parse(value.slice(start, end + 1));
+}
+
+function normalizeName(value?: string | null) {
+  return value?.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() ?? "";
 }
 
 export async function POST(request: Request) {
@@ -49,15 +55,55 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Image is required." }, { status: 400 });
   }
 
+  const ownedSchool = await requireOwnedSchool();
+  const db = await getDb();
+
+  const matchedClassroom = body.className?.trim()
+    ? (
+        await db.classroom.findMany({
+          where: {
+            schoolId: ownedSchool.id,
+          },
+          include: {
+            classSubjects: {
+              include: {
+                subject: true,
+              },
+              orderBy: {
+                displayOrder: "asc",
+              },
+            },
+          },
+        })
+      ).find(
+        (classroom) =>
+          normalizeName(classroom.name) === normalizeName(body.className),
+      ) ?? null
+    : null;
+
+  const subjectNames =
+    matchedClassroom?.classSubjects
+      .map((item) => item.subject.name.trim())
+      .filter(Boolean) ?? [];
+
+  const subjectListBlock = subjectNames.length
+    ? `Known subjects for this class:
+- ${subjectNames.join("\n- ")}`
+    : "Known subjects for this class: unavailable";
+
   const prompt = `
 Extract report-card data from this school result image.
 
 Known context:
 - Student: ${body.studentName || "Unknown"}
 - Class: ${body.className || "Unknown"}
+${subjectListBlock}
 
 Rules:
 - Return strict JSON only.
+- Prefer the known class subjects above when naming rows.
+- If the image shows a row that clearly maps to one of the known subjects, use that exact subject name.
+- Keep every recognized known subject row you can find, even if some values are null.
 - Use student score columns for earned scores.
 - Preserve max attainable scores separately where visible.
 - Total per subject = A1 score + A2 score + Exam score.
