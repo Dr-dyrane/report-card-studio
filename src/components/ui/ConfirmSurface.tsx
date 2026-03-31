@@ -22,7 +22,7 @@ export function ConfirmSurface({
   description,
   confirmLabel,
   cancelLabel = "Cancel",
-  dangerLabel = "This can’t be undone.",
+  dangerLabel = "This can't be undone.",
   supportingContent,
   busy = false,
   onClose,

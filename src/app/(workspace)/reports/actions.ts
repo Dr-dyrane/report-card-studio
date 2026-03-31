@@ -299,6 +299,105 @@ export async function removeReportCard(input: {
   return { ok: true, mode: "deleted" as const, message: "Report deleted." };
 }
 
+export async function restoreReportCard(input: {
+  reportCardId: string;
+  routeKey: string;
+}) {
+  await requireServerSession();
+  const ownedSchool = await requireOwnedSchool();
+
+  const db = await getDb();
+  if (!db) {
+    return { ok: false, message: "Database unavailable." };
+  }
+
+  const reportCard = await db.reportCard.findFirst({
+    where: {
+      id: input.reportCardId,
+      classroom: {
+        schoolId: ownedSchool.id,
+      },
+    },
+    select: {
+      id: true,
+      classroomId: true,
+      termId: true,
+      status: true,
+    },
+  });
+
+  if (!reportCard) {
+    return { ok: false, message: "Report not found." };
+  }
+
+  if (reportCard.status !== "LOCKED") {
+    return { ok: true, message: "Report is already active." };
+  }
+
+  await db.reportCard.update({
+    where: { id: reportCard.id },
+    data: {
+      status: "DRAFT",
+    },
+  });
+
+  await recomputeClassroomTermRanking(reportCard.classroomId, reportCard.termId);
+
+  revalidatePath("/reports");
+  revalidatePath("/students");
+  revalidatePath(`/reports/${input.routeKey}`);
+  revalidatePath(`/reports/${input.routeKey}/preview`);
+  revalidatePath("/analytics");
+
+  return { ok: true, message: "Report restored." };
+}
+
+export async function deleteArchivedReportCard(input: {
+  reportCardId: string;
+  routeKey: string;
+}) {
+  await requireServerSession();
+  const ownedSchool = await requireOwnedSchool();
+
+  const db = await getDb();
+  if (!db) {
+    return { ok: false, message: "Database unavailable." };
+  }
+
+  const reportCard = await db.reportCard.findFirst({
+    where: {
+      id: input.reportCardId,
+      status: "LOCKED",
+      classroom: {
+        schoolId: ownedSchool.id,
+      },
+    },
+    select: {
+      id: true,
+      classroomId: true,
+      termId: true,
+    },
+  });
+
+  if (!reportCard) {
+    return { ok: false, message: "Archived report not found." };
+  }
+
+  await db.reportCard.delete({
+    where: { id: reportCard.id },
+  });
+
+  await recomputeClassroomTermRanking(reportCard.classroomId, reportCard.termId);
+
+  revalidatePath("/reports");
+  revalidatePath("/students");
+  revalidatePath(`/reports/${input.routeKey}`);
+  revalidatePath(`/reports/${input.routeKey}/preview`);
+  revalidatePath("/analytics");
+
+  return { ok: true, message: "Archived report deleted permanently." };
+}
+
 export async function createOrOpenReportCard(input: { studentRouteKey: string }) {
   await requireServerSession();
   const ownedSchool = await requireOwnedSchool();

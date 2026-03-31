@@ -3,70 +3,12 @@ import Link from "next/link";
 import { MetricExplorer } from "@/components/insights/MetricExplorer";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
-
-const stats = [
-  {
-    title: "Students",
-    value: "30",
-    hint: "Primary 5 Lavender",
-    details: {
-      summary: "Class roster coverage for the active term.",
-      points: [
-        "20 students already have working report sheets.",
-        "10 student records still need sheets created or reviewed.",
-        "Use the roster to jump straight into entry or preview.",
-      ],
-      actionLabel: "Open students",
-      actionHref: "/students",
-    },
-  },
-  {
-    title: "Done",
-    value: "20",
-    hint: "This term",
-    tone: "accent" as const,
-    details: {
-      summary: "Reports that are already ready for review or publication.",
-      points: [
-        "Published reports are available for print and PDF.",
-        "Draft reports can still be edited inline with live totals.",
-        "Use Reports to move quickly between active student sheets.",
-      ],
-      actionLabel: "Open reports",
-      actionHref: "/reports",
-    },
-  },
-  {
-    title: "Average",
-    value: "664",
-    hint: "Class total",
-    details: {
-      summary: "Current class average based on saved grand totals.",
-      points: [
-        "Top score is 825 and the lowest score is 530.",
-        "The spread suggests a healthy middle with a few students needing attention.",
-        "Open Insights for a fuller class-performance read.",
-      ],
-      actionLabel: "Open insights",
-      actionHref: "/analytics",
-    },
-  },
-  {
-    title: "At risk",
-    value: "6",
-    hint: "Needs review",
-    details: {
-      summary: "Students with weaker totals or incomplete score coverage.",
-      points: [
-        "Comprehension, dictation, and oral-reading areas still need attention.",
-        "These reports should be reviewed before final export.",
-        "Use the attention list to jump straight into the student sheet.",
-      ],
-      actionLabel: "Review students",
-      actionHref: "/students",
-    },
-  },
-];
+import { getReportCards } from "@/lib/report-data";
+import {
+  getAnalyticsSnapshot,
+  getClassroomsList,
+  getStudentsList,
+} from "@/lib/school-data";
 
 const quickFlow = [
   ["Capture", "Card image to data"],
@@ -75,25 +17,86 @@ const quickFlow = [
   ["Export", "Print and PDF"],
 ];
 
-const classRows = [
-  ["Primary 5 Lavender", "20 / 30", "67%"],
-  ["Primary 5 Rose", "26 / 30", "87%"],
-  ["Primary 4 Iris", "30 / 30", "100%"],
-];
+export default async function DashboardPage() {
+  const [students, classrooms, analytics, reportCards] = await Promise.all([
+    getStudentsList(),
+    getClassroomsList(),
+    getAnalyticsSnapshot(),
+    getReportCards(),
+  ]);
 
-const topPerformers = [
-  ["Student 2", "825"],
-  ["Student 3", "733"],
-  ["Student 1", "730"],
-];
+  const publishedReports = reportCards.filter((report) => report.status === "PUBLISHED");
+  const drafts = reportCards.filter((report) => report.status === "DRAFT");
+  const topPerformers = students.filter((student) => student.grandTotal > 0).slice(0, 3);
+  const attentionRows = [...students]
+    .filter((student) => student.grandTotal > 0)
+    .sort((left, right) => left.grandTotal - right.grandTotal)
+    .slice(0, 3);
 
-const attentionRows = [
-  ["Student 17", "Comprehension, Dictation, Health", "599"],
-  ["Student 19", "Poetry, Quantitative, French", "585"],
-  ["Student 20", "Dictation, Oral Reading, Aptitude", "530"],
-];
+  const stats = [
+    {
+      title: "Students",
+      value: String(students.length),
+      hint: classrooms[0]?.name ?? "Workspace roster",
+      details: {
+        summary: "Class roster coverage for the active workspace.",
+        points: [
+          `${students.length} students are currently visible in the active workspace.`,
+          `${reportCards.length} report sheets are active across the current term.`,
+          "Use the roster to jump straight into entry, preview, or profile.",
+        ],
+        actionLabel: "Open students",
+        actionHref: "/students",
+      },
+    },
+    {
+      title: "Done",
+      value: String(publishedReports.length),
+      hint: "Published now",
+      tone: "accent" as const,
+      details: {
+        summary: "Reports already ready for preview, print, and export.",
+        points: [
+          `${publishedReports.length} sheets are published and print-ready.`,
+          `${drafts.length} reports are still in draft and can be edited inline.`,
+          "Use Reports to move quickly between active student sheets.",
+        ],
+        actionLabel: "Open reports",
+        actionHref: "/reports",
+      },
+    },
+    {
+      title: "Average",
+      value: String(analytics.metrics.classAverage),
+      hint: "Current total mean",
+      details: {
+        summary: "Current class average based on saved grand totals.",
+        points: [
+          `Top score is ${analytics.metrics.topTotal} and the lowest is ${analytics.metrics.lowestTotal}.`,
+          "This gives a quick read on spread before opening deeper analytics.",
+          "Open Insights for the fuller class-performance story.",
+        ],
+        actionLabel: "Open insights",
+        actionHref: "/analytics",
+      },
+    },
+    {
+      title: "At risk",
+      value: String(attentionRows.length),
+      hint: "Needs review",
+      details: {
+        summary: "The weakest saved totals that should be reviewed before final export.",
+        points: [
+          "These sheets are the best candidates for a row-by-row check.",
+          "Use the attention list to jump directly into the report sheet.",
+          "Published and draft totals both feed this signal from the live data.",
+        ],
+        actionLabel: "Review students",
+        actionHref: "/students",
+      },
+    },
+  ];
 
-export default function DashboardPage() {
   return (
     <div className="w-full space-y-3 sm:space-y-6">
       <PageHeader
@@ -145,27 +148,38 @@ export default function DashboardPage() {
       <div className="grid w-full gap-3 xl:grid-cols-[1.05fr_0.95fr]">
         <SectionCard title="Classes">
           <div className="grid gap-3 md:grid-cols-3">
-            {classRows.map(([name, count, note]) => (
-              <div
-                key={name}
-                className="frost-panel-soft rounded-[22px] px-4 py-4"
-              >
-                <p className="font-semibold text-[color:var(--text-strong)]">{name}</p>
-                <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)]">
-                  {count}
-                </p>
-                <p className="mt-1 text-sm text-[color:var(--text-muted)]">{note}</p>
-              </div>
-            ))}
+            {classrooms.map((classroom) => {
+              const completion = classroom.studentCount
+                ? Math.round((classroom.activeReports / classroom.studentCount) * 100)
+                : 0;
+
+              return (
+                <Link
+                  key={classroom.id}
+                  href={`/students?class=${classroom.name.toLowerCase().replace(/\s+/g, "-")}`}
+                  className="frost-panel-soft rounded-[22px] px-4 py-4 transition hover:translate-y-[-1px]"
+                >
+                  <p className="font-semibold text-[color:var(--text-strong)]">
+                    {classroom.name}
+                  </p>
+                  <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)]">
+                    {classroom.activeReports} / {classroom.studentCount}
+                  </p>
+                  <p className="mt-1 text-sm text-[color:var(--text-muted)]">
+                    {completion}% ready
+                  </p>
+                </Link>
+              );
+            })}
           </div>
         </SectionCard>
 
         <SectionCard title="Top">
           <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1">
-            {topPerformers.map(([student, total], index) => (
+            {topPerformers.map((student, index) => (
               <Link
-                key={student}
-                href={`/reports/${student.toLowerCase().replace(/\s+/g, "-")}`}
+                key={student.id}
+                href={student.reportHref}
                 className="frost-panel-soft flex items-center justify-between rounded-[22px] px-4 py-4"
               >
                 <div className="flex min-w-0 items-center gap-3">
@@ -173,11 +187,11 @@ export default function DashboardPage() {
                     {index + 1}
                   </span>
                   <p className="truncate font-semibold text-[color:var(--text-strong)]">
-                    {student}
+                    {student.fullName}
                   </p>
                 </div>
                 <span className="text-lg font-semibold text-[color:var(--text-strong)]">
-                  {total}
+                  {student.grandTotal}
                 </span>
               </Link>
             ))}
@@ -188,22 +202,22 @@ export default function DashboardPage() {
       <div className="grid w-full gap-3 xl:grid-cols-[1.15fr_0.85fr]">
         <SectionCard title="Attention">
           <div className="grid gap-3">
-            {attentionRows.map(([student, subjects, total]) => (
+            {attentionRows.map((student) => (
               <Link
-                key={student}
-                href={`/reports/${student.toLowerCase().replace(/\s+/g, "-")}`}
+                key={student.id}
+                href={student.reportHref}
                 className="frost-panel-soft flex items-start justify-between gap-4 rounded-[22px] px-4 py-4"
               >
                 <div className="min-w-0">
                   <p className="font-semibold text-[color:var(--text-strong)]">
-                    {student}
+                    {student.fullName}
                   </p>
                   <p className="mt-2 text-sm leading-5 text-[color:var(--text-muted)]">
-                    {subjects}
+                    {student.classroomName} · Position {student.position}
                   </p>
                 </div>
-                    <span className="surface-chip shrink-0 rounded-full px-3 py-1 text-sm font-semibold text-[color:var(--text-strong)]">
-                  {total}
+                <span className="surface-chip shrink-0 rounded-full px-3 py-1 text-sm font-semibold text-[color:var(--text-strong)]">
+                  {student.grandTotal}
                 </span>
               </Link>
             ))}
@@ -217,7 +231,7 @@ export default function DashboardPage() {
                 Continue report entry
               </p>
               <p className="mt-2 text-sm leading-5 text-[color:var(--text-muted)]">
-                Move from captured scores to checked totals and preview.
+                Move from captured scores to checked totals, ranking, and print.
               </p>
               <div className="mt-4 flex gap-2">
                 <Link
@@ -227,10 +241,10 @@ export default function DashboardPage() {
                   Open students
                 </Link>
                 <Link
-                  href="/reports"
+                  href="/exports"
                   className="soft-action rounded-full px-4 py-2 text-sm font-medium text-[color:var(--text-base)]"
                 >
-                  Open reports
+                  Open exports
                 </Link>
               </div>
             </div>

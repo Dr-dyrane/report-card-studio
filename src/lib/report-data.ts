@@ -172,6 +172,13 @@ function buildPreviewRows(
 }
 
 export async function getReportCards() {
+  return getReportCardsWithOptions();
+}
+
+export async function getReportCardsWithOptions(options?: {
+  archived?: boolean;
+  includeArchived?: boolean;
+}) {
   try {
     const ownedSchool = await getOwnedSchool();
     const db = await getDb();
@@ -184,9 +191,17 @@ export async function getReportCards() {
         classroom: {
           schoolId: ownedSchool.id,
         },
-        status: {
-          not: "LOCKED",
-        },
+        ...(options?.includeArchived
+          ? {}
+          : options?.archived
+            ? {
+                status: "LOCKED" as const,
+              }
+            : {
+                status: {
+                  not: "LOCKED" as const,
+                },
+              }),
       },
       include: {
         student: true,
@@ -278,7 +293,7 @@ export async function getReportCardByRouteKey(routeKey: string) {
 }
 
 export async function getReportNeighbors(routeKey: string) {
-  const reportCards = await getReportCards();
+  const reportCards = await getReportCardsWithOptions({ includeArchived: true });
   const currentIndex = reportCards.findIndex(
     (report) =>
       studentNameToRouteKey(report.student.fullName) === routeKey || report.id === routeKey,

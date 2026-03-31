@@ -85,49 +85,67 @@ const fallbackSubjects = [
     id: "mathematics",
     name: "Mathematics",
     category: "Core",
+    assessmentMode: "CONTINUOUS_AND_EXAM" as const,
     modeLabel: "A1 + A2 + Exam",
     maxLabel: "20 / 20 / 60",
     activeLabel: "Yes",
+    isActive: true,
+    classroomNames: ["Primary 5 Lavender"],
   },
   {
     id: "grammar",
     name: "Grammar",
     category: "Language",
+    assessmentMode: "CONTINUOUS_AND_EXAM" as const,
     modeLabel: "A1 + A2 + Exam",
     maxLabel: "20 / 20 / 60",
     activeLabel: "Yes",
+    isActive: true,
+    classroomNames: ["Primary 5 Lavender"],
   },
   {
     id: "composition",
     name: "Composition",
     category: "Language",
+    assessmentMode: "EXAM_ONLY" as const,
     modeLabel: "Exam only",
     maxLabel: "30",
     activeLabel: "Yes",
+    isActive: true,
+    classroomNames: ["Primary 5 Lavender"],
   },
   {
     id: "social-studies",
     name: "Social Studies",
     category: "Core",
+    assessmentMode: "CONTINUOUS_AND_EXAM" as const,
     modeLabel: "A1 + A2 + Exam",
     maxLabel: "10 / 10 / 50",
     activeLabel: "Yes",
+    isActive: true,
+    classroomNames: ["Primary 5 Lavender"],
   },
   {
     id: "quantitative-aptitude",
     name: "Quantitative Aptitude",
     category: "Aptitude",
+    assessmentMode: "CONTINUOUS_AND_EXAM" as const,
     modeLabel: "A1 + A2 + Exam",
     maxLabel: "5 / 5 / 40",
     activeLabel: "Yes",
+    isActive: true,
+    classroomNames: ["Primary 5 Lavender"],
   },
   {
     id: "fine-art",
     name: "Fine Art",
     category: "Arts",
+    assessmentMode: "EXAM_ONLY" as const,
     modeLabel: "Exam only",
     maxLabel: "30",
     activeLabel: "Yes",
+    isActive: true,
+    classroomNames: ["Primary 5 Lavender"],
   },
 ];
 
@@ -329,6 +347,18 @@ export async function getSubjectsList() {
       where: {
         schoolId: ownedSchool.id,
       },
+      include: {
+        classSubjects: {
+          include: {
+            classroom: {
+              select: {
+                name: true,
+              },
+            },
+          },
+          orderBy: [{ displayOrder: "asc" }],
+        },
+      },
       orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
     });
 
@@ -338,6 +368,7 @@ export async function getSubjectsList() {
       id: subject.id,
       name: subject.name,
       category: subject.category ?? "General",
+      assessmentMode: subject.assessmentMode,
       modeLabel:
         subject.assessmentMode === "EXAM_ONLY"
           ? "Exam only"
@@ -347,6 +378,8 @@ export async function getSubjectsList() {
           ? `${subject.examMax ?? "--"}`
           : `${subject.a1Max ?? "--"} / ${subject.a2Max ?? "--"} / ${subject.examMax ?? "--"}`,
       activeLabel: subject.isActive ? "Yes" : "No",
+      isActive: subject.isActive,
+      classroomNames: subject.classSubjects.map((item) => item.classroom.name),
     }));
   } catch {
     return fallbackSubjects;

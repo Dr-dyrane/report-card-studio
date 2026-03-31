@@ -5,8 +5,10 @@ import { KeyboardEvent, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import {
+  deleteArchivedReportCard,
   publishReportCard,
   removeReportCard,
+  restoreReportCard,
   updateReportScores,
 } from "@/app/(workspace)/reports/actions";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
@@ -44,6 +46,7 @@ type ReportEntryEditorProps = {
     href: string;
     label: string;
   } | null;
+  reportStatus?: string;
 };
 
 function parseScore(value: string) {
@@ -87,6 +90,7 @@ export function ReportEntryEditor({
   initialGrandTotal,
   previousReport,
   nextReport,
+  reportStatus = "DRAFT",
 }: ReportEntryEditorProps) {
   const router = useRouter();
   const { notify } = useFeedback();
@@ -94,6 +98,7 @@ export function ReportEntryEditor({
   const [comment, setComment] = useState(teacherComment);
   const [teacher, setTeacher] = useState(teacherName);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [hardDeleteConfirmOpen, setHardDeleteConfirmOpen] = useState(false);
   const [activeRowId, setActiveRowId] = useState<string | null>(null);
   const [saveState, setSaveState] = useState<"Saved" | "Saving" | "Unsaved" | "Retry">(
     "Saved",
@@ -246,6 +251,41 @@ export function ReportEntryEditor({
 
       notify(result.message, "success");
       router.push("/reports");
+      router.refresh();
+    });
+  }
+
+  function handleRestore() {
+    startTransition(async () => {
+      const result = await restoreReportCard({
+        reportCardId,
+        routeKey: reportId,
+      });
+
+      if (!result.ok) {
+        notify(result.message, "error");
+        return;
+      }
+
+      notify(result.message, "success");
+      router.refresh();
+    });
+  }
+
+  function handleDeleteArchived() {
+    startTransition(async () => {
+      const result = await deleteArchivedReportCard({
+        reportCardId,
+        routeKey: reportId,
+      });
+
+      if (!result.ok) {
+        notify(result.message, "error");
+        return;
+      }
+
+      notify(result.message, "success");
+      router.push("/reports?view=archived");
       router.refresh();
     });
   }
@@ -537,7 +577,7 @@ export function ReportEntryEditor({
               <button
                 type="button"
                 onClick={handlePublish}
-                disabled={isPending}
+                disabled={isPending || reportStatus === "LOCKED"}
                 className="soft-action-tint col-span-2 rounded-full px-4 py-2 text-sm font-semibold sm:col-span-1"
               >
                 Publish
@@ -547,13 +587,34 @@ export function ReportEntryEditor({
 
           <div className="mt-3 flex flex-col gap-2 sm:mt-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setConfirmOpen(true)}
-                className="rounded-full bg-[color:var(--danger-soft)] px-4 py-2 text-sm font-medium text-[color:var(--danger)]"
-              >
-                Remove
-              </button>
+              {reportStatus === "LOCKED" ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleRestore}
+                    disabled={isPending}
+                    className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold"
+                  >
+                    Restore
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setHardDeleteConfirmOpen(true)}
+                    disabled={isPending}
+                    className="rounded-full bg-[color:var(--danger-soft)] px-4 py-2 text-sm font-medium text-[color:var(--danger)]"
+                  >
+                    Delete permanently
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setConfirmOpen(true)}
+                  className="rounded-full bg-[color:var(--danger-soft)] px-4 py-2 text-sm font-medium text-[color:var(--danger)]"
+                >
+                  Remove
+                </button>
+              )}
             </div>
             {(previousReport || nextReport) ? null : (
               <Link
@@ -619,9 +680,11 @@ export function ReportEntryEditor({
           ))}
 
           <div className="rounded-[22px] bg-[color:var(--success-soft)] px-4 py-4 text-sm leading-6 text-[color:var(--success)] shadow-[var(--shadow-frost)]">
-            {hasEnteredScores
-              ? "Totals update live."
-              : "Saved report totals stay visible until subject entry begins."}
+            {reportStatus === "LOCKED"
+              ? "This archived report can be reviewed or restored."
+              : hasEnteredScores
+                ? "Totals update live."
+                : "Saved report totals stay visible until subject entry begins."}
           </div>
         </div>
       </SectionCard>
@@ -641,6 +704,27 @@ export function ReportEntryEditor({
             </p>
             <p className="mt-1 text-sm text-[color:var(--text-muted)]">
               Position {position}
+            </p>
+          </div>
+        }
+      />
+
+      <ConfirmSurface
+        open={hardDeleteConfirmOpen}
+        onClose={() => setHardDeleteConfirmOpen(false)}
+        onConfirm={handleDeleteArchived}
+        busy={isPending}
+        title="Delete archived report"
+        description="This permanently removes the archived sheet and its saved row data. This action cannot be reversed."
+        confirmLabel="Delete permanently"
+        dangerLabel="Permanent delete"
+        supportingContent={
+          <div className="rounded-[22px] surface-pocket px-4 py-4">
+            <p className="text-sm font-semibold text-[color:var(--text-strong)]">
+              {summary.grandTotal} total
+            </p>
+            <p className="mt-1 text-sm text-[color:var(--text-muted)]">
+              Archived sheet for {reportId.replace(/-/g, " ")}
             </p>
           </div>
         }

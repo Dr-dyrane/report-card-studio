@@ -27,7 +27,7 @@ export default async function ReportEntryPage({
   }
 
   const quickMeta = [
-    ["Status", report.status.toLowerCase()],
+    ["Status", report.status === "LOCKED" ? "archived" : report.status.toLowerCase()],
     ["Position", report.position ?? "--"],
     ["Students", String(report.classSize ?? "--")],
     ["Teacher", report.classroom.teacherName ?? "Class teacher"],
@@ -125,6 +125,7 @@ export default async function ReportEntryPage({
         initialGrandTotal={report.grandTotal}
         previousReport={neighbors.previous}
         nextReport={neighbors.next}
+        reportStatus={report.status}
       />
     </div>
   );
