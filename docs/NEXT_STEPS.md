@@ -1,258 +1,143 @@
 # Kradle Next Steps
 
-## Product Focus
+## Where We Are
 
-Kradle should solve the original report-card workflow better than Excel:
+Execution has gone well on structure and usability.
 
-1. open the class roster
-2. open a student's report sheet quickly
-3. edit scores inline
-4. see subject totals and grand total update immediately
-5. preview the finished report card
-6. print or export cleanly
+Strongly shipped:
 
-The app should stay aligned with Apple-style product principles:
+- auth and teacher-owned workspace model
+- Prisma Postgres-backed app data
+- core shell, mobile shell, and account surfaces
+- report entry with live totals
+- preview and browser print/PDF
+- scan-to-add foundation
+- CRUD foundation for subjects, classes, students, terms, and settings
+- archive/delete safeguards for core models
 
-- one clear task per screen
-- calm, low-noise UI
-- direct manipulation over explanation
-- fast transitions between students
-- print/export fidelity from the same rendered source
+Not fully finished:
 
-Clarified product rule:
+- full preview/export parity with the Excel-derived source cards
+- final report-sheet speed polish
+- final ranking trust and visibility across all surfaces
+- final beautification pass for dense desktop workspaces
 
-- `New report` means `new student + new report sheet`
-- scan intake should prefill a new sheet, not attach a report to an already existing student by default
-- class context must stay visible across intake, roster, and reports
-
-## Current Status
-
-Implemented:
-
-- app shell, grouped sidebar, mobile bottom bar, breadcrumb-style top bar
-- Heroicons-based icon system
-- PWA support and aggressive service-worker update flow
-- Prisma connected to Postgres locally using pulled Vercel env
-- auth, onboarding, password reset, and account management
-- report entry with inline editable scores
-- live row totals and live assessment/grand totals
-- report preview and browser print/PDF flow
-- faster direct access from students and reports into report entry and preview
-- class-aware new-sheet intake for manual and scan flows
-- class segregation on students and reports via lightweight class filters
-
-Partially implemented:
-
-- preview/export parity with the Excel-derived report-card model
-- setup CRUD for subjects, classes, terms, settings
-- publish/finalize workflow
-- ranking recomputation after edits
-- mobile list ergonomics for students and reports
-
-## Highest Priority Gaps
+## Biggest Remaining Product Gaps
 
 ### 1. Full Report Parity
 
-This is still the biggest product gap.
+Still the most important gap.
 
-What remains:
+Remaining work:
 
-- expand the subject model to match the full original report-card structure
-- import or seed full subject-row data for all students
-- support all assessment patterns present in the source report cards
-- ensure preview matches the spreadsheet-derived layout across all students
-
-Definition of done:
-
-- every student report can render a full subject matrix
-- preview/export no longer falls back to reduced subject coverage
-- totals shown in preview exactly match stored row values
-
-### 2. Faster Editing Flow
-
-The app is editable now, but it should feel much closer to working in a spreadsheet.
-
-What remains:
-
-- autosave or blur-save score edits
-- next/previous student navigation from report entry
-- keyboard-first editing flow on desktop
-- better mobile stepping between score inputs
-- sticky student switcher or quick jump inside report entry
+- support the full subject matrix from the original report cards
+- carry all real assessment patterns cleanly
+- ensure preview/export matches the Excel-derived structure across all students
+- remove any reduced/demo assumptions from preview
 
 Definition of done:
 
-- a teacher can move from one student sheet to the next with almost no friction
-- saving feels automatic or near-automatic
-- editing multiple rows does not require repeated navigation
+- every student report renders a complete matrix
+- preview and print match stored row data
+- export feels trustworthy enough to replace the spreadsheet print path
 
-### 3. Publish and Locking Workflow
+### 2. Report Sheet Speed
 
-What remains:
+The sheet works, but it should feel faster and more fluid.
 
-- wire the `Publish` action to persistence
-- define state transitions: `DRAFT`, `PUBLISHED`, `LOCKED`
-- define whether published reports remain editable
-- add clear UI messaging around finalization state
+Remaining work:
 
-Definition of done:
-
-- publishing changes report state in the database
-- preview/export reflect published state
-- users understand whether a report is final or still editable
-
-### 4. Scan-To-Add AI Intake
-
-This is the next major workflow after the core sheet flow.
-
-What remains:
-
-- add a `Manual` or `Scan` entry choice when creating a report
-- adapt the visual-lens pattern from the `drdyrane` repo into Kradle
-- send report-card images to a vision endpoint that returns strict structured JSON
-- prefill the student report sheet from scanned image data
-- clearly flag low-confidence or unreadable fields for review
-- let the teacher cross-check, fix, and save before anything is committed
+- autosave/blur-save refinement
+- stronger keyboard movement on desktop
+- cleaner row focus and active-cell feel
+- faster next/previous student movement
+- better mobile stepping through score fields
 
 Definition of done:
 
-- a user can start a new report by uploading or capturing a report-card image
-- the app extracts student identity, term summary, and subject rows into editable fields
-- the editable report sheet stays the single source of truth
-- saving remains a human-confirmed step, not an automatic blind import
+- a teacher can move through a class with minimal friction
+- saving feels mostly automatic
+- the sheet feels better than Excel, not just equivalent
 
-### 5. Ranking and Position Recalculation
+### 3. Ranking Verification
 
-What remains:
+Ranking logic is much better than before, but still needs a final visible trust pass.
 
-- recompute class positions after score edits
-- keep `grandTotal` and `position` in sync
-- handle ranking scope by class and term
+Remaining work:
 
-Definition of done:
-
-- editing a student's scores can update their position correctly
-- class standings remain trustworthy
-
-### 6. Setup CRUD
-
-The setup screens exist, but most still need real persistence.
-
-What remains:
-
-- subject create/edit/delete
-- class create/edit
-- term/session management
-- settings persistence
-- polished editing UX for each core model
-- stronger feedback for successful saves, validation errors, and destructive actions
+- verify recomputed positions on reports, students, analytics, and previews
+- surface rank changes more clearly after edits
+- confirm class-size scope is always correct
 
 Definition of done:
 
-- all primary setup screens save to Prisma/Postgres
-- changes are reflected immediately in report entry and preview
+- edits update position consistently
+- every view tells the same story
 
-### 7. Mobile Blade Flow
+### 4. Scan Review Polish
 
-Students and reports should feel lighter and faster on mobile.
+The scan path exists, but it still needs final product refinement.
 
-What remains:
+Remaining work:
 
-- render students and reports as compact blades/cards on mobile
-- tapping a blade opens a bottom sheet, not a full immediate navigation
-- the sheet should show a useful snapshot:
-  - student name
-  - class
-  - total
-  - position
-  - status
-- the sheet should provide clear CTAs into the full stack page:
-  - `Open sheet`
-  - `Preview`
-  - `Profile` where appropriate
-- preserve scroll position when closing the sheet
+- make review of extracted vs edited values clearer
+- refine confidence and warning presentation
+- improve the handoff from scan to working sheet
 
 Definition of done:
 
-- mobile lists are fast to scan and easy on the eyes
-- users can inspect a student or report without losing list context
-- detailed pages still exist as deeper stack pages
+- scan feels trustworthy and calm
+- review feels fast, not heavy
 
-### 8. Production Backend Hardening
+## Beautification Plan
 
-Local Postgres-backed development is now working. Production still needs explicit verification.
+Usability has improved a lot. The next visual work should focus on polish, not experimentation.
 
-What remains:
+### A. Dense Desktop Craft
 
-- verify deployed Vercel environment is using Postgres-backed `DATABASE_URL`
-- redeploy after Postgres migration changes
-- confirm live reads and writes
-- confirm preview/export uses real production data
+- reduce dead space on desktop list/workspace screens
+- make tables and list rows feel more intentional
+- improve alignment of actions, totals, and status clusters
 
-Definition of done:
+### B. Report Sheet Refinement
 
-- deployed app reads and writes to Postgres successfully
-- no Prisma fallback-only behavior is masking backend issues
+- better numeric rhythm
+- stronger row focus
+- more elegant totals rail
+- cleaner section transitions
 
-### 9. PDF / Print Finish
+### C. Analytics Storytelling
 
-The print path is much better, but still needs final product-level polish.
+- calmer muted charts
+- better highlighted insights
+- stronger glance -> tap -> inspect rhythm
 
-What remains:
+### D. Preview / Print Beauty
 
-- validate one-page fit across more real student reports
-- tune pagination for longer report variants
-- optionally add server-generated PDF later
+- tighter typographic rhythm
+- more elegant summary/header/footer spacing
+- more polished one-page output
 
-Definition of done:
+### E. Theme Consistency
 
-- browser print-to-PDF looks polished across representative reports
-- no awkward blank first page, clipped rows, or poor page breaks
+- keep reducing harsh whites and contrast spikes
+- ensure light/dark surfaces stay coherent across every component
 
-## Recommended Build Order
+## Recommended Order
 
-1. Polish report entry and ranking recomputation
-2. Expand subject/report parity to full report-card coverage
-3. Complete CRUD functionality and polished UI/UX for core models
-4. Add mobile blade -> bottom sheet -> stack page flow for students and reports
-5. Finish scan-to-add AI intake
+1. Full preview/export parity
+2. Report-sheet speed polish
+3. Ranking verification in UI
+4. Scan review polish
+5. Dense desktop beautification
 6. Final print/PDF polish
-7. Production backend verification sweep
 
-## UX Direction to Preserve
+## Principle To Preserve
 
-Kradle should remain student-sheet-first, not dashboard-first.
+Kradle should stay:
 
-Primary user journey:
-
-1. open app
-2. land in students
-3. open student report
-4. edit scores
-5. preview
-6. print/export
-
-Secondary modules should support this flow, not compete with it.
-
-## Suggested Near-Term Deliverables
-
-### Sprint 1
-
-- production backend verification
-- autosave score edits
-- next/previous student navigation
-
-### Sprint 2
-
-- scan-to-add AI intake
-- ranking recomputation
-- publish workflow
-- stronger report-entry ergonomics
-
-### Sprint 3
-
-- full report parity with the Excel-derived model
-- final preview/export polish
-- complete CRUD functionality and polished UI/UX for core models
-- keep the not-found experience outside the authenticated workspace shell
-- mobile blade lists with bottom-sheet snapshots for students and reports
+- student-sheet-first
+- direct
+- low-noise
+- calm under long working sessions
+- better than Excel for day-to-day report completion
