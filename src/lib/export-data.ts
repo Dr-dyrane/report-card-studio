@@ -220,7 +220,7 @@ export async function getExportsCenterData() {
       id: report.id,
       studentName: report.student.fullName,
       classroomName: report.classroom.name,
-      href: `/reports/${slugify(report.student.fullName)}/preview`,
+      href: `/api/exports/report/${slugify(report.student.fullName)}/pdf`,
     })),
   };
 }

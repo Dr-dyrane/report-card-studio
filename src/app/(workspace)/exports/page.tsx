@@ -104,7 +104,7 @@ export default async function ExportsPage() {
                   {file.classroomName}
                 </p>
                 <p className="mt-4 text-sm font-medium text-[color:var(--accent-strong)]">
-                  Open print view
+                  Open PDF
                 </p>
               </Link>
             ))
