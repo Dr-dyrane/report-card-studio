@@ -65,6 +65,9 @@ async function recomputeClassroomTermRanking(classroomId: string, termId: string
       status: {
         not: "LOCKED",
       },
+      student: {
+        isActive: true,
+      },
     },
     orderBy: [{ grandTotal: "desc" }, { updatedAt: "asc" }],
     select: { id: true },
@@ -416,7 +419,11 @@ export async function createOrOpenReportCard(input: { studentRouteKey: string })
     include: {
       classroom: {
         include: {
-          students: true,
+          students: {
+            where: {
+              isActive: true,
+            },
+          },
           classSubjects: {
             include: {
               subject: true,
@@ -512,7 +519,11 @@ export async function createStudentReportCard(input: {
     where: { id: input.classroomId },
     include: {
       school: true,
-      students: true,
+      students: {
+        where: {
+          isActive: true,
+        },
+      },
       classSubjects: {
         include: {
           subject: true,

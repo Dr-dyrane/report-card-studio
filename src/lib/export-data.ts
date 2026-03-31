@@ -66,6 +66,9 @@ export async function getClassExportDataset(classId: string): Promise<ClassExpor
           status: {
             not: "LOCKED",
           },
+          student: {
+            isActive: true,
+          },
         },
         include: {
           student: true,
@@ -181,6 +184,9 @@ export async function getExportsCenterData() {
               status: {
                 not: "LOCKED",
               },
+              student: {
+                isActive: true,
+              },
             },
             select: { id: true },
           }
@@ -195,6 +201,9 @@ export async function getExportsCenterData() {
           termId: activeTerm.id,
           status: "PUBLISHED",
           classroom: { schoolId: school.id },
+          student: {
+            isActive: true,
+          },
         },
         include: {
           student: true,

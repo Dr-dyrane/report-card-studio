@@ -201,6 +201,9 @@ export async function getReportCardsWithOptions(options?: {
                 status: {
                   not: "LOCKED" as const,
                 },
+                student: {
+                  isActive: true,
+                },
               }),
       },
       include: {

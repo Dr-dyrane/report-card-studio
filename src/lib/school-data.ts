@@ -165,10 +165,19 @@ export async function getClassroomsList() {
       },
       include: {
         students: {
+          where: { isActive: true },
           select: { id: true, fullName: true },
           orderBy: [{ fullName: "asc" }],
         },
         reportCards: {
+          where: {
+            status: {
+              not: "LOCKED",
+            },
+            student: {
+              isActive: true,
+            },
+          },
           select: { id: true },
         },
       },
@@ -228,9 +237,19 @@ export async function getClassroomDetail(classId: string) {
       },
       include: {
         students: {
+          where: { isActive: true },
           orderBy: [{ fullName: "asc" }],
         },
-        reportCards: true,
+        reportCards: {
+          where: {
+            status: {
+              not: "LOCKED",
+            },
+            student: {
+              isActive: true,
+            },
+          },
+        },
         classSubjects: {
           include: {
             subject: true,
@@ -293,13 +312,17 @@ export async function getStudentsList() {
     const students = await db.student.findMany({
       where: {
         schoolId: ownedSchool.id,
+        isActive: true,
       },
       include: {
         classroom: true,
-        reportCards: {
+      reportCards: {
           where: {
             status: {
               not: "LOCKED",
+            },
+            student: {
+              isActive: true,
             },
           },
           orderBy: [{ updatedAt: "desc" }],
@@ -648,6 +671,9 @@ export async function getAnalyticsSnapshot() {
         },
         status: {
           not: "LOCKED",
+        },
+        student: {
+          isActive: true,
         },
       },
       include: {
