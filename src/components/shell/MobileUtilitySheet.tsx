@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
-import { BrandMark } from "@/components/ui/BrandMark";
 import { ThemeToggleInline } from "@/components/theme/ThemeToggleInline";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { authClient } from "@/lib/auth-client";
@@ -71,89 +70,94 @@ export function MobileUtilitySheet({
         className="absolute inset-0 bg-[color:var(--overlay-backdrop)]"
         onClick={onClose}
       />
-      <aside className="frost-panel-strong absolute right-0 top-0 flex h-full w-[min(88vw,24rem)] flex-col rounded-l-[30px] px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] shadow-[0_28px_80px_rgba(13,20,32,0.24)]">
-        <div className="flex items-start justify-between gap-3">
+      <aside className="frost-panel-strong absolute right-0 top-0 flex h-full w-[min(88vw,24rem)] flex-col rounded-l-[30px] px-3 pb-[calc(0.8rem+env(safe-area-inset-bottom))] pt-[max(0.85rem,env(safe-area-inset-top))] shadow-[0_28px_80px_rgba(13,20,32,0.24)]">
+        <div className="flex items-start justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="soft-action ml-auto inline-flex h-11 w-11 items-center justify-center rounded-full"
+            className="soft-action inline-flex h-11 w-11 items-center justify-center rounded-full"
             aria-label="Close utility sheet"
           >
             <XMarkIcon className="h-5 w-5 text-[color:var(--text-strong)]" />
           </button>
         </div>
 
-        <div className="mt-3 rounded-[26px] premium-wash premium-sheen px-4 py-4 shadow-[var(--shadow-frost-strong)]">
-          <div className="flex items-start gap-3">
-            <div className="surface-chip-strong flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] text-lg font-semibold text-[color:var(--accent-strong)]">
+        <div className="mt-3 rounded-[22px] premium-wash px-3.5 py-3 shadow-[var(--shadow-frost-strong)]">
+          <div className="flex items-center gap-3">
+            <div className="surface-chip-strong flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] text-[1.3rem] font-semibold text-[color:var(--accent-strong)]">
               {(currentUser?.name ?? currentUser?.email ?? "K").slice(0, 1).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
-                Account
-              </p>
-              <p className="mt-2 truncate text-[1.35rem] font-semibold leading-none text-[color:var(--text-strong)]">
-                {currentUser?.name ?? "Kradle"}
-              </p>
-              {currentUser?.email ? (
-                <p className="mt-2 truncate text-sm text-[color:var(--text-muted)]">
-                  {currentUser.email}
+              <div className="flex items-center justify-between gap-3">
+                <p className="truncate text-[1.45rem] font-semibold leading-none text-[color:var(--text-strong)]">
+                  {currentUser?.name ?? "Kradle"}
                 </p>
-              ) : null}
-              {currentUser?.username ? (
-                <p className="mt-1 truncate text-sm font-medium text-[color:var(--accent-strong)]">
-                  @{currentUser.username}
+                {currentUser?.username ? (
+                  <p className="shrink-0 whitespace-nowrap text-sm font-medium text-[color:var(--accent-strong)]">
+                    @{currentUser.username}
+                  </p>
+                ) : null}
+              </div>
+              {currentUser?.email ? (
+                <p className="mt-1 truncate text-[15px] text-[color:var(--text-base)]">
+                  {currentUser.email}
                 </p>
               ) : null}
             </div>
           </div>
-
-          <div className="mt-4 rounded-[22px] surface-pocket px-3 py-3">
-            <BrandMark compact />
+          <div className="mt-3 flex items-center gap-2 text-sm">
+            <span className="surface-chip rounded-full px-3 py-1 font-medium text-[color:var(--text-strong)]">
+              Teacher
+            </span>
+            <span className="surface-chip rounded-full px-3 py-1 font-medium text-[color:var(--text-muted)]">
+              Kradle
+            </span>
           </div>
         </div>
 
-        <div className="mt-5 grid gap-2">
+        <div className="mt-4 overflow-hidden rounded-[22px] premium-wash shadow-[var(--shadow-frost-strong)]">
           <Link
             href="/reports/new"
             onClick={onClose}
-            className="soft-action-tint inline-flex items-center justify-between rounded-[22px] px-4 py-4"
+            className="soft-action-tint inline-flex w-full items-center justify-between rounded-t-[22px] px-4 py-3.5"
           >
             <span className="inline-flex items-center gap-3">
-              <span className="surface-chip inline-flex h-10 w-10 items-center justify-center rounded-full text-[color:var(--accent-strong)]">
-                <PlusIcon className="h-5 w-5" />
+              <span className="surface-chip inline-flex h-9 w-9 items-center justify-center rounded-full text-[color:var(--accent-strong)]">
+                <PlusIcon className="h-4.5 w-4.5" />
               </span>
               <span className="font-semibold">New report</span>
             </span>
             <ChevronRightIcon className="h-4 w-4" />
           </Link>
 
-          {utilityLinks.map((item) => (
+          <div className="px-3">
+            {utilityLinks.map((item, index) => (
             <Link
               key={item.href}
               href={item.href}
               onClick={onClose}
-              className="soft-action inline-flex items-center justify-between rounded-[22px] px-4 py-4"
+              className={`inline-flex w-full items-center justify-between px-1 py-3.5 ${
+                index > 0 ? "border-t border-[color:var(--border-soft)]/40" : ""
+              }`}
             >
               <span className="inline-flex items-center gap-3">
-                <span className="surface-chip inline-flex h-10 w-10 items-center justify-center rounded-full text-[color:var(--text-muted)]">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--surface-glass)] text-[color:var(--text-muted)]">
                   <AppIcon name={item.icon} className="h-4.5 w-4.5" />
                 </span>
                 <span className="font-medium text-[color:var(--text-strong)]">{item.label}</span>
               </span>
               <ChevronRightIcon className="h-4 w-4 text-[color:var(--text-muted)]" />
             </Link>
-          ))}
-        </div>
-
-        <div className="mt-5 rounded-[22px] surface-pocket px-4 py-4">
-          <p className="text-sm font-semibold text-[color:var(--text-strong)]">Appearance</p>
-          <div className="mt-3">
-            <ThemeToggleInline />
+            ))}
           </div>
         </div>
 
-        <div className="mt-auto pt-4">
+        <div className="mt-3 rounded-[22px] premium-wash px-3 py-3 shadow-[var(--shadow-frost)]">
+          <p className="px-1 pb-2 text-sm font-semibold text-[color:var(--text-strong)]">Appearance</p>
+          <ThemeToggleInline />
+        </div>
+
+        <div className="mt-auto pt-3">
           <button
             type="button"
             onClick={async () => {
@@ -168,11 +172,11 @@ export function MobileUtilitySheet({
                 notify("Could not sign out.", "error");
               }
             }}
-            className="soft-action inline-flex w-full items-center justify-between rounded-[22px] px-4 py-4 text-[color:var(--danger)]"
+            className="premium-wash inline-flex w-full items-center justify-between rounded-[22px] px-4 py-3.5 text-[color:var(--danger)] shadow-[var(--shadow-frost)]"
           >
             <span className="inline-flex items-center gap-3">
-              <span className="surface-chip inline-flex h-10 w-10 items-center justify-center rounded-full">
-                <ArrowRightStartOnRectangleIcon className="h-5 w-5" />
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--surface-glass)]">
+                <ArrowRightStartOnRectangleIcon className="h-4.5 w-4.5" />
               </span>
               <span className="font-semibold">Sign out</span>
             </span>

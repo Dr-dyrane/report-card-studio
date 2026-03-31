@@ -18,7 +18,7 @@ export function ThemeToggleInline() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="grid grid-cols-3 gap-1.5 rounded-[18px] surface-chip p-1.5">
+    <div className="flex w-full items-center gap-1 rounded-[16px] surface-chip p-1">
       {options.map((option) => {
         const Icon = option.icon;
         const isActive = theme === option.value;
@@ -29,18 +29,19 @@ export function ThemeToggleInline() {
             type="button"
             onClick={() => setTheme(option.value)}
             aria-pressed={isActive}
-            className={`flex min-h-16 flex-col items-center justify-center gap-1 rounded-[14px] px-2 py-2 text-center text-[11px] font-medium transition ${
-              isActive ? "soft-action-tint" : "soft-action"
+            className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-[12px] px-2.5 py-2 text-[11px] font-medium transition ${
+              isActive
+                ? "soft-action-tint shadow-[var(--shadow-frost)]"
+                : "bg-transparent text-[color:var(--text-base)]"
             }`}
           >
             <span
-              className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${
-                isActive ? "bg-[color:var(--accent-soft)]" : "surface-chip"
+              className={`inline-flex h-7 w-7 items-center justify-center rounded-full ${
+                isActive ? "bg-[color:var(--accent-soft)]" : "bg-transparent"
               }`}
             >
-              <Icon className="h-4.5 w-4.5" />
+              <Icon className="h-4 w-4" />
             </span>
-            <span className="leading-none">{option.label}</span>
           </button>
         );
       })}
