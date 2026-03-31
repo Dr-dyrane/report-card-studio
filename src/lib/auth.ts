@@ -10,14 +10,35 @@ function cleanEnv(value: string | undefined) {
   return value?.trim();
 }
 
+function normalizeLocalUrl(value: string | undefined) {
+  const nextValue = cleanEnv(value);
+
+  if (!nextValue) return undefined;
+
+  const port = cleanEnv(process.env.PORT);
+  if (!port) return nextValue;
+
+  try {
+    const url = new URL(nextValue);
+    if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
+      url.port = port;
+      return url.toString().replace(/\/$/, "");
+    }
+  } catch {
+    return nextValue;
+  }
+
+  return nextValue;
+}
+
 function resolveAppUrl() {
-  const explicit = cleanEnv(process.env.BETTER_AUTH_URL);
+  const explicit = normalizeLocalUrl(process.env.BETTER_AUTH_URL);
 
   if (explicit) {
     return explicit;
   }
 
-  const publicUrl = cleanEnv(process.env.NEXT_PUBLIC_AUTH_URL);
+  const publicUrl = normalizeLocalUrl(process.env.NEXT_PUBLIC_AUTH_URL);
 
   if (publicUrl) {
     return publicUrl;
@@ -29,7 +50,20 @@ function resolveAppUrl() {
     return vercelUrl.startsWith("http") ? vercelUrl : `https://${vercelUrl}`;
   }
 
-  return "http://localhost:3001";
+  return `http://localhost:${cleanEnv(process.env.PORT) ?? "3000"}`;
+}
+
+function getLocalhostOrigins() {
+  const ports = new Set(["3000", "3001"]);
+
+  if (process.env.PORT) {
+    ports.add(process.env.PORT.trim());
+  }
+
+  return Array.from(ports).flatMap((port) => [
+    `http://localhost:${port}`,
+    `http://127.0.0.1:${port}`,
+  ]);
 }
 
 const appUrl = resolveAppUrl();
@@ -57,6 +91,7 @@ export const auth = betterAuth({
         cleanEnv(process.env.VERCEL_URL)
           ? `https://${cleanEnv(process.env.VERCEL_URL)}`
           : undefined,
+        ...getLocalhostOrigins(),
       ].filter((value): value is string => Boolean(value)),
     ),
   ),
