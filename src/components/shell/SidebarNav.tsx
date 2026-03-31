@@ -108,26 +108,9 @@ export function SidebarNav() {
           })}
         </nav>
 
-        {contextRows.length > 0 ? (
-          <div className="frost-panel-soft rounded-[24px] px-4 py-4">
-            <p className="text-sm font-semibold text-[color:var(--text-strong)]">Context</p>
-            <dl className="mt-3 space-y-2 text-sm text-[color:var(--text-muted)]">
-              {contextRows.map((row) => (
-                <div key={row.label} className="flex items-center justify-between gap-3">
-                  <dt>{row.label}</dt>
-                  <dd>{row.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        ) : null}
-
-        <div className="frost-panel-soft rounded-[24px] px-4 py-4">
-          <p className="text-sm font-semibold text-[color:var(--text-strong)]">Appearance</p>
-          <div className="mt-3">
+        <div className="">
             <ThemeToggleInline />
           </div>
-        </div>
       </div>
     </aside>
   );
