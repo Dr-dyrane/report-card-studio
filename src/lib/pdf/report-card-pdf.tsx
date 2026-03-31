@@ -14,167 +14,252 @@ type ReportCardData = NonNullable<Awaited<ReturnType<typeof getReportCardByRoute
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 28,
-    paddingBottom: 24,
-    paddingHorizontal: 26,
-    backgroundColor: "#f7f2ec",
-    color: "#231d19",
-    fontSize: 9.2,
+    paddingTop: 18,
+    paddingBottom: 14,
+    paddingHorizontal: 18,
+    backgroundColor: "#fcf7f1",
+    color: "#231c18",
+    fontSize: 8,
     fontFamily: "Helvetica",
+  },
+  header: {
+    marginBottom: 8,
+    paddingBottom: 6,
+    borderBottomWidth: 0.8,
+    borderBottomColor: "#e2d6ca",
   },
   eyebrow: {
     fontSize: 8,
-    letterSpacing: 2.2,
     textTransform: "uppercase",
-    color: "#7e695d",
-    marginBottom: 8,
+    letterSpacing: 1.2,
+    color: "#7a6657",
+    marginBottom: 5,
+    fontWeight: 700,
   },
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    gap: 14,
-    marginBottom: 16,
+    gap: 12,
   },
-  titleWrap: {
-    flexGrow: 1,
-    flexShrink: 1,
+  headerMain: {
+    flex: 1,
   },
   title: {
-    fontSize: 28,
-    lineHeight: 0.98,
-    fontFamily: "Times-Bold",
-    color: "#231d19",
+    fontSize: 21,
+    lineHeight: 1.02,
+    fontFamily: "Helvetica-Bold",
   },
-  subtitle: {
-    marginTop: 7,
-    fontSize: 10,
-    color: "#6f6259",
+  subline: {
+    marginTop: 4,
+    fontSize: 9,
+    color: "#64564b",
   },
-  statusWrap: {
-    paddingVertical: 9,
-    paddingHorizontal: 12,
-    borderRadius: 16,
-    backgroundColor: "#efe7df",
-    minWidth: 84,
+  statusPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: "#efe4d8",
+    minWidth: 86,
   },
   statusLabel: {
-    fontSize: 7.5,
-    letterSpacing: 1.6,
+    fontSize: 6.8,
     textTransform: "uppercase",
-    color: "#8a776d",
+    letterSpacing: 1.1,
+    color: "#826d5d",
+    marginBottom: 3,
   },
   statusValue: {
-    marginTop: 4,
-    fontSize: 10.5,
+    fontSize: 9,
     fontWeight: 700,
-    textTransform: "capitalize",
-    color: "#251f1b",
   },
-  summaryGrid: {
+  summaryWrap: {
     flexDirection: "row",
-    gap: 12,
-    marginBottom: 14,
+    gap: 10,
+    marginBottom: 8,
   },
-  leftCol: {
-    flex: 1.08,
-    gap: 8,
+  summaryMeta: {
+    flex: 1,
+    backgroundColor: "#fffaf5",
+    borderRadius: 18,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    justifyContent: "space-between",
   },
-  rightCol: {
-    flex: 0.92,
-    gap: 8,
+  summaryHero: {
+    marginBottom: 8,
+  },
+  summaryHeroLabel: {
+    fontSize: 7,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    color: "#8a7768",
+    marginBottom: 4,
+  },
+  summaryHeroValue: {
+    fontSize: 14,
+    fontFamily: "Helvetica-Bold",
+    color: "#241d19",
+  },
+  summaryInlineValue: {
+    marginTop: 2,
+    fontSize: 8.4,
+    color: "#5f5146",
   },
   summaryMetaGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
   },
-  metaCard: {
+  summaryMetaCard: {
     width: "48.5%",
-    borderRadius: 16,
-    backgroundColor: "#f1e8e1",
-    paddingVertical: 10,
-    paddingHorizontal: 11,
+    backgroundColor: "#f8f1e8",
+    borderRadius: 14,
+    paddingHorizontal: 9,
+    paddingVertical: 8,
   },
-  metricCard: {
+  summaryMetaLabel: {
+    fontSize: 6.8,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    color: "#8a7768",
+    marginBottom: 4,
+  },
+  summaryMetaValue: {
+    fontSize: 8.4,
+    fontWeight: 700,
+    color: "#2f2620",
+  },
+  totalsGrid: {
+    width: 176,
+    gap: 4,
+  },
+  totalCard: {
+    backgroundColor: "#f8f0e7",
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     borderRadius: 18,
-    backgroundColor: "#f0e7e0",
-    paddingVertical: 11,
-    paddingHorizontal: 12,
   },
-  metricCardPrimary: {
-    backgroundColor: "#e5e7f5",
+  totalCardStrong: {
+    backgroundColor: "#eadfcf",
   },
-  cardLabel: {
-    fontSize: 8.1,
-    color: "#857168",
+  totalLabel: {
+    fontSize: 7.1,
+    color: "#7a6657",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
   },
-  cardValue: {
-    marginTop: 5,
-    fontSize: 12,
+  totalValue: {
+    marginTop: 3,
+    fontSize: 12.2,
     fontWeight: 700,
-    color: "#211b17",
   },
-  scoreValue: {
-    marginTop: 7,
-    fontSize: 18,
-    fontWeight: 700,
-    color: "#211b17",
+  noteBar: {
+    backgroundColor: "#f6eee7",
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    marginBottom: 7,
+    borderRadius: 999,
   },
-  noteBand: {
-    borderRadius: 16,
-    backgroundColor: "#eee4db",
-    paddingVertical: 9,
-    paddingHorizontal: 12,
-    fontSize: 9,
-    color: "#63574f",
-    marginBottom: 12,
+  noteText: {
+    fontSize: 7.8,
+    color: "#64564b",
   },
-  table: {
+  tableWrap: {
+    marginBottom: 8,
+    backgroundColor: "#fffaf5",
     borderRadius: 18,
     overflow: "hidden",
-    backgroundColor: "#fbf7f2",
-    marginBottom: 14,
+  },
+  tableHeadTop: {
+    flexDirection: "row",
+    backgroundColor: "#f3e9de",
+    borderBottomWidth: 0.6,
+    borderBottomColor: "#eadfd3",
+  },
+  spacerHead: {
+    width: "26%",
+    borderRightWidth: 0.6,
+    borderRightColor: "#eadfd3",
+  },
+  groupHead: {
+    width: "13%",
+    borderRightWidth: 0.6,
+    borderRightColor: "#eadfd3",
+    paddingVertical: 3,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  groupHeadSmall: {
+    width: "9%",
+    borderRightWidth: 0.6,
+    borderRightColor: "#eadfd3",
+    paddingVertical: 3,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  groupHeadText: {
+    fontSize: 6.8,
+    textAlign: "center",
+    color: "#5e5044",
+    fontWeight: 700,
   },
   tableHead: {
     flexDirection: "row",
-    backgroundColor: "#efe6de",
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+    backgroundColor: "#fbf5ef",
+    borderBottomWidth: 0.6,
+    borderBottomColor: "#eadfd3",
+  },
+  subjectCol: {
+    width: "26%",
+    paddingHorizontal: 5,
+    paddingVertical: 3.2,
+    borderRightWidth: 0.5,
+    borderRightColor: "#f0e6dc",
+  },
+  numCol: {
+    width: "6.5%",
+    paddingHorizontal: 2,
+    paddingVertical: 3.2,
+    borderRightWidth: 0.5,
+    borderRightColor: "#f0e6dc",
+    textAlign: "center",
+  },
+  totalCol: {
+    width: "8%",
+    paddingHorizontal: 2,
+    paddingVertical: 3.2,
+    borderRightWidth: 0.5,
+    borderRightColor: "#f0e6dc",
+    textAlign: "center",
+    fontWeight: 700,
+  },
+  remarkCol: {
+    width: "14%",
+    paddingHorizontal: 3,
+    paddingVertical: 3.2,
+    textAlign: "center",
+  },
+  tableHeadText: {
+    fontSize: 6.9,
+    color: "#6a5c51",
+    fontWeight: 700,
   },
   tableRow: {
     flexDirection: "row",
-    paddingVertical: 7,
-    paddingHorizontal: 10,
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#f1e6db",
+    minHeight: 14,
   },
-  rowAlt: {
-    backgroundColor: "#f5ede6",
-  },
-  subjectCol: {
-    width: "31%",
-    paddingRight: 4,
-  },
-  numCol: {
-    width: "9.85%",
-    textAlign: "right",
-  },
-  totalCol: {
-    width: "9.9%",
-    textAlign: "right",
-    fontWeight: 700,
-  },
-  tableHeadText: {
-    fontSize: 7.8,
-    color: "#7a675c",
-    fontWeight: 600,
+  tableRowAlt: {
+    backgroundColor: "#fefbf8",
   },
   tableText: {
-    fontSize: 8.6,
-    color: "#2a221e",
+    fontSize: 6.8,
   },
-  mutedTableText: {
-    fontSize: 8.4,
-    color: "#7a675c",
+  tableTextMuted: {
+    fontSize: 6.7,
+    color: "#7b6c5f",
   },
   footerGrid: {
     flexDirection: "row",
@@ -182,95 +267,171 @@ const styles = StyleSheet.create({
   },
   footerCard: {
     flex: 1,
-    borderRadius: 16,
-    backgroundColor: "#f1e8e1",
-    paddingVertical: 10,
-    paddingHorizontal: 11,
+    backgroundColor: "#fffaf5",
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    minHeight: 62,
+    borderRadius: 18,
   },
   footerTitle: {
-    fontSize: 7.5,
-    letterSpacing: 1.7,
+    fontSize: 7,
     textTransform: "uppercase",
-    color: "#827068",
+    letterSpacing: 1,
+    color: "#7a6657",
+    marginBottom: 6,
+    fontWeight: 700,
   },
   footerText: {
-    marginTop: 8,
-    fontSize: 9.2,
-    lineHeight: 1.5,
-    color: "#302722",
+    fontSize: 8,
+    lineHeight: 1.45,
+    color: "#2d241e",
+  },
+  footerMuted: {
+    color: "#86776b",
+  },
+  signatureTitle: {
+    marginTop: 12,
+    marginBottom: 5,
+    fontSize: 7,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    color: "#7a6657",
+    fontWeight: 700,
+  },
+  signatureLine: {
+    borderBottomWidth: 0.8,
+    borderBottomColor: "#d7c8b8",
+    minHeight: 14,
+    justifyContent: "flex-end",
+    paddingBottom: 2,
+  },
+  signatureText: {
+    fontSize: 8,
+    color: "#2d241e",
   },
 });
 
+function formatStatus(status: string) {
+  if (status === "LOCKED") return "Archived";
+  return `${status.slice(0, 1)}${status.slice(1).toLowerCase()}`;
+}
+
+function scoreDisplay(value: number | null | undefined) {
+  return value === null || value === undefined ? "--" : String(value);
+}
+
+function getRemark(row: ReportCardData["previewRows"][number]) {
+  const max = (row.subject.a1Max ?? 0) + (row.subject.a2Max ?? 0) + (row.subject.examMax ?? 0);
+  if (!max || !row.totalScore) return "";
+  const percentage = (row.totalScore / max) * 100;
+  if (percentage >= 85) return "Excellent";
+  if (percentage >= 70) return "Very Good";
+  if (percentage >= 55) return "Good";
+  if (percentage >= 40) return "Fair";
+  return "Needs work";
+}
+
 function PdfReportCard({ report }: { report: ReportCardData }) {
   const rows = report.previewRows;
-  const hasEnteredScores = rows.some(
-    (row) => row.a1Score !== null || row.a2Score !== null || row.examScore !== null,
-  );
+  const teacherComment = report.teacherComment?.trim() || "";
+  const headTeacherComment = report.headTeacherComment?.trim() || "";
+  const teacherName = report.classroom.teacherName?.trim() || "";
 
   return (
     <Document title={`${report.student.fullName} Report Card`}>
       <Page size="A4" style={styles.page}>
-        <Text style={styles.eyebrow}>Report card</Text>
-
-        <View style={styles.headerRow}>
-          <View style={styles.titleWrap}>
-            <Text style={styles.title}>{report.classroom.name} Report Card</Text>
-            <Text style={styles.subtitle}>
-              {report.term.name} / {report.term.session.name}
-            </Text>
-          </View>
-          <View style={styles.statusWrap}>
-            <Text style={styles.statusLabel}>Status</Text>
-            <Text style={styles.statusValue}>{report.status.toLowerCase()}</Text>
+        <View style={styles.header}>
+          <Text style={styles.eyebrow}>Report card</Text>
+          <View style={styles.headerRow}>
+            <View style={styles.headerMain}>
+              <Text style={styles.title}>{report.classroom.name} Report Card</Text>
+              <Text style={styles.subline}>
+                {report.term.name} / {report.term.session.name}
+              </Text>
+            </View>
+            <View style={styles.statusPill}>
+              <Text style={styles.statusLabel}>Status</Text>
+              <Text style={styles.statusValue}>{formatStatus(report.status)}</Text>
+            </View>
           </View>
         </View>
 
-        <View style={styles.summaryGrid}>
-          <View style={styles.leftCol}>
+        <View style={styles.summaryWrap}>
+          <View style={styles.summaryMeta}>
+            <View style={styles.summaryHero}>
+              <Text style={styles.summaryHeroLabel}>Student</Text>
+              <Text style={styles.summaryHeroValue}>{report.student.fullName}</Text>
+              <Text style={styles.summaryInlineValue}>{report.classroom.name}</Text>
+            </View>
+
             <View style={styles.summaryMetaGrid}>
               {[
-                ["Student", report.student.fullName],
-                ["Class", report.classroom.name],
+                ["Teacher", teacherName || "Class teacher"],
                 ["Position", report.position ?? "--"],
-                ["Grand total", `${report.grandTotal} / ${report.grandMax}`],
                 ["Class size", String(report.classSize ?? "--")],
-                ["Teacher", report.classroom.teacherName ?? "Class teacher"],
+                ["Class", report.classroom.name],
               ].map(([label, value]) => (
-                <View key={label} style={styles.metaCard}>
-                  <Text style={styles.cardLabel}>{label}</Text>
-                  <Text style={styles.cardValue}>{value}</Text>
+                <View key={label} style={styles.summaryMetaCard}>
+                  <Text style={styles.summaryMetaLabel}>{label}</Text>
+                  <Text style={styles.summaryMetaValue}>{value}</Text>
                 </View>
               ))}
             </View>
           </View>
 
-          <View style={styles.rightCol}>
+          <View style={styles.totalsGrid}>
             {[
               ["1st Assessment", String(report.assessment1Total), false],
               ["2nd Assessment", String(report.assessment2Total), false],
               ["Exam", String(report.examTotal), false],
-              ["Grand total", String(report.grandTotal), true],
-            ].map(([label, value, primary]) => (
+              ["Grand Total", `${report.grandTotal} / ${report.grandMax}`, true],
+            ].map(([label, value, strong]) => (
               <View
                 key={String(label)}
-                style={primary ? [styles.metricCard, styles.metricCardPrimary] : styles.metricCard}
+                style={[styles.totalCard, strong ? styles.totalCardStrong : {}]}
               >
-                <Text style={styles.cardLabel}>{label}</Text>
-                <Text style={styles.scoreValue}>{value}</Text>
+                <Text style={styles.totalLabel}>{label}</Text>
+                <Text style={styles.totalValue}>{value}</Text>
               </View>
             ))}
           </View>
         </View>
 
-        <View style={styles.noteBand}>
-          <Text>
-            {hasEnteredScores
-              ? "Saved totals and class position are reflected in this export."
-              : "The full subject sheet is ready, but subject scores are still blank."}
+        <View style={styles.noteBar}>
+          <Text style={styles.noteText}>
+            Saved totals and class position are reflected in this export.
           </Text>
         </View>
 
-        <View style={styles.table}>
+        <View style={styles.tableWrap}>
+          <View style={styles.tableHeadTop}>
+            <View style={styles.spacerHead} />
+            <View style={styles.groupHead}>
+              <Text style={styles.groupHeadText}>1st Assessment</Text>
+            </View>
+            <View style={styles.groupHeadSmall}>
+              <Text style={styles.groupHeadText}>Score</Text>
+            </View>
+            <View style={styles.groupHead}>
+              <Text style={styles.groupHeadText}>2nd Assessment</Text>
+            </View>
+            <View style={styles.groupHeadSmall}>
+              <Text style={styles.groupHeadText}>Score</Text>
+            </View>
+            <View style={styles.groupHead}>
+              <Text style={styles.groupHeadText}>Exam</Text>
+            </View>
+            <View style={styles.groupHeadSmall}>
+              <Text style={styles.groupHeadText}>Score</Text>
+            </View>
+            <View style={styles.groupHeadSmall}>
+              <Text style={styles.groupHeadText}>Grand Total</Text>
+            </View>
+            <View style={[styles.groupHeadSmall, { borderRightWidth: 0, width: "14%" }]}>
+              <Text style={styles.groupHeadText}>Remark</Text>
+            </View>
+          </View>
+
           <View style={styles.tableHead}>
             <Text style={[styles.tableHeadText, styles.subjectCol]}>Subject</Text>
             <Text style={[styles.tableHeadText, styles.numCol]}>A1 Max</Text>
@@ -280,47 +441,68 @@ function PdfReportCard({ report }: { report: ReportCardData }) {
             <Text style={[styles.tableHeadText, styles.numCol]}>Exam Max</Text>
             <Text style={[styles.tableHeadText, styles.numCol]}>Exam</Text>
             <Text style={[styles.tableHeadText, styles.totalCol]}>Total</Text>
+            <Text style={[styles.tableHeadText, styles.remarkCol]}>Remark</Text>
           </View>
 
           {rows.map((row, index) => (
             <View
               key={row.id}
-              style={index % 2 === 0 ? [styles.tableRow, styles.rowAlt] : styles.tableRow}
+              style={[styles.tableRow, index % 2 === 0 ? styles.tableRowAlt : {}]}
             >
               <Text style={[styles.tableText, styles.subjectCol]}>{row.subject.name}</Text>
-              <Text style={[styles.mutedTableText, styles.numCol]}>
-                {row.subject.a1Max ?? "--"}
+              <Text style={[styles.tableTextMuted, styles.numCol]}>
+                {scoreDisplay(row.subject.a1Max)}
               </Text>
-              <Text style={[styles.tableText, styles.numCol]}>{row.a1Score ?? "--"}</Text>
-              <Text style={[styles.mutedTableText, styles.numCol]}>
-                {row.subject.a2Max ?? "--"}
+              <Text style={[styles.tableText, styles.numCol]}>{scoreDisplay(row.a1Score)}</Text>
+              <Text style={[styles.tableTextMuted, styles.numCol]}>
+                {scoreDisplay(row.subject.a2Max)}
               </Text>
-              <Text style={[styles.tableText, styles.numCol]}>{row.a2Score ?? "--"}</Text>
-              <Text style={[styles.mutedTableText, styles.numCol]}>
-                {row.subject.examMax ?? "--"}
+              <Text style={[styles.tableText, styles.numCol]}>{scoreDisplay(row.a2Score)}</Text>
+              <Text style={[styles.tableTextMuted, styles.numCol]}>
+                {scoreDisplay(row.subject.examMax)}
               </Text>
-              <Text style={[styles.tableText, styles.numCol]}>{row.examScore ?? "--"}</Text>
-              <Text style={[styles.tableText, styles.totalCol]}>{row.totalScore}</Text>
+              <Text style={[styles.tableText, styles.numCol]}>{scoreDisplay(row.examScore)}</Text>
+              <Text style={[styles.tableText, styles.totalCol]}>{scoreDisplay(row.totalScore)}</Text>
+              <Text style={[styles.tableTextMuted, styles.remarkCol]}>{getRemark(row)}</Text>
             </View>
           ))}
         </View>
 
-        <View style={styles.footerGrid}>
-          <View style={styles.footerCard}>
-            <Text style={styles.footerTitle}>Teacher comment</Text>
-            <Text style={styles.footerText}>{report.teacherComment ?? "No comment yet."}</Text>
+        {teacherComment || headTeacherComment || teacherName ? (
+          <View style={styles.footerGrid}>
+            {teacherComment ? (
+              <View style={styles.footerCard}>
+                <Text style={styles.footerTitle}>Teacher comment</Text>
+                <Text style={styles.footerText}>{teacherComment}</Text>
+              </View>
+            ) : null}
+
+            {headTeacherComment ? (
+              <View style={styles.footerCard}>
+                <Text style={styles.footerTitle}>Head comment</Text>
+                <Text style={styles.footerText}>{headTeacherComment}</Text>
+              </View>
+            ) : null}
+
+            {teacherName ? (
+              <View style={styles.footerCard}>
+                <Text style={styles.footerTitle}>Teacher</Text>
+                <Text style={styles.footerText}>{teacherName}</Text>
+                <Text style={styles.signatureTitle}>Signature</Text>
+                <View style={styles.signatureLine}>
+                  <Text style={styles.signatureText}>{teacherName}</Text>
+                </View>
+              </View>
+            ) : null}
           </View>
+        ) : (
           <View style={styles.footerCard}>
-            <Text style={styles.footerTitle}>Head comment</Text>
-            <Text style={styles.footerText}>{report.headTeacherComment ?? "No comment yet."}</Text>
-          </View>
-          <View style={styles.footerCard}>
-            <Text style={styles.footerTitle}>Teacher</Text>
-            <Text style={styles.footerText}>
-              {report.classroom.teacherName ?? "Class teacher"}
+            <Text style={styles.footerTitle}>Report notes</Text>
+            <Text style={[styles.footerText, styles.footerMuted]}>
+              This export reflects the saved report totals, class size, and current ranking.
             </Text>
           </View>
-        </View>
+        )}
       </Page>
     </Document>
   );
