@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { MobileBladeList } from "@/components/mobile/MobileBladeList";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { getExportsCenterData } from "@/lib/export-data";
@@ -23,12 +24,37 @@ export default async function ExportsPage() {
 
       <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
         <SectionCard title="Class files">
+          <MobileBladeList
+            items={exportsData.classes.map((classroom) => ({
+              id: classroom.id,
+              title: classroom.name,
+              subtitle: `${classroom.readyReports} ready reports in the active term`,
+              eyebrow: "Class export",
+              quickValue: String(classroom.readyReports),
+              quickHint: "ready",
+              summary:
+                "Download spreadsheet exports for the active class set or open the class workspace for review.",
+              meta: [
+                { label: "Ready reports", value: String(classroom.readyReports) },
+                { label: "Excel", value: "Available" },
+                { label: "CSV", value: "Available" },
+                { label: "Class", value: classroom.name },
+              ],
+              actions: [
+                { label: "Download Excel", href: classroom.excelHref, tone: "accent" },
+                { label: "Download CSV", href: classroom.csvHref },
+                { label: "Open class", href: `/classes/${classroom.id}` },
+              ],
+            }))}
+            emptyMessage="No class files are ready yet."
+          />
+
           <div className="grid gap-3">
             {exportsData.classes.length ? (
               exportsData.classes.map((classroom) => (
                 <div
                   key={classroom.id}
-                  className="frost-panel-soft rounded-[24px] px-4 py-4 sm:px-5 sm:py-5"
+                  className="frost-panel-soft hidden rounded-[24px] px-4 py-4 sm:block sm:px-5 sm:py-5"
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
@@ -89,13 +115,37 @@ export default async function ExportsPage() {
       </section>
 
       <SectionCard title="Student PDF exports">
+        <MobileBladeList
+          items={exportsData.studentPdfs.map((file) => ({
+            id: file.id,
+            title: file.studentName,
+            subtitle: file.classroomName,
+            eyebrow: "Student PDF",
+            quickValue: "PDF",
+            quickHint: "ready",
+            summary:
+              "Open the designed PDF export for this student or jump to the report sheet for changes.",
+            meta: [
+              { label: "Student", value: file.studentName },
+              { label: "Class", value: file.classroomName },
+              { label: "Format", value: "PDF" },
+              { label: "Status", value: "Ready" },
+            ],
+            actions: [
+              { label: "Open PDF", href: file.href, tone: "accent" },
+              { label: "Open report", href: `/reports/${file.id}` },
+            ],
+          }))}
+          emptyMessage="No published student sheets are ready for PDF yet."
+        />
+
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {exportsData.studentPdfs.length ? (
             exportsData.studentPdfs.map((file) => (
               <Link
                 key={file.id}
                 href={file.href}
-                className="surface-pocket surface-hover block rounded-[22px] px-4 py-4 transition"
+                className="surface-pocket surface-hover hidden rounded-[22px] px-4 py-4 transition sm:block"
               >
                 <p className="font-semibold text-[color:var(--text-strong)]">
                   {file.studentName}

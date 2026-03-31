@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { MobileBladeList } from "@/components/mobile/MobileBladeList";
 import { getClassroomsList, getSubjectsList } from "@/lib/school-data";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
@@ -137,47 +138,37 @@ export default async function SubjectsPage({
           ) : null}
         </div>
 
-        <div className="space-y-3 sm:hidden">
-          {filteredSubjects.map((subject) => (
-            <Link
-              key={subject.id}
-              href={`/subjects/${subject.id}`}
-              className="frost-panel-soft block rounded-[24px] px-4 py-4"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-[color:var(--text-strong)]">
-                    {subject.name}
-                  </p>
-                  <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-                    {subject.category}
-                  </p>
-                </div>
-                <span className="rounded-full bg-[color:var(--success-soft)] px-3 py-1 text-xs font-semibold text-[color:var(--success)]">
-                  {subject.activeLabel}
-                </span>
-              </div>
-              <div className="mt-4 grid gap-2 text-sm">
-                <div className="surface-chip rounded-[18px] px-3 py-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-[color:var(--text-muted)]">Mode</span>
-                    <span className="font-medium text-[color:var(--text-strong)]">
-                      {subject.modeLabel}
-                    </span>
-                  </div>
-                </div>
-                <div className="surface-chip rounded-[18px] px-3 py-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-[color:var(--text-muted)]">Classes</span>
-                    <span className="font-medium text-[color:var(--text-strong)]">
-                      {subject.classroomNames.length || "--"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <MobileBladeList
+          items={filteredSubjects.map((subject) => ({
+            id: subject.id,
+            title: subject.name,
+            subtitle: subject.category,
+            eyebrow: "Subject",
+            badge: {
+              label: subject.activeLabel,
+              tone: subject.isActive ? "success" : "default",
+            },
+            quickValue: subject.modeLabel,
+            quickHint: subject.maxLabel,
+            summary:
+              "Review scoring mode, maxes, and class coverage before opening the subject editor.",
+            meta: [
+              { label: "Category", value: subject.category },
+              { label: "Mode", value: subject.modeLabel },
+              {
+                label: "Classes",
+                value: subject.classroomNames.length
+                  ? String(subject.classroomNames.length)
+                  : "--",
+              },
+              { label: "Max", value: subject.maxLabel },
+            ],
+            actions: [
+              { label: "Open subject", href: `/subjects/${subject.id}`, tone: "accent" },
+            ],
+          }))}
+          emptyMessage="No subjects match the current filters."
+        />
 
         <div className="frost-panel-soft hidden overflow-hidden rounded-[22px] sm:block">
           <table className="min-w-full border-separate border-spacing-0">
