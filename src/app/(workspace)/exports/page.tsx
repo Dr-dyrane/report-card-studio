@@ -31,20 +31,29 @@ export default async function ExportsPage() {
               subtitle: `${classroom.readyReports} ready reports in the active term`,
               eyebrow: "Class export",
               quickValue: String(classroom.readyReports),
-              quickHint: "ready",
+              quickHint: exportsData.preferredClassExport,
               summary:
-                "Download spreadsheet exports for the active class set or open the class workspace for review.",
+                exportsData.preferredClassExport === "CSV"
+                  ? "CSV first"
+                  : "Excel first",
               meta: [
                 { label: "Ready reports", value: String(classroom.readyReports) },
                 { label: "Excel", value: "Available" },
                 { label: "CSV", value: "Available" },
                 { label: "Class", value: classroom.name },
               ],
-              actions: [
-                { label: "Download Excel", href: classroom.excelHref, tone: "accent" },
-                { label: "Download CSV", href: classroom.csvHref },
-                { label: "Open class", href: `/classes/${classroom.id}` },
-              ],
+              actions:
+                exportsData.preferredClassExport === "CSV"
+                  ? [
+                      { label: "Download CSV", href: classroom.csvHref, tone: "accent" as const },
+                      { label: "Download Excel", href: classroom.excelHref },
+                      { label: "Open class", href: `/classes/${classroom.id}` },
+                    ]
+                  : [
+                      { label: "Download Excel", href: classroom.excelHref, tone: "accent" as const },
+                      { label: "Download CSV", href: classroom.csvHref },
+                      { label: "Open class", href: `/classes/${classroom.id}` },
+                    ],
             }))}
             emptyMessage="No class files are ready yet."
           />
@@ -67,18 +76,37 @@ export default async function ExportsPage() {
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                      <a
-                        href={classroom.excelHref}
-                        className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold"
-                      >
-                        Excel
-                      </a>
-                      <a
-                        href={classroom.csvHref}
-                        className="soft-action rounded-full px-4 py-2 text-sm font-medium"
-                      >
-                        CSV
-                      </a>
+                      {exportsData.preferredClassExport === "CSV" ? (
+                        <>
+                          <a
+                            href={classroom.csvHref}
+                            className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold"
+                          >
+                            CSV
+                          </a>
+                          <a
+                            href={classroom.excelHref}
+                            className="soft-action rounded-full px-4 py-2 text-sm font-medium"
+                          >
+                            Excel
+                          </a>
+                        </>
+                      ) : (
+                        <>
+                          <a
+                            href={classroom.excelHref}
+                            className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold"
+                          >
+                            Excel
+                          </a>
+                          <a
+                            href={classroom.csvHref}
+                            className="soft-action rounded-full px-4 py-2 text-sm font-medium"
+                          >
+                            CSV
+                          </a>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -94,9 +122,9 @@ export default async function ExportsPage() {
         <SectionCard title="Ready files">
           <div className="grid gap-3">
             {[
-              ["Student PDFs", `${exportsData.studentPdfs.length} print-ready sheets`],
-              ["Class Excel", `${exportsData.classes.length} workbook exports`],
-              ["Class CSV", `${exportsData.classes.length} raw data exports`],
+              ["Student exports", `${exportsData.studentPdfs.length} ready`],
+              ["Class Excel", `${exportsData.classes.length} workbook files`],
+              ["Class CSV", `${exportsData.classes.length} raw files`],
             ].map(([title, note], index) => (
               <div
                 key={title}
@@ -114,29 +142,46 @@ export default async function ExportsPage() {
         </SectionCard>
       </section>
 
-      <SectionCard title="Student PDF exports">
+      <SectionCard title="Student exports">
         <MobileBladeList
           items={exportsData.studentPdfs.map((file) => ({
             id: file.id,
             title: file.studentName,
             subtitle: file.classroomName,
-            eyebrow: "Student PDF",
-            quickValue: "PDF",
+            eyebrow: "Student export",
+            quickValue: exportsData.preferredStudentExport === "PREVIEW" ? "View" : "PDF",
             quickHint: "ready",
             summary:
-              "Open the designed PDF export for this student or jump to the report sheet for changes.",
+              exportsData.preferredStudentExport === "PREVIEW"
+                ? "Preview first"
+                : "PDF first",
             meta: [
               { label: "Student", value: file.studentName },
               { label: "Class", value: file.classroomName },
-              { label: "Format", value: "PDF" },
+              {
+                label: "Default",
+                value: exportsData.preferredStudentExport === "PREVIEW" ? "Preview" : "PDF",
+              },
               { label: "Status", value: "Ready" },
             ],
-            actions: [
-              { label: "Open PDF", href: file.href, tone: "accent" },
-              { label: "Open report", href: `/reports/${file.id}` },
-            ],
+            actions:
+              exportsData.preferredStudentExport === "PREVIEW"
+                ? [
+                    {
+                      label: "Open preview",
+                      href: `/reports/${file.id}/preview`,
+                      tone: "accent" as const,
+                    },
+                    { label: "Open PDF", href: file.href },
+                    { label: "Open report", href: `/reports/${file.id}` },
+                  ]
+                : [
+                    { label: "Open PDF", href: file.href, tone: "accent" as const },
+                    { label: "Open preview", href: `/reports/${file.id}/preview` },
+                    { label: "Open report", href: `/reports/${file.id}` },
+                  ],
           }))}
-          emptyMessage="No published student sheets are ready for PDF yet."
+          emptyMessage="No published student sheets are ready yet."
         />
 
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -144,7 +189,11 @@ export default async function ExportsPage() {
             exportsData.studentPdfs.map((file) => (
               <Link
                 key={file.id}
-                href={file.href}
+                href={
+                  exportsData.preferredStudentExport === "PREVIEW"
+                    ? `/reports/${file.id}/preview`
+                    : file.href
+                }
                 className="surface-pocket surface-hover hidden rounded-[22px] px-4 py-4 transition sm:block"
               >
                 <p className="font-semibold text-[color:var(--text-strong)]">
@@ -154,30 +203,15 @@ export default async function ExportsPage() {
                   {file.classroomName}
                 </p>
                 <p className="mt-4 text-sm font-medium text-[color:var(--accent-strong)]">
-                  Open PDF
+                  {exportsData.preferredStudentExport === "PREVIEW" ? "Open preview" : "Open PDF"}
                 </p>
               </Link>
             ))
           ) : (
             <div className="soft-action rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
-              No published student sheets are ready for PDF yet.
+              No published student sheets are ready yet.
             </div>
           )}
-        </div>
-      </SectionCard>
-
-      <SectionCard title="Recent export flow">
-        <div className="grid gap-3 md:grid-cols-3">
-          {[
-            ["1. Review", "Open the student preview and confirm totals before print."],
-            ["2. Export", "Use Excel or CSV for class files, or the print view for PDFs."],
-            ["3. Archive", "Published and exported sheets stay ready for later access."],
-          ].map(([title, note]) => (
-            <div key={title} className="surface-pocket rounded-[22px] px-4 py-4">
-              <p className="font-semibold text-[color:var(--text-strong)]">{title}</p>
-              <p className="mt-2 text-sm leading-6 text-[color:var(--text-muted)]">{note}</p>
-            </div>
-          ))}
         </div>
       </SectionCard>
     </div>

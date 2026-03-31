@@ -30,3 +30,27 @@ export async function saveWorkspaceProfile(input: { name: string }) {
 
   return { ok: true, message: "Workspace updated.", previousName };
 }
+
+export async function saveExportPreferences(input: {
+  preferredStudentExport: "PDF" | "PREVIEW";
+  preferredClassExport: "EXCEL" | "CSV";
+}) {
+  await requireServerSession();
+  const school = await requireOwnedSchool();
+  const db = await getDb();
+
+  if (!db) return { ok: false, message: "Database unavailable." };
+
+  await db.school.update({
+    where: { id: school.id },
+    data: {
+      preferredStudentExport: input.preferredStudentExport,
+      preferredClassExport: input.preferredClassExport,
+    },
+  });
+
+  revalidatePath("/settings");
+  revalidatePath("/exports");
+
+  return { ok: true, message: "Export preferences updated." };
+}

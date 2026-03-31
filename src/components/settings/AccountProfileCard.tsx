@@ -5,12 +5,15 @@ import { useRouter } from "next/navigation";
 
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { Field } from "@/components/ui/Field";
+import { UserAvatar } from "@/components/ui/UserAvatar";
+import { getGeneratedAvatarUrl } from "@/lib/avatar";
 import { authClient } from "@/lib/auth-client";
 
 type AccountProfileCardProps = {
   name: string;
   email: string;
   username: string;
+  image?: string | null;
 };
 
 function getErrorMessage(error: unknown) {
@@ -41,21 +44,28 @@ export function AccountProfileCard({
   name: initialName,
   email,
   username: initialUsername,
+  image: initialImage,
 }: AccountProfileCardProps) {
   const router = useRouter();
   const { notify } = useFeedback();
   const session = authClient.useSession();
   const [name, setName] = useState(initialName);
   const [username, setUsername] = useState(initialUsername);
+  const [image, setImage] = useState(initialImage ?? "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const generatedAvatarUrl = useMemo(
+    () => getGeneratedAvatarUrl({ name, username, email }),
+    [email, name, username],
+  );
 
   const hasChanges = useMemo(
     () =>
       name.trim() !== initialName.trim() ||
-      username.trim().toLowerCase() !== initialUsername.trim().toLowerCase(),
-    [initialName, initialUsername, name, username],
+      username.trim().toLowerCase() !== initialUsername.trim().toLowerCase() ||
+      image.trim() !== (initialImage?.trim() ?? ""),
+    [image, initialImage, initialName, initialUsername, name, username],
   );
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -63,6 +73,7 @@ export function AccountProfileCard({
 
     const nextName = name.trim();
     const nextUsername = username.trim().toLowerCase();
+    const nextImage = image.trim();
 
     if (!nextName) {
       setError("Enter a name.");
@@ -89,6 +100,7 @@ export function AccountProfileCard({
           name: nextName,
           username: nextUsername,
           displayUsername: nextUsername,
+          image: nextImage || null,
         }),
       });
 
@@ -115,6 +127,33 @@ export function AccountProfileCard({
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-5">
+      <div className="surface-pocket flex flex-col gap-4 rounded-[22px] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <UserAvatar
+            name={name}
+            username={username}
+            email={email}
+            image={image}
+            sizeClassName="h-20 w-20"
+            textClassName="text-2xl"
+            roundedClassName="rounded-[24px]"
+            className="surface-chip-strong"
+          />
+          <div className="min-w-0">
+            <p className="text-lg font-semibold text-[color:var(--text-strong)]">
+              {name.trim() || "Kradle"}
+            </p>
+            <p className="mt-1 truncate text-sm text-[color:var(--text-muted)]">{email}</p>
+            <p className="mt-2 text-sm font-medium text-[color:var(--accent-strong)]">
+              @{username.trim() || "kradle"}
+            </p>
+          </div>
+        </div>
+        <div className="surface-chip rounded-[18px] px-4 py-3 text-sm text-[color:var(--text-muted)]">
+          Generated fallback stays in sync with your name and username.
+        </div>
+      </div>
+
       <Field label="Name">
         <input
           value={name}
@@ -144,6 +183,36 @@ export function AccountProfileCard({
           />
         </Field>
       </div>
+
+      <Field label="Avatar image URL">
+        <div className="grid gap-3">
+          <input
+            value={image}
+            onChange={(event) => setImage(event.target.value)}
+            autoCapitalize="none"
+            autoComplete="url"
+            spellCheck={false}
+            placeholder={generatedAvatarUrl}
+            className="surface-input w-full rounded-[18px] px-4 py-3 text-[color:var(--text-base)] outline-none placeholder:text-[color:var(--text-muted)]"
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setImage(generatedAvatarUrl)}
+              className="soft-action rounded-full px-4 py-2 text-sm font-medium"
+            >
+              Use generated
+            </button>
+            <button
+              type="button"
+              onClick={() => setImage("")}
+              className="soft-action rounded-full px-4 py-2 text-sm font-medium"
+            >
+              Clear custom
+            </button>
+          </div>
+        </div>
+      </Field>
 
       {error ? (
         <p className="rounded-[18px] bg-[color:var(--danger-soft)] px-4 py-3 text-sm text-[color:var(--danger)]">

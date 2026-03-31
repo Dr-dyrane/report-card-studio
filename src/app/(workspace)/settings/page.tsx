@@ -1,15 +1,11 @@
 import { requireServerSession } from "@/lib/auth-session";
 import { getDb } from "@/lib/db";
 import { getOwnedSchool } from "@/lib/owned-school";
-import { AccountProfileCard } from "@/components/settings/AccountProfileCard";
-import { ChangePasswordCard } from "@/components/settings/ChangePasswordCard";
-import { WorkspaceProfileCard } from "@/components/settings/WorkspaceProfileCard";
-import { ThemeToggleCard } from "@/components/theme/ThemeToggleCard";
+import { SettingsWorkspace } from "@/components/settings/SettingsWorkspace";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { SectionCard } from "@/components/ui/SectionCard";
 
 export default async function SettingsPage() {
-  const session = await requireServerSession();
+  await requireServerSession();
   const school = await getOwnedSchool();
   const db = await getDb();
 
@@ -32,36 +28,49 @@ export default async function SettingsPage() {
     : null;
 
   const activeTerm = activeSession?.terms[0] ?? null;
+  const [classroomsCount, subjectsCount, publishedReports] = school
+    ? await Promise.all([
+        db.classroom.count({
+          where: {
+            schoolId: school.id,
+          },
+        }),
+        db.subject.count({
+          where: {
+            schoolId: school.id,
+          },
+        }),
+        db.reportCard.count({
+          where: {
+            classroom: {
+              schoolId: school.id,
+            },
+            status: "PUBLISHED",
+            student: {
+              isActive: true,
+            },
+          },
+        }),
+      ])
+    : [0, 0, 0];
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Settings" title="Settings" description="Account and workspace." />
+      <PageHeader
+        eyebrow="Settings"
+        title="Settings"
+      />
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <SectionCard title="Account">
-          <AccountProfileCard
-            name={session.user.name ?? ""}
-            email={session.user.email}
-            username={session.user.username ?? ""}
-          />
-        </SectionCard>
-
-        <SectionCard title="Workspace">
-          <WorkspaceProfileCard
-            name={school?.name ?? "No workspace"}
-            sessionName={activeSession?.name ?? "Not set"}
-            termName={activeTerm?.name ?? "Not set"}
-          />
-        </SectionCard>
-      </div>
-
-      <SectionCard title="Appearance">
-        <ThemeToggleCard />
-      </SectionCard>
-
-      <SectionCard title="Security">
-        <ChangePasswordCard />
-      </SectionCard>
+      <SettingsWorkspace
+        schoolName={school?.name ?? "No workspace"}
+        activeSessionName={activeSession?.name ?? "Not set"}
+        activeTermName={activeTerm?.name ?? "Not set"}
+        classroomsCount={classroomsCount}
+        subjectsCount={subjectsCount}
+        publishedReports={publishedReports}
+        preferredStudentExport={school?.preferredStudentExport ?? "PDF"}
+        preferredClassExport={school?.preferredClassExport ?? "EXCEL"}
+      />
     </div>
   );
 }

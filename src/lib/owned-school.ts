@@ -16,6 +16,8 @@ export async function getOwnedSchoolForUser(userId: string) {
       id: true,
       name: true,
       ownerId: true,
+      preferredStudentExport: true,
+      preferredClassExport: true,
     },
   });
 

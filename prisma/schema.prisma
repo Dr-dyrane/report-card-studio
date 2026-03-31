@@ -19,17 +19,29 @@ enum AssessmentMode {
   EXAM_ONLY
 }
 
+enum StudentExportPreference {
+  PDF
+  PREVIEW
+}
+
+enum ClassExportPreference {
+  EXCEL
+  CSV
+}
+
 model School {
-  id         String            @id @default(cuid())
-  name       String
-  ownerId    String?
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
-  owner      User?             @relation(fields: [ownerId], references: [id], onDelete: SetNull)
-  sessions   AcademicSession[]
-  classrooms Classroom[]
-  students   Student[]
-  subjects   Subject[]
+  id                       String                  @id @default(cuid())
+  name                     String
+  ownerId                  String?
+  preferredStudentExport   StudentExportPreference @default(PDF)
+  preferredClassExport     ClassExportPreference   @default(EXCEL)
+  createdAt                DateTime                @default(now())
+  updatedAt                DateTime                @updatedAt
+  owner                    User?                   @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  sessions                 AcademicSession[]
+  classrooms               Classroom[]
+  students                 Student[]
+  subjects                 Subject[]
 
   @@index([ownerId])
 }

@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { ThemeToggleInline } from "@/components/theme/ThemeToggleInline";
 import { AppIcon } from "@/components/ui/AppIcon";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import { authClient } from "@/lib/auth-client";
 
 type UtilityLink = {
@@ -41,7 +42,12 @@ export function MobileUtilitySheet({
 }: {
   open: boolean;
   onClose: () => void;
-  currentUser: { name?: string | null; email?: string | null; username?: string | null } | null;
+  currentUser: {
+    name?: string | null;
+    email?: string | null;
+    username?: string | null;
+    image?: string | null;
+  } | null;
 }) {
   const router = useRouter();
   const { notify } = useFeedback();
@@ -82,11 +88,22 @@ export function MobileUtilitySheet({
           </button>
         </div>
 
-        <div className="mt-3 rounded-[22px] premium-wash px-3.5 py-3 shadow-[var(--shadow-frost-strong)]">
+        <Link
+          href="/profile"
+          onClick={onClose}
+          className="mt-3 rounded-[22px] premium-wash px-3.5 py-3 shadow-[var(--shadow-frost-strong)]"
+        >
           <div className="flex items-center gap-3">
-            <div className="surface-chip-strong flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] text-[1.3rem] font-semibold text-[color:var(--accent-strong)]">
-              {(currentUser?.name ?? currentUser?.email ?? "K").slice(0, 1).toUpperCase()}
-            </div>
+            <UserAvatar
+              name={currentUser?.name}
+              username={currentUser?.username}
+              email={currentUser?.email}
+              image={currentUser?.image}
+              sizeClassName="h-14 w-14"
+              textClassName="text-[1.3rem]"
+              roundedClassName="rounded-[20px]"
+              className="surface-chip-strong"
+            />
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-3">
                 <p className="truncate text-[1.45rem] font-semibold leading-none text-[color:var(--text-strong)]">
@@ -104,8 +121,9 @@ export function MobileUtilitySheet({
                 </p>
               ) : null}
             </div>
+            <ChevronRightIcon className="h-4.5 w-4.5 shrink-0 text-[color:var(--text-muted)]" />
           </div>
-        </div>
+        </Link>
 
         <div className="mt-4 overflow-hidden rounded-[22px] premium-wash shadow-[var(--shadow-frost-strong)]">
           <Link

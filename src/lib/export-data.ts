@@ -146,6 +146,10 @@ export async function getExportsCenterData() {
   if (!db) {
     return {
       schoolName: school.name,
+      activeTermName: "",
+      activeSessionName: "",
+      preferredStudentExport: school.preferredStudentExport ?? "PDF",
+      preferredClassExport: school.preferredClassExport ?? "EXCEL",
       classes: [],
       studentPdfs: [],
     };
@@ -218,6 +222,8 @@ export async function getExportsCenterData() {
     schoolName: school.name,
     activeTermName: activeTerm?.name ?? "",
     activeSessionName: activeTerm?.session.name ?? "",
+    preferredStudentExport: school.preferredStudentExport ?? "PDF",
+    preferredClassExport: school.preferredClassExport ?? "EXCEL",
     classes: classrooms.map((classroom) => ({
       id: classroom.id,
       name: classroom.name,
