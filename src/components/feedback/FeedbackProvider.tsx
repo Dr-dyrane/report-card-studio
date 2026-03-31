@@ -15,10 +15,16 @@ type FeedbackItem = {
   id: number;
   message: string;
   tone: FeedbackTone;
+  actionLabel?: string;
+  action?: () => void;
 };
 
 type FeedbackContextValue = {
-  notify: (message: string, tone?: FeedbackTone) => void;
+  notify: (
+    message: string,
+    tone?: FeedbackTone,
+    options?: { actionLabel?: string; action?: () => void },
+  ) => void;
 };
 
 const FeedbackContext = createContext<FeedbackContextValue | null>(null);
@@ -32,9 +38,22 @@ function toneClassName(tone: FeedbackTone) {
 export function FeedbackProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<FeedbackItem[]>([]);
 
-  const notify = useCallback((message: string, tone: FeedbackTone = "neutral") => {
+  const notify = useCallback((
+    message: string,
+    tone: FeedbackTone = "neutral",
+    options?: { actionLabel?: string; action?: () => void },
+  ) => {
     const id = Date.now() + Math.random();
-    setItems((current) => [...current, { id, message, tone }]);
+    setItems((current) => [
+      ...current,
+      {
+        id,
+        message,
+        tone,
+        actionLabel: options?.actionLabel,
+        action: options?.action,
+      },
+    ]);
 
     window.setTimeout(() => {
       setItems((current) => current.filter((item) => item.id !== id));
@@ -50,11 +69,23 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
         {items.map((item) => (
           <div
             key={item.id}
-            className={`frost-panel pointer-events-auto rounded-full px-4 py-2 text-sm font-medium shadow-[var(--shadow-frost)] ${toneClassName(
+            className={`frost-panel pointer-events-auto flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-[var(--shadow-frost)] ${toneClassName(
               item.tone,
             )}`}
           >
-            {item.message}
+            <span>{item.message}</span>
+            {item.actionLabel && item.action ? (
+              <button
+                type="button"
+                className="rounded-full px-2 py-1 text-xs font-semibold text-[color:var(--accent-strong)]"
+                onClick={() => {
+                  item.action?.();
+                  setItems((current) => current.filter((entry) => entry.id !== item.id));
+                }}
+              >
+                {item.actionLabel}
+              </button>
+            ) : null}
           </div>
         ))}
       </div>

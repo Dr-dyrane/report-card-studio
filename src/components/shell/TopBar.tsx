@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { MobileUtilitySheet } from "@/components/shell/MobileUtilitySheet";
+import { useWorkspaceContext } from "@/components/shell/WorkspaceContext";
 import { BrandMark } from "@/components/ui/BrandMark";
 import { authClient } from "@/lib/auth-client";
 import { navItems } from "@/lib/navigation";
@@ -27,6 +28,11 @@ export function TopBar() {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const session = authClient.useSession();
   const currentUser = session.data?.user;
+  const workspace = useWorkspaceContext();
+
+  const workspaceLabel = useMemo(() => {
+    return [workspace.termName, workspace.sessionName].filter(Boolean).join(", ");
+  }, [workspace.sessionName, workspace.termName]);
 
   const breadcrumb = useMemo(() => {
     const root =
@@ -72,11 +78,11 @@ export function TopBar() {
                   </span>
                 )}
               </Link>
-              <p className="mt-1 truncate text-xs text-[color:var(--text-muted)] sm:text-sm">
-                {breadcrumb.detailLabel
-                  ? `${breadcrumb.detailLabel} / Second Term, 2024/2025`
-                  : "Second Term, 2024/2025 / Primary 5 Lavender"}
-              </p>
+              {breadcrumb.detailLabel || workspaceLabel ? (
+                <p className="mt-1 truncate text-xs text-[color:var(--text-muted)] sm:text-sm">
+                  {[breadcrumb.detailLabel, workspaceLabel].filter(Boolean).join(" / ")}
+                </p>
+              ) : null}
             </div>
           </div>
         </div>

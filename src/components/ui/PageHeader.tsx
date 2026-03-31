@@ -8,7 +8,7 @@ type HeaderAction = {
 type PageHeaderProps = {
   eyebrow: string;
   title: string;
-  description: string;
+  description?: string;
   action?: HeaderAction;
   secondaryAction?: HeaderAction;
 };
@@ -30,9 +30,11 @@ export function PageHeader({
           <h1 className="mt-2 font-display text-[2.25rem] leading-[0.96] text-[color:var(--text-strong)] sm:mt-3 sm:text-5xl">
             {title}
           </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-5 text-[color:var(--text-muted)] sm:mt-4 sm:text-base sm:leading-7">
-            {description}
-          </p>
+          {description ? (
+            <p className="mt-2 max-w-2xl text-sm leading-5 text-[color:var(--text-muted)] sm:mt-4 sm:text-base sm:leading-7">
+              {description}
+            </p>
+          ) : null}
         </div>
         <div className="flex flex-wrap gap-2">
           {secondaryAction ? (

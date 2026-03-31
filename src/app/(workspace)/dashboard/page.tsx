@@ -99,7 +99,6 @@ export default function DashboardPage() {
       <PageHeader
         eyebrow="Dashboard"
         title="Overview"
-        description="Second Term, 2024/2025"
         action={{ label: "Students", href: "/students" }}
         secondaryAction={{ label: "Reports", href: "/reports" }}
       />

@@ -3,8 +3,8 @@ import { getDb } from "@/lib/db";
 import { getOwnedSchool } from "@/lib/owned-school";
 import { AccountProfileCard } from "@/components/settings/AccountProfileCard";
 import { ChangePasswordCard } from "@/components/settings/ChangePasswordCard";
+import { WorkspaceProfileCard } from "@/components/settings/WorkspaceProfileCard";
 import { ThemeToggleCard } from "@/components/theme/ThemeToggleCard";
-import { Field, InputShell } from "@/components/ui/Field";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SectionCard } from "@/components/ui/SectionCard";
 
@@ -47,17 +47,11 @@ export default async function SettingsPage() {
         </SectionCard>
 
         <SectionCard title="Workspace">
-          <div className="grid gap-5">
-            <Field label="Name">
-              <InputShell value={school?.name ?? "No workspace"} />
-            </Field>
-            <Field label="Session">
-              <InputShell value={activeSession?.name ?? "Not set"} />
-            </Field>
-            <Field label="Active term">
-              <InputShell value={activeTerm?.name ?? "Not set"} />
-            </Field>
-          </div>
+          <WorkspaceProfileCard
+            name={school?.name ?? "No workspace"}
+            sessionName={activeSession?.name ?? "Not set"}
+            termName={activeTerm?.name ?? "Not set"}
+          />
         </SectionCard>
       </div>
 

@@ -33,6 +33,9 @@ export function ClassEditorForm({ mode, classroom }: ClassEditorFormProps) {
   const [displayOrder, setDisplayOrder] = useState(
     classroom?.displayOrder?.toString() ?? "0",
   );
+  const canRemove = Boolean(
+    classroom && classroom.studentCount === 0 && classroom.activeReports === 0,
+  );
 
   const save = () => {
     startSave(async () => {
@@ -181,7 +184,9 @@ export function ClassEditorForm({ mode, classroom }: ClassEditorFormProps) {
             <p className="text-sm text-[color:var(--text-muted)]">
               {mode === "create"
                 ? "Create a class before assigning students."
-                : "Keep this class clean before removing it."}
+                : canRemove
+                  ? "This class is empty and can be removed."
+                  : "Move students and clear report sheets before removing this class."}
             </p>
             <div className="flex flex-wrap gap-3">
               {mode === "edit" ? (
@@ -190,7 +195,7 @@ export function ClassEditorForm({ mode, classroom }: ClassEditorFormProps) {
                   className="rounded-full bg-[color:var(--danger-soft)] px-4 py-2 text-sm font-medium text-[color:var(--danger)]"
                   onClick={() => setConfirmOpen(true)}
                 >
-                  Remove
+                  {canRemove ? "Remove" : "Why locked?"}
                 </button>
               ) : null}
               <button
@@ -219,15 +224,20 @@ export function ClassEditorForm({ mode, classroom }: ClassEditorFormProps) {
         onConfirm={remove}
         busy={isRemoving}
         title="Remove class"
-        description="Kradle only removes empty classes. Move students and clear report sheets first if this class is still active."
+        description={
+          canRemove
+            ? "This class is empty, so Kradle can remove it now."
+            : "Kradle only removes empty classes. Move students and clear report sheets first if this class is still active."
+        }
         confirmLabel="Remove"
+        dangerLabel={canRemove ? "This removes the class." : "This class is protected."}
         supportingContent={
           <div className="rounded-[22px] surface-pocket px-4 py-4">
             <p className="text-sm font-semibold text-[color:var(--text-strong)]">
               {classroom?.name}
             </p>
             <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-              {classroom?.studentCount ?? 0} students · {classroom?.activeReports ?? 0} reports
+              {(classroom?.studentCount ?? 0).toString()} students / {(classroom?.activeReports ?? 0).toString()} reports
             </p>
           </div>
         }

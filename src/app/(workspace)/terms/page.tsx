@@ -1,66 +1,64 @@
 import { PageHeader } from "@/components/ui/PageHeader";
-import { SectionCard } from "@/components/ui/SectionCard";
-import { Field, InputShell } from "@/components/ui/Field";
+import { TermsManager } from "@/components/terms/TermsManager";
+import { requireServerSession } from "@/lib/auth-session";
+import { getDb } from "@/lib/db";
+import { requireOwnedSchool } from "@/lib/owned-school";
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  await requireServerSession();
+  const school = await requireOwnedSchool();
+  const db = await getDb();
+
+  const sessions = db
+    ? await db.academicSession.findMany({
+        where: { schoolId: school.id },
+        include: {
+          terms: {
+            include: {
+              _count: { select: { reportCards: true } },
+            },
+            orderBy: [{ sequence: "asc" }],
+          },
+        },
+        orderBy: [{ createdAt: "asc" }],
+      })
+    : [];
+
+  const flattenedTerms = sessions.flatMap((session) =>
+    session.terms.map((term) => ({
+      id: term.id,
+      name: term.name,
+      sequence: term.sequence,
+      isActive: term.isActive,
+      nextTermBegins: term.nextTermBegins,
+      sessionId: session.id,
+      sessionName: session.name,
+      reportCount: term._count.reportCards,
+    })),
+  );
+
   return (
     <div className="space-y-6">
       <PageHeader
         eyebrow="Terms"
         title="Terms"
-        description="Sessions and academic periods."
-        action={{ label: "New term", href: "/terms" }}
-        secondaryAction={{ label: "New session", href: "/terms" }}
+        description="Sessions, active periods, and safe cleanup."
       />
 
-      <SectionCard title="Academic timeline">
-        <div className="grid gap-4 md:grid-cols-3">
-          {[
-            ["First Term", "Locked", "2024/2025"],
-            ["Second Term", "Active", "2024/2025"],
-            ["Third Term", "Upcoming", "2024/2025"],
-          ].map(([name, status, session]) => (
-            <div
-              key={name}
-              className="frost-panel-soft rounded-[24px] px-5 py-5"
-            >
-              <p className="text-lg font-semibold text-[color:var(--text-strong)]">
-                {name}
-              </p>
-              <p className="mt-2 text-sm text-[color:var(--text-muted)]">
-                {session}
-              </p>
-              <p className="mt-4 text-sm font-medium text-[color:var(--text-base)]">
-                {status}
-              </p>
-            </div>
-          ))}
-        </div>
-      </SectionCard>
-
-      <div className="grid gap-6 xl:grid-cols-[0.8fr_0.8fr]">
-        <SectionCard title="Session">
-          <div className="grid gap-5 md:grid-cols-2">
-            <Field label="Name">
-              <InputShell value="2024/2025" />
-            </Field>
-            <Field label="State">
-              <InputShell value="Active" compact />
-            </Field>
-          </div>
-        </SectionCard>
-
-        <SectionCard title="Term">
-          <div className="grid gap-5 md:grid-cols-2">
-            <Field label="Name">
-              <InputShell value="Second Term" />
-            </Field>
-            <Field label="Status">
-              <InputShell value="Editable" compact />
-            </Field>
-          </div>
-        </SectionCard>
-      </div>
+      <TermsManager
+        schoolName={school.name}
+        sessions={sessions.map((session) => ({
+          id: session.id,
+          name: session.name,
+          isActive: session.isActive,
+          termsCount: session.terms.length,
+          reportCount: session.terms.reduce(
+            (sum, term) => sum + term._count.reportCards,
+            0,
+          ),
+        }))}
+        terms={flattenedTerms}
+      />
     </div>
   );
 }

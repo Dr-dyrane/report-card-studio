@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
+import { ThemeToggleInline } from "@/components/theme/ThemeToggleInline";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { authClient } from "@/lib/auth-client";
 
@@ -129,6 +130,13 @@ export function MobileUtilitySheet({
               <ChevronRightIcon className="h-4 w-4 text-[color:var(--text-muted)]" />
             </Link>
           ))}
+        </div>
+
+        <div className="mt-5 rounded-[22px] surface-pocket px-4 py-4">
+          <p className="text-sm font-semibold text-[color:var(--text-strong)]">Appearance</p>
+          <div className="mt-3">
+            <ThemeToggleInline />
+          </div>
         </div>
 
         <div className="mt-auto pt-4">

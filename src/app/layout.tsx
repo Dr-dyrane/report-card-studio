@@ -2,8 +2,12 @@ import type { Metadata, Viewport } from "next";
 
 import { FeedbackProvider } from "@/components/feedback/FeedbackProvider";
 import { AppShell } from "@/components/shell/AppShell";
+import { WorkspaceContextProvider } from "@/components/shell/WorkspaceContext";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { PwaRegistrar } from "@/components/pwa/PwaRegistrar";
+import { getServerSession } from "@/lib/auth-session";
+import { getDb } from "@/lib/db";
+import { getOwnedSchoolForUser } from "@/lib/owned-school";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -33,11 +37,49 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession();
+  let workspaceContext = {
+    schoolName: null as string | null,
+    sessionName: null as string | null,
+    termName: null as string | null,
+  };
+
+  if (session?.user?.id) {
+    const ownedSchool = await getOwnedSchoolForUser(session.user.id);
+
+    if (ownedSchool) {
+      const db = await getDb();
+      const activeSession = await db.academicSession.findFirst({
+        where: {
+          schoolId: ownedSchool.id,
+          isActive: true,
+        },
+        select: {
+          name: true,
+          terms: {
+            where: { isActive: true },
+            orderBy: [{ sequence: "asc" }],
+            take: 1,
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+
+      workspaceContext = {
+        schoolName: ownedSchool.name,
+        sessionName: activeSession?.name ?? null,
+        termName: activeSession?.terms[0]?.name ?? null,
+      };
+    }
+  }
+
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
@@ -64,7 +106,9 @@ export default function RootLayout({
         <FeedbackProvider>
           <ThemeProvider>
             <PwaRegistrar />
-            <AppShell>{children}</AppShell>
+            <WorkspaceContextProvider value={workspaceContext}>
+              <AppShell>{children}</AppShell>
+            </WorkspaceContextProvider>
           </ThemeProvider>
         </FeedbackProvider>
       </body>
