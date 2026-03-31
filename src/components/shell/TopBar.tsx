@@ -54,8 +54,8 @@ export function TopBar() {
   }, [pathname]);
 
   return (
-    <header className="app-topbar sticky top-0 z-[var(--z-topbar)] px-0 pt-0 sm:px-1 sm:pt-1 xl:px-0">
-      <div className="frost-panel mx-0 flex items-center justify-between gap-3 rounded-none px-2 py-3 sm:flex-wrap sm:gap-4 sm:rounded-[28px] sm:px-4 sm:py-4 xl:px-8">
+    <header className="app-topbar sticky top-0 z-[var(--z-topbar)] px-0 pt-0 sm:px-1 pt-1 xl:px-0">
+      <div className="frost-panel premium-wash premium-sheen mx-0 flex items-center justify-between gap-3 rounded-none px-2 py-3 sm:flex-wrap sm:gap-4 sm:rounded-[28px] sm:px-4 sm:py-4 xl:px-8">
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-2">
             {!breadcrumb.isRootPage ? (
@@ -79,8 +79,8 @@ export function TopBar() {
                 )}
               </Link>
               {breadcrumb.detailLabel || workspaceLabel ? (
-                <p className="mt-1 truncate text-xs text-[color:var(--text-muted)] sm:text-sm">
-                  {[breadcrumb.detailLabel, workspaceLabel].filter(Boolean).join(" / ")}
+                <p className="truncate text-xs text-[color:var(--text-muted)] sm:text-sm">
+                  {[breadcrumb.detailLabel].filter(Boolean).join(" / ")}
                 </p>
               ) : null}
             </div>

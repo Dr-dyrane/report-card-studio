@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
+import { BrandMark } from "@/components/ui/BrandMark";
 import { ThemeToggleInline } from "@/components/theme/ThemeToggleInline";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { authClient } from "@/lib/auth-client";
@@ -72,31 +73,44 @@ export function MobileUtilitySheet({
       />
       <aside className="frost-panel-strong absolute right-0 top-0 flex h-full w-[min(88vw,24rem)] flex-col rounded-l-[30px] px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] shadow-[0_28px_80px_rgba(13,20,32,0.24)]">
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <div className="surface-chip-strong inline-flex h-12 w-12 items-center justify-center rounded-full text-base font-semibold text-[color:var(--accent-strong)]">
-              {(currentUser?.name ?? currentUser?.email ?? "K").slice(0, 1).toUpperCase()}
-            </div>
-            <p className="mt-3 truncate text-base font-semibold text-[color:var(--text-strong)]">
-              {currentUser?.name ?? "Kradle"}
-            </p>
-            <p className="truncate text-sm text-[color:var(--text-muted)]">
-              {currentUser?.email ?? ""}
-            </p>
-            {currentUser?.username ? (
-              <p className="truncate text-sm text-[color:var(--text-muted)]">
-                @{currentUser.username}
-              </p>
-            ) : null}
-          </div>
-
           <button
             type="button"
             onClick={onClose}
-            className="soft-action inline-flex h-11 w-11 items-center justify-center rounded-full"
+            className="soft-action ml-auto inline-flex h-11 w-11 items-center justify-center rounded-full"
             aria-label="Close utility sheet"
           >
             <XMarkIcon className="h-5 w-5 text-[color:var(--text-strong)]" />
           </button>
+        </div>
+
+        <div className="mt-3 rounded-[26px] premium-wash premium-sheen px-4 py-4 shadow-[var(--shadow-frost-strong)]">
+          <div className="flex items-start gap-3">
+            <div className="surface-chip-strong flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] text-lg font-semibold text-[color:var(--accent-strong)]">
+              {(currentUser?.name ?? currentUser?.email ?? "K").slice(0, 1).toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
+                Account
+              </p>
+              <p className="mt-2 truncate text-[1.35rem] font-semibold leading-none text-[color:var(--text-strong)]">
+                {currentUser?.name ?? "Kradle"}
+              </p>
+              {currentUser?.email ? (
+                <p className="mt-2 truncate text-sm text-[color:var(--text-muted)]">
+                  {currentUser.email}
+                </p>
+              ) : null}
+              {currentUser?.username ? (
+                <p className="mt-1 truncate text-sm font-medium text-[color:var(--accent-strong)]">
+                  @{currentUser.username}
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-[22px] surface-pocket px-3 py-3">
+            <BrandMark compact />
+          </div>
         </div>
 
         <div className="mt-5 grid gap-2">

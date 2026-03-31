@@ -21,7 +21,7 @@ export function PageHeader({
   secondaryAction,
 }: PageHeaderProps) {
   return (
-    <section className="frost-panel-strong rounded-[26px] px-3 py-4 sm:rounded-[32px] sm:px-8 sm:py-7">
+    <section className="frost-panel-strong premium-wash premium-sheen rounded-[26px] px-3 py-4 sm:rounded-[32px] sm:px-8 sm:py-7">
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div className="max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
