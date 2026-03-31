@@ -15,25 +15,30 @@ Strongly shipped:
 - CRUD foundation for subjects, classes, students, terms, and settings
 - archive/delete safeguards for core models
 
-Not fully finished:
+Still actively being refined:
 
-- full preview/export parity with the Excel-derived source cards
-- final report-sheet speed polish
+- final print/export fidelity against real report cards
 - final ranking trust and visibility across all surfaces
 - final beautification pass for dense desktop workspaces
 
 ## Biggest Remaining Product Gaps
 
-### 1. Full Report Parity
+### 1. Preview / Export Fidelity
 
-Still the most important gap.
+The matrix parity work is now much further along.
+
+Already improved:
+
+- report entry now uses the full class subject matrix
+- preview now renders the full matrix structure even when scores are blank
+- blank sheets feel like working sheets instead of dead-end placeholders
+- preview rows and export structure now come from the shared report loader
 
 Remaining work:
 
-- support the full subject matrix from the original report cards
-- carry all real assessment patterns cleanly
-- ensure preview/export matches the Excel-derived structure across all students
-- remove any reduced/demo assumptions from preview
+- visually verify a few real student cards against the original Excel-derived layout
+- tighten print rhythm, spacing, and page fit for one-page PDF output
+- carry any remaining subject or assessment edge variants cleanly
 
 Definition of done:
 
@@ -45,13 +50,19 @@ Definition of done:
 
 The sheet works, but it should feel faster and more fluid.
 
+Already improved:
+
+- blur-save is in place
+- enter-key movement across score cells is in place
+- blank sheets now open as real editable matrices
+- previous / next student flow exists on the sheet
+
 Remaining work:
 
-- autosave/blur-save refinement
-- stronger keyboard movement on desktop
-- cleaner row focus and active-cell feel
-- faster next/previous student movement
+- further keyboard movement refinement on desktop
+- cleaner active-row and active-cell presence
 - better mobile stepping through score fields
+- lighter save feedback during long entry sessions
 
 Definition of done:
 
@@ -63,11 +74,18 @@ Definition of done:
 
 Ranking logic is much better than before, but still needs a final visible trust pass.
 
+Already improved:
+
+- ranking recomputation runs after score edits
+- ranking recomputation runs after publish
+- ranking recomputation runs after scan prefill
+- live analytics now reads from workspace data
+
 Remaining work:
 
-- verify recomputed positions on reports, students, analytics, and previews
+- visually verify recomputed positions on reports, students, analytics, and previews
 - surface rank changes more clearly after edits
-- confirm class-size scope is always correct
+- confirm class-size scope stays correct in every edge case
 
 Definition of done:
 
@@ -78,11 +96,17 @@ Definition of done:
 
 The scan path exists, but it still needs final product refinement.
 
+Already improved:
+
+- new report flow is multiphasic
+- scan waiting states are clearer
+- scan review now distinguishes detected vs final student/class values
+
 Remaining work:
 
-- make review of extracted vs edited values clearer
 - refine confidence and warning presentation
-- improve the handoff from scan to working sheet
+- make edited vs detected values even clearer where needed
+- keep tightening the handoff from scan to working sheet
 
 Definition of done:
 
@@ -125,12 +149,11 @@ Usability has improved a lot. The next visual work should focus on polish, not e
 
 ## Recommended Order
 
-1. Full preview/export parity
-2. Report-sheet speed polish
-3. Ranking verification in UI
-4. Scan review polish
+1. Final print/PDF fidelity pass
+2. Final ranking verification in UI
+3. Report-sheet speed polish follow-up
+4. Scan review polish follow-up
 5. Dense desktop beautification
-6. Final print/PDF polish
 
 ## Principle To Preserve
 

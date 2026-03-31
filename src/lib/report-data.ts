@@ -23,6 +23,7 @@ const fallbackReportCard = {
   assessment2Total: 113,
   examTotal: 486,
   teacherComment: "She's active in the class.",
+  headTeacherComment: "",
   student: { fullName: "Student 12" },
   classroom: { name: "Primary 5 Lavender", teacherName: "Mrs. Class Teacher" },
   term: { name: "Second Term", session: { name: "2024/2025" } },
@@ -102,6 +103,17 @@ const fallbackReportCard = {
   ],
 };
 
+const fallbackPreviewRows = [...fallbackReportCard.scores]
+  .sort((left, right) => left.subject.displayOrder - right.subject.displayOrder)
+  .map((row) => ({
+    id: row.id,
+    subject: row.subject,
+    a1Score: row.a1Score,
+    a2Score: row.a2Score,
+    examScore: row.examScore,
+    totalScore: row.totalScore,
+  }));
+
 function slugToStudentName(value: string) {
   return value
     .split("-")
@@ -112,6 +124,51 @@ function slugToStudentName(value: string) {
 
 function studentNameToRouteKey(value: string) {
   return value.toLowerCase().replace(/\s+/g, "-");
+}
+
+function buildPreviewRows(
+  reportScores: Array<{
+    id: string;
+    a1Score: number | null;
+    a2Score: number | null;
+    examScore: number | null;
+    totalScore: number;
+    subject: {
+      id: string;
+      name: string;
+      displayOrder: number;
+      a1Max: number | null;
+      a2Max: number | null;
+      examMax: number | null;
+    };
+  }>,
+  classSubjects: Array<{
+    subject: {
+      id: string;
+      name: string;
+      displayOrder: number;
+      a1Max: number | null;
+      a2Max: number | null;
+      examMax: number | null;
+    };
+  }>,
+) {
+  const scoreMap = new Map(reportScores.map((row) => [row.subject.id, row]));
+
+  return classSubjects
+    .map(({ subject }) => {
+      const score = scoreMap.get(subject.id);
+
+      return {
+        id: score?.id ?? `missing-${subject.id}`,
+        subject,
+        a1Score: score?.a1Score ?? null,
+        a2Score: score?.a2Score ?? null,
+        examScore: score?.examScore ?? null,
+        totalScore: score?.totalScore ?? 0,
+      };
+    })
+    .sort((left, right) => left.subject.displayOrder - right.subject.displayOrder);
 }
 
 export async function getReportCards() {
@@ -152,7 +209,10 @@ export async function getReportCardByRouteKey(routeKey: string) {
     const db = await getDb();
     if (!db || !ownedSchool) {
       return routeKey === "student-12" || candidateName === "Student 12"
-        ? fallbackReportCard
+        ? {
+            ...fallbackReportCard,
+            previewRows: fallbackPreviewRows,
+          }
         : null;
     }
 
@@ -165,7 +225,16 @@ export async function getReportCardByRouteKey(routeKey: string) {
       },
       include: {
         student: true,
-        classroom: true,
+        classroom: {
+          include: {
+            classSubjects: {
+              include: {
+                subject: true,
+              },
+              orderBy: [{ displayOrder: "asc" }],
+            },
+          },
+        },
         term: {
           include: {
             session: true,
@@ -181,21 +250,29 @@ export async function getReportCardByRouteKey(routeKey: string) {
 
     if (!reportCard) {
       return routeKey === "student-12" || candidateName === "Student 12"
-        ? fallbackReportCard
+        ? {
+            ...fallbackReportCard,
+            previewRows: fallbackPreviewRows,
+          }
         : null;
     }
 
     const scores = [...reportCard.scores].sort(
       (left, right) => left.subject.displayOrder - right.subject.displayOrder,
     );
+    const previewRows = buildPreviewRows(scores, reportCard.classroom.classSubjects);
 
     return {
       ...reportCard,
       scores,
+      previewRows,
     };
   } catch {
     return routeKey === "student-12" || candidateName === "Student 12"
-      ? fallbackReportCard
+      ? {
+          ...fallbackReportCard,
+          previewRows: fallbackPreviewRows,
+        }
       : null;
   }
 }

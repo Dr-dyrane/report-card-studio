@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 
-import { useWorkspaceContext } from "@/components/shell/WorkspaceContext";
 import { ThemeToggleInline } from "@/components/theme/ThemeToggleInline";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { BrandMark } from "@/components/ui/BrandMark";
@@ -12,7 +11,6 @@ import { navGroups } from "@/lib/navigation";
 
 export function SidebarNav() {
   const pathname = usePathname();
-  const workspace = useWorkspaceContext();
   const activeGroupId = useMemo(
     () =>
       navGroups.find((group) =>
@@ -27,17 +25,6 @@ export function SidebarNav() {
   useEffect(() => {
     setOpenGroupId(activeGroupId);
   }, [activeGroupId]);
-
-  const contextRows = useMemo(
-    () =>
-      [
-        workspace.sessionName
-          ? { label: "Session", value: workspace.sessionName }
-          : null,
-        workspace.termName ? { label: "Term", value: workspace.termName } : null,
-      ].filter(Boolean) as Array<{ label: string; value: string }>,
-    [workspace.sessionName, workspace.termName],
-  );
 
   return (
     <aside className="app-sidebar frost-panel-strong sticky top-3 z-[var(--z-sidebar)] hidden h-[calc(100vh-1.5rem)] w-[276px] shrink-0 overflow-hidden rounded-[34px] lg:flex lg:flex-col">
@@ -108,9 +95,12 @@ export function SidebarNav() {
           })}
         </nav>
 
-        <div className="">
+        <div className="frost-panel-soft rounded-[24px] px-4 py-4">
+          <p className="text-sm font-semibold text-[color:var(--text-strong)]">Appearance</p>
+          <div className="mt-3">
             <ThemeToggleInline />
           </div>
+        </div>
       </div>
     </aside>
   );

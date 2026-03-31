@@ -29,8 +29,8 @@ export default async function ReportEntryPage({
   const quickMeta = [
     ["Status", report.status.toLowerCase()],
     ["Position", report.position ?? "--"],
-    ["Class", String(report.classSize ?? "--")],
-    ["Source", "Image"],
+    ["Students", String(report.classSize ?? "--")],
+    ["Teacher", report.classroom.teacherName ?? "Class teacher"],
   ];
 
   const summary = [
@@ -45,7 +45,7 @@ export default async function ReportEntryPage({
       <PageHeader
         eyebrow="Report entry"
         title={report.student.fullName}
-        description={`${report.classroom.name} · ${report.term.name}`}
+        description={[report.classroom.name, report.term.name].filter(Boolean).join(" · ")}
       />
 
       <section className="frost-panel-strong rounded-[28px] px-4 py-4 sm:px-6 sm:py-6">
@@ -105,13 +105,16 @@ export default async function ReportEntryPage({
       <ReportEntryEditor
         reportCardId={report.id}
         reportId={reportId}
-        rows={report.scores.map((row) => ({
+        rows={report.previewRows.map((row) => ({
           id: row.id,
           subject: row.subject.name,
           a1: row.a1Score?.toString() ?? "",
           a2: row.a2Score?.toString() ?? "",
           exam: row.examScore?.toString() ?? "",
           total: row.totalScore,
+          a1Max: row.subject.a1Max,
+          a2Max: row.subject.a2Max,
+          examMax: row.subject.examMax,
         }))}
         teacherComment={report.teacherComment ?? ""}
         teacherName={report.classroom.teacherName ?? "Class teacher"}

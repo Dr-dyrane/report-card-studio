@@ -170,8 +170,8 @@ export default async function StudentsPage({
         </SectionCard>
 
         <div className="grid gap-4">
-          <SectionCard title="Snapshot">
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-2">
+        <SectionCard title="Snapshot">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-2">
               {[
                 ["Students", String(visibleStudents.length)],
                 ["Classes", String(classrooms.length)],
@@ -190,6 +190,9 @@ export default async function StudentsPage({
                   </p>
                 </div>
               ))}
+            </div>
+            <div className="mt-3 rounded-[18px] soft-action px-4 py-3 text-sm text-[color:var(--text-muted)]">
+              Positions stay in sync with saved report totals.
             </div>
           </SectionCard>
 

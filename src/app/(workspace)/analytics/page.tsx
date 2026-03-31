@@ -154,6 +154,9 @@ export default async function AnalyticsPage() {
 
       <SectionCard title="Class performance">
         <MetricExplorer title="Insights" metrics={metrics} />
+        <div className="mt-4 rounded-[18px] soft-action px-4 py-3 text-sm text-[color:var(--text-muted)]">
+          Ranking and totals follow the live report sheets for the active workspace.
+        </div>
       </SectionCard>
 
       <div className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">

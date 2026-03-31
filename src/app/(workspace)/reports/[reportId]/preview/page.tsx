@@ -9,7 +9,7 @@ export default async function ReportPreviewPage({
 }) {
   const { reportId } = await params;
   const report = await getReportCardByRouteKey(reportId);
-  const hasSubjectScores = !!report?.scores.some(
+  const hasEnteredScores = !!report?.previewRows.some(
     (row) => row.a1Score !== null || row.a2Score !== null || row.examScore !== null,
   );
 
@@ -70,6 +70,8 @@ export default async function ReportPreviewPage({
                 ["Class", report.classroom.name],
                 ["Position", report.position ?? "--"],
                 ["Grand total", `${report.grandTotal} / ${report.grandMax}`],
+                ["Class size", String(report.classSize ?? "--")],
+                ["Teacher", report.classroom.teacherName ?? "Class teacher"],
               ].map(([label, value]) => (
                 <div
                   key={label}
@@ -107,121 +109,120 @@ export default async function ReportPreviewPage({
         </div>
 
         <section className="mt-6 print:mt-5">
-          {hasSubjectScores ? (
-            <>
-              <div className="surface-chip hidden overflow-hidden rounded-[22px] print:block print:rounded-[12px] print:bg-white print:ring-slate-200 sm:block">
-                <table className="report-print-table min-w-full border-separate border-spacing-0">
-                  <thead className="table-head text-left text-sm text-[color:var(--text-muted)] print:bg-slate-50 print:text-[10pt]">
-                    <tr>
-                      <th className="px-4 py-3 font-medium">Subject</th>
-                      <th className="px-4 py-3 text-right font-medium">A1 Max</th>
-                      <th className="px-4 py-3 text-right font-medium">A1 Score</th>
-                      <th className="px-4 py-3 text-right font-medium">A2 Max</th>
-                      <th className="px-4 py-3 text-right font-medium">A2 Score</th>
-                      <th className="px-4 py-3 text-right font-medium">Exam Max</th>
-                      <th className="px-4 py-3 text-right font-medium">Exam Score</th>
-                      <th className="px-4 py-3 text-right font-medium">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-[color:var(--surface)] text-sm print:text-[10pt]">
-                    {report.scores.map((row, index) => (
-                      <tr
-                        key={row.id}
-                        className="print:break-inside-avoid"
-                        style={{
-                          backgroundColor: index % 2 === 0 ? "var(--table-row-odd)" : undefined,
-                        }}
-                      >
-                        <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
-                          {row.subject.name}
-                        </td>
-                        <td className="px-4 py-4 text-right text-[color:var(--text-muted)]">
-                          {row.subject.a1Max ?? "--"}
-                        </td>
-                        <td className="px-4 py-4 text-right">{row.a1Score ?? "--"}</td>
-                        <td className="px-4 py-4 text-right text-[color:var(--text-muted)]">
-                          {row.subject.a2Max ?? "--"}
-                        </td>
-                        <td className="px-4 py-4 text-right">{row.a2Score ?? "--"}</td>
-                        <td className="px-4 py-4 text-right text-[color:var(--text-muted)]">
-                          {row.subject.examMax ?? "--"}
-                        </td>
-                        <td className="px-4 py-4 text-right">{row.examScore ?? "--"}</td>
-                        <td className="px-4 py-4 text-right font-semibold text-[color:var(--text-strong)]">
-                          {row.totalScore}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="grid gap-3 print:hidden sm:hidden">
-                {report.scores.map((row) => (
-                  <div key={row.id} className="surface-pocket rounded-[20px] px-4 py-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <p className="font-semibold text-[color:var(--text-strong)]">
-                        {row.subject.name}
-                      </p>
-                      <span className="soft-action-tint rounded-full px-3 py-1 text-sm font-semibold">
-                        {row.totalScore}
-                      </span>
-                    </div>
-                    <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
-                      <div>
-                        <p className="text-[color:var(--text-muted)]">
-                          A1 {row.subject.a1Max ? `/ ${row.subject.a1Max}` : ""}
-                        </p>
-                        <p className="mt-1 font-medium text-[color:var(--text-strong)]">
-                          {row.a1Score ?? "--"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[color:var(--text-muted)]">
-                          A2 {row.subject.a2Max ? `/ ${row.subject.a2Max}` : ""}
-                        </p>
-                        <p className="mt-1 font-medium text-[color:var(--text-strong)]">
-                          {row.a2Score ?? "--"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[color:var(--text-muted)]">
-                          Exam {row.subject.examMax ? `/ ${row.subject.examMax}` : ""}
-                        </p>
-                        <p className="mt-1 font-medium text-[color:var(--text-strong)]">
-                          {row.examScore ?? "--"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="surface-pocket rounded-[22px] px-5 py-6 sm:px-6 sm:py-7 print:border print:border-slate-200 print:bg-white">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
-                Subject rows
-              </p>
-              <h3 className="mt-3 text-xl font-semibold text-[color:var(--text-strong)]">
-                This preview only has the saved term totals so far
-              </h3>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[color:var(--text-muted)]">
-                The overall assessment and grand totals were imported, but the
-                subject-by-subject scores for this student have not been synced into the
-                database yet. Once those row values are captured, this preview will match
-                the spreadsheet layout fully.
-              </p>
+          {!hasEnteredScores ? (
+            <div className="mb-4 rounded-[22px] bg-[color:var(--warning-soft)] px-4 py-4 text-sm leading-6 text-[color:var(--warning)] print:mb-3 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">
+              Subject rows are present, but scores are still blank. This sheet is ready for entry.
             </div>
-          )}
+          ) : null}
+
+          <div className="mb-4 rounded-[18px] soft-action px-4 py-3 text-sm text-[color:var(--text-muted)] print:mb-3 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">
+            Totals and position reflect the current saved report state.
+          </div>
+
+          <div className="surface-chip hidden overflow-hidden rounded-[22px] print:block print:rounded-[12px] print:bg-white print:ring-slate-200 sm:block">
+            <table className="report-print-table min-w-full border-separate border-spacing-0">
+              <thead className="table-head text-left text-sm text-[color:var(--text-muted)] print:bg-slate-50 print:text-[10pt]">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Subject</th>
+                  <th className="px-4 py-3 text-right font-medium">A1 Max</th>
+                  <th className="px-4 py-3 text-right font-medium">A1 Score</th>
+                  <th className="px-4 py-3 text-right font-medium">A2 Max</th>
+                  <th className="px-4 py-3 text-right font-medium">A2 Score</th>
+                  <th className="px-4 py-3 text-right font-medium">Exam Max</th>
+                  <th className="px-4 py-3 text-right font-medium">Exam Score</th>
+                  <th className="px-4 py-3 text-right font-medium">Total</th>
+                </tr>
+              </thead>
+              <tbody className="bg-[color:var(--surface)] text-sm print:text-[10pt]">
+                {report.previewRows.map((row, index) => (
+                  <tr
+                    key={row.id}
+                    className="print:break-inside-avoid"
+                    style={{
+                      backgroundColor: index % 2 === 0 ? "var(--table-row-odd)" : undefined,
+                    }}
+                  >
+                    <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
+                      {row.subject.name}
+                    </td>
+                    <td className="px-4 py-4 text-right text-[color:var(--text-muted)]">
+                      {row.subject.a1Max ?? "--"}
+                    </td>
+                    <td className="px-4 py-4 text-right">{row.a1Score ?? "--"}</td>
+                    <td className="px-4 py-4 text-right text-[color:var(--text-muted)]">
+                      {row.subject.a2Max ?? "--"}
+                    </td>
+                    <td className="px-4 py-4 text-right">{row.a2Score ?? "--"}</td>
+                    <td className="px-4 py-4 text-right text-[color:var(--text-muted)]">
+                      {row.subject.examMax ?? "--"}
+                    </td>
+                    <td className="px-4 py-4 text-right">{row.examScore ?? "--"}</td>
+                    <td className="px-4 py-4 text-right font-semibold text-[color:var(--text-strong)]">
+                      {row.totalScore}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="grid gap-3 print:hidden sm:hidden">
+            {report.previewRows.map((row) => (
+              <div key={row.id} className="surface-pocket rounded-[20px] px-4 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="font-semibold text-[color:var(--text-strong)]">
+                    {row.subject.name}
+                  </p>
+                  <span className="soft-action-tint rounded-full px-3 py-1 text-sm font-semibold">
+                    {row.totalScore}
+                  </span>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
+                  <div>
+                    <p className="text-[color:var(--text-muted)]">
+                      A1 {row.subject.a1Max ? `/ ${row.subject.a1Max}` : ""}
+                    </p>
+                    <p className="mt-1 font-medium text-[color:var(--text-strong)]">
+                      {row.a1Score ?? "--"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[color:var(--text-muted)]">
+                      A2 {row.subject.a2Max ? `/ ${row.subject.a2Max}` : ""}
+                    </p>
+                    <p className="mt-1 font-medium text-[color:var(--text-strong)]">
+                      {row.a2Score ?? "--"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[color:var(--text-muted)]">
+                      Exam {row.subject.examMax ? `/ ${row.subject.examMax}` : ""}
+                    </p>
+                    <p className="mt-1 font-medium text-[color:var(--text-strong)]">
+                      {row.examScore ?? "--"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
-        <footer className="mt-6 grid gap-3 sm:grid-cols-[1fr_0.4fr] print:mt-5">
+        <footer className="mt-6 grid gap-3 sm:grid-cols-3 print:mt-5">
           <div className="surface-pocket rounded-[22px] px-4 py-4 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
               Teacher comment
             </p>
             <p className="mt-3 text-sm leading-6 text-[color:var(--text-base)] print:text-[10pt]">
               {report.teacherComment ?? "No comment yet."}
+            </p>
+          </div>
+          <div className="surface-pocket rounded-[22px] px-4 py-4 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
+              Head comment
+            </p>
+            <p className="mt-3 text-sm leading-6 text-[color:var(--text-base)] print:text-[10pt]">
+              {report.headTeacherComment ?? "No comment yet."}
             </p>
           </div>
           <div className="surface-pocket rounded-[22px] px-4 py-4 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">

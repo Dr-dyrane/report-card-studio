@@ -92,6 +92,10 @@ export default async function ReportsPage({
             ))}
           </div>
 
+          <div className="mb-4 rounded-[18px] soft-action px-4 py-3 text-sm text-[color:var(--text-muted)]">
+            Positions and totals refresh after saved edits and publish.
+          </div>
+
           <div className="mb-4 flex flex-wrap gap-2 xl:hidden">
             {visibleReports.slice(0, 6).map((report) => (
               <Link

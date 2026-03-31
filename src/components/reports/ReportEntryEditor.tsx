@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState, useTransition } from "react";
+import { KeyboardEvent, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -20,6 +20,9 @@ type ScoreRow = {
   a2: string;
   exam: string;
   total: number;
+  a1Max: number | null;
+  a2Max: number | null;
+  examMax: number | null;
 };
 
 type ReportEntryEditorProps = {
@@ -261,10 +264,36 @@ export function ReportEntryEditor({
     setSaveState("Unsaved");
   }
 
+  function focusCell(cellIndex: number) {
+    if (typeof document === "undefined") return;
+
+    const target = document.querySelector<HTMLInputElement>(
+      `[data-entry-cell="${cellIndex}"]`,
+    );
+
+    if (target) {
+      target.focus();
+      target.select();
+    }
+  }
+
+  function handleCellKeyDown(
+    event: KeyboardEvent<HTMLInputElement>,
+    cellIndex: number,
+  ) {
+    if (event.key !== "Enter") return;
+
+    event.preventDefault();
+    saveIfNeeded();
+    focusCell(cellIndex + 1);
+  }
+
   function renderScoreInput(
     rowId: string,
     field: "a1" | "a2" | "exam",
     value: string,
+    maxValue: number | null,
+    cellIndex: number,
     mobile = false,
   ) {
     return (
@@ -273,8 +302,10 @@ export function ReportEntryEditor({
         onChange={(event) => updateCell(rowId, field, event.target.value)}
         onBlur={() => saveIfNeeded()}
         onFocus={() => setActiveRowId(rowId)}
+        onKeyDown={(event) => handleCellKeyDown(event, cellIndex)}
         inputMode="numeric"
-        placeholder="--"
+        placeholder={maxValue ? `/${maxValue}` : "--"}
+        data-entry-cell={cellIndex}
         className={`surface-input rounded-[18px] px-3 py-3 font-semibold text-[color:var(--text-strong)] outline-none transition focus:shadow-[0_0_0_1px_var(--accent-border),var(--shadow-frost)] ${
           mobile ? "w-full text-center text-lg" : "w-20 text-right"
         }`}
@@ -284,7 +315,7 @@ export function ReportEntryEditor({
 
   function renderSaveMessage() {
     if (isPending) return "Saving...";
-    if (!hasEnteredScores) return "Saved totals stay in view until subject entry begins.";
+    if (!hasEnteredScores) return "Enter scores and totals will take over live.";
     if (saveState === "Saved") return "All changes saved.";
     if (saveState === "Unsaved") return "Changes not saved yet.";
     if (saveState === "Retry") return "Save didn't complete. Try again.";
@@ -294,10 +325,15 @@ export function ReportEntryEditor({
   return (
     <div className="grid gap-3 sm:gap-6 xl:grid-cols-[1.25fr_0.42fr]">
       <SectionCard title="Entry">
-        {hasEnteredScores ? (
-          <>
+        {!hasEnteredScores ? (
+          <div className="rounded-[22px] bg-[color:var(--accent-soft)] px-4 py-4 text-sm leading-6 text-[color:var(--accent-strong)] shadow-[var(--shadow-frost)]">
+            This sheet is ready for entry. Start anywhere and the review totals will update live.
+          </div>
+        ) : null}
+
+        <>
             <form className="space-y-3 sm:hidden">
-              {rows.map((row) => {
+              {rows.map((row, rowIndex) => {
                 const rowTotal = computeRowTotal(row);
                 const rowIsActive = activeRowId === row.id;
 
@@ -325,22 +361,47 @@ export function ReportEntryEditor({
                     <div className="mt-4 grid grid-cols-3 gap-2">
                       <label className="block">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
-                          A1
-                        </p>
-                        <div className="mt-2">{renderScoreInput(row.id, "a1", row.a1, true)}</div>
-                      </label>
-                      <label className="block">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
-                          A2
-                        </p>
-                        <div className="mt-2">{renderScoreInput(row.id, "a2", row.a2, true)}</div>
-                      </label>
-                      <label className="block">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
-                          Exam
+                          A1{row.a1Max ? ` / ${row.a1Max}` : ""}
                         </p>
                         <div className="mt-2">
-                          {renderScoreInput(row.id, "exam", row.exam, true)}
+                          {renderScoreInput(
+                            row.id,
+                            "a1",
+                            row.a1,
+                            row.a1Max,
+                            rowIndex * 3,
+                            true,
+                          )}
+                        </div>
+                      </label>
+                      <label className="block">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                          A2{row.a2Max ? ` / ${row.a2Max}` : ""}
+                        </p>
+                        <div className="mt-2">
+                          {renderScoreInput(
+                            row.id,
+                            "a2",
+                            row.a2,
+                            row.a2Max,
+                            rowIndex * 3 + 1,
+                            true,
+                          )}
+                        </div>
+                      </label>
+                      <label className="block">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                          Exam{row.examMax ? ` / ${row.examMax}` : ""}
+                        </p>
+                        <div className="mt-2">
+                          {renderScoreInput(
+                            row.id,
+                            "exam",
+                            row.exam,
+                            row.examMax,
+                            rowIndex * 3 + 2,
+                            true,
+                          )}
                         </div>
                       </label>
                     </div>
@@ -378,11 +439,36 @@ export function ReportEntryEditor({
                         }}
                       >
                         <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
-                          {row.subject}
+                          <div>
+                            <p>{row.subject}</p>
+                            <p className="mt-1 text-xs font-medium text-[color:var(--text-muted)]">
+                              {row.a1Max || row.a2Max || row.examMax
+                                ? `${row.a1Max ?? "--"} / ${row.a2Max ?? "--"} / ${row.examMax ?? "--"}`
+                                : "Exam only"}
+                            </p>
+                          </div>
                         </td>
-                        <td className="px-4 py-4">{renderScoreInput(row.id, "a1", row.a1)}</td>
-                        <td className="px-4 py-4">{renderScoreInput(row.id, "a2", row.a2)}</td>
-                        <td className="px-4 py-4">{renderScoreInput(row.id, "exam", row.exam)}</td>
+                        <td className="px-4 py-4">
+                          {renderScoreInput(row.id, "a1", row.a1, row.a1Max, index * 3)}
+                        </td>
+                        <td className="px-4 py-4">
+                          {renderScoreInput(
+                            row.id,
+                            "a2",
+                            row.a2,
+                            row.a2Max,
+                            index * 3 + 1,
+                          )}
+                        </td>
+                        <td className="px-4 py-4">
+                          {renderScoreInput(
+                            row.id,
+                            "exam",
+                            row.exam,
+                            row.examMax,
+                            index * 3 + 2,
+                          )}
+                        </td>
                         <td className="px-4 py-4 text-right">
                           <span className="soft-action-tint inline-flex min-w-12 items-center justify-center rounded-full px-3 py-1 font-semibold">
                             {rowTotal}
@@ -394,24 +480,7 @@ export function ReportEntryEditor({
                 </tbody>
               </table>
             </div>
-          </>
-        ) : (
-          <div className="surface-pocket rounded-[24px] p-4 sm:p-5">
-            <div className="soft-action rounded-[24px] px-5 py-6 sm:px-6 sm:py-7">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
-                Entry
-              </p>
-              <h3 className="mt-3 text-xl font-semibold text-[color:var(--text-strong)]">
-                Subject scores are still empty
-              </h3>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[color:var(--text-muted)]">
-                This report already has saved term totals, but the subject-by-subject
-                score grid has not been captured yet. Add scores from the image when you
-                are ready and the live review totals will take over automatically.
-              </p>
-            </div>
-          </div>
-        )}
+        </>
 
         <div className="surface-pocket mt-4 grid gap-3 rounded-[24px] p-3 sm:mt-5 sm:grid-cols-[1fr_0.42fr] sm:gap-4 sm:p-4">
           <div className="soft-action rounded-[22px] px-4 py-4 sm:px-5 sm:py-5">

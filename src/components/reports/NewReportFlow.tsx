@@ -793,20 +793,59 @@ export function NewReportFlow({
     }
 
     if (current.id === "review") {
+      const detectedStudentName = scanExtraction?.studentName?.trim() ?? "";
+      const detectedClassName = scanExtraction?.className?.trim() ?? "";
+      const finalStudentName = readyStudentName || "--";
+      const finalClassName = selectedClassroom?.name ?? detectedClassName ?? "--";
+      const studentChanged =
+        Boolean(detectedStudentName) &&
+        normalizeName(detectedStudentName) !== normalizeName(finalStudentName);
+      const classChanged =
+        Boolean(detectedClassName) &&
+        normalizeName(detectedClassName) !== normalizeName(finalClassName);
+
       return (
         <div className="grid gap-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="soft-action rounded-[20px] px-4 py-4">
-              <p className="text-sm text-[color:var(--text-muted)]">Student</p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm text-[color:var(--text-muted)]">Student</p>
+                <span
+                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                    studentChanged ? "soft-action-tint" : "surface-chip"
+                  }`}
+                >
+                  {studentChanged ? "Edited" : "Detected"}
+                </span>
+              </div>
               <p className="mt-2 font-semibold text-[color:var(--text-strong)]">
-                {(scanExtraction?.studentName ?? readyStudentName) || "--"}
+                {finalStudentName}
               </p>
+              {detectedStudentName ? (
+                <p className="mt-2 text-sm text-[color:var(--text-muted)]">
+                  Scan found {detectedStudentName}
+                </p>
+              ) : null}
             </div>
             <div className="soft-action rounded-[20px] px-4 py-4">
-              <p className="text-sm text-[color:var(--text-muted)]">Class</p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm text-[color:var(--text-muted)]">Class</p>
+                <span
+                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                    classChanged ? "soft-action-tint" : "surface-chip"
+                  }`}
+                >
+                  {classChanged ? "Updated" : "Matched"}
+                </span>
+              </div>
               <p className="mt-2 font-semibold text-[color:var(--text-strong)]">
-                {scanExtraction?.className ?? selectedClassroom?.name ?? "--"}
+                {finalClassName}
               </p>
+              {detectedClassName ? (
+                <p className="mt-2 text-sm text-[color:var(--text-muted)]">
+                  Scan found {detectedClassName}
+                </p>
+              ) : null}
             </div>
           </div>
 

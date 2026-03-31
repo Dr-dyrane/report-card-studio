@@ -117,6 +117,10 @@ export async function updateReportScores(input: {
   }
 
   for (const score of input.scores) {
+    if (score.id.startsWith("missing-")) {
+      continue;
+    }
+
     const a1Score = parseScore(score.a1);
     const a2Score = parseScore(score.a2);
     const examScore = parseScore(score.exam);

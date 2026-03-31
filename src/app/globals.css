@@ -197,7 +197,7 @@ button {
 .soft-action-tint {
   background: color-mix(in srgb, var(--accent-soft) 88%, var(--surface) 12%);
   backdrop-filter: blur(12px) saturate(136%);
-  /* box-shadow: var(--shadow-frost);?\ */
+  box-shadow: var(--shadow-frost);
   color: var(--accent-strong);
 }
 
@@ -334,6 +334,12 @@ body[data-mobile-utility-sheet="open"] .app-fab {
     table-layout: fixed;
   }
 
+  .report-print-summary > *,
+  .report-print-card footer > * {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
   .report-print-table th,
   .report-print-table td {
     border-bottom: 1px solid #e2e8f0;
@@ -350,5 +356,13 @@ body[data-mobile-utility-sheet="open"] .app-fab {
   .report-print-summary,
   .report-print-card footer {
     gap: 8px !important;
+  }
+
+  .report-print-card p,
+  .report-print-card h1,
+  .report-print-card h2,
+  .report-print-card h3 {
+    orphans: 3;
+    widows: 3;
   }
 }
