@@ -100,7 +100,7 @@ function subscribeTheme(callback: () => void) {
   };
 }
 
-function subscribeHydration(_callback: () => void) {
+function subscribeHydration() {
   return () => {};
 }
 

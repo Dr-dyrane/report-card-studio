@@ -87,7 +87,7 @@ export default async function StudentsPage({
               quickValue: String(student.grandTotal),
               quickHint: student.position,
               summary:
-                "Open the report sheet, preview, or profile without losing your place in the roster.",
+                `${student.status} / ${student.position} in class.`,
               meta: [
                 { label: "Total", value: String(student.grandTotal) },
                 { label: "Position", value: student.position },

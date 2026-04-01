@@ -31,7 +31,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <SidebarNav />
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
           <TopBar />
-          <main className="app-main flex-1 px-0 py-2 pb-28 sm:px-2 sm:py-4 sm:pb-8 xl:px-6 xl:py-6">
+          <main className="app-main flex-1 px-0 py-2 pb-28 sm:py-4 sm:pb-8 xl:py-6">
             {children}
           </main>
         </div>

@@ -456,7 +456,7 @@ export function ProfileWorkspace({ user, schoolName }: ProfileWorkspaceProps) {
   return (
     <>
       <section className="premium-wash premium-sheen rounded-[26px] px-4 py-4 shadow-[var(--shadow-frost-strong)] sm:px-5 sm:py-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-4">
             <UserAvatar
               name={name}
@@ -469,23 +469,22 @@ export function ProfileWorkspace({ user, schoolName }: ProfileWorkspaceProps) {
               className="surface-chip-strong"
             />
             <div className="min-w-0">
-              <p className="text-[1.85rem] font-semibold tracking-tight text-[color:var(--text-strong)] sm:text-[2.1rem]">
+              <p className="text-[1.55rem] font-semibold tracking-tight text-[color:var(--text-strong)] sm:text-[1.8rem]">
                 {name}
               </p>
               <p className="mt-1 truncate text-base text-[color:var(--text-base)]">{email}</p>
-              <div className="mt-2.5 flex flex-wrap gap-2">
-                <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--accent-strong)]">
+              <div className="mt-2 flex flex-wrap gap-2">
+                <span className="surface-chip rounded-full px-3 py-1.5 text-sm font-medium text-[color:var(--accent-strong)]">
                   @{username}
                 </span>
                 {schoolName ? (
-                  <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--text-base)]">
+                  <span className="surface-chip rounded-full px-3 py-1.5 text-sm font-medium text-[color:var(--text-base)]">
                     {schoolName}
                   </span>
                 ) : null}
               </div>
             </div>
           </div>
-
         </div>
       </section>
 
@@ -493,25 +492,26 @@ export function ProfileWorkspace({ user, schoolName }: ProfileWorkspaceProps) {
         <Blade
           icon={PencilSquareIcon}
           title="Identity"
+          detail={name}
           summary={email}
           onClick={() => setActivePanel("identity")}
         />
         <Blade
           icon={CameraIcon}
           title="Avatar"
-          summary={user.image ? "Custom image" : "Generated image"}
+          detail={user.image ? "Custom" : "Generated"}
+          summary="Profile image"
           onClick={() => setActivePanel("avatar")}
         />
         <Blade
           icon={KeyIcon}
           title="Security"
-          summary="Password"
+          detail="Password"
+          summary="Sign-in"
           onClick={() => setActivePanel("security")}
         />
         <AccountSignOutRow compact />
       </div>
-
-
 
       <FocusSurface
         open={activePanel === "identity"}

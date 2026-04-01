@@ -9,10 +9,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        eyebrow="Profile"
-        title={session.user.name ?? "Profile"}
-      />
+      <PageHeader eyebrow="Account" title="Profile" />
 
       <ProfileWorkspace user={session.user} schoolName={school?.name ?? null} />
     </div>

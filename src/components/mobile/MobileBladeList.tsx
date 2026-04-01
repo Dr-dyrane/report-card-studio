@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { ChevronRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -70,43 +70,52 @@ export function MobileBladeList({
 
   return (
     <>
-      <div className="space-y-3 sm:hidden">
+      <div className="space-y-2.5 sm:hidden">
         {items.map((item) => (
           <button
             key={item.id}
             type="button"
             onClick={() => setActiveItem(item)}
-            className="frost-panel-soft block w-full rounded-[24px] px-4 py-4 text-left"
+            className="frost-panel-soft relative block w-full rounded-[22px] px-4 py-3 text-left"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="font-semibold text-[color:var(--text-strong)]">{item.title}</p>
-                <p className="mt-1 truncate text-xs text-[color:var(--text-muted)]">
-                  {item.subtitle}
+                <p className="text-[0.95rem] font-semibold leading-5 text-[color:var(--text-strong)]">
+                  {item.title}
                 </p>
               </div>
               {item.quickValue ? (
-                <span className="soft-action rounded-full px-3 py-1.5 text-sm font-semibold">
+                <span className="soft-action rounded-full px-3 py-1 text-[0.8rem] font-semibold">
                   {item.quickValue}
                 </span>
               ) : null}
             </div>
-              <div className="mt-2.5 flex items-center gap-2">
-              {item.badge ? (
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                    item.badge.tone === "success"
-                      ? "bg-[color:var(--success-soft)] text-[color:var(--success)]"
-                      : "soft-action text-[color:var(--text-base)]"
-                  }`}
-                >
-                  {item.badge.label}
-                </span>
-              ) : null}
-              {item.quickHint ? (
-                <span className="text-xs text-[color:var(--text-muted)]">{item.quickHint}</span>
-              ) : null}
+            <div className="mt-1.5 flex items-center justify-between gap-3 pr-10">
+              <p className="min-w-0 truncate text-[0.79rem] leading-5 text-[color:var(--text-muted)]">
+                {item.summary || item.subtitle}
+              </p>
+              <div className="flex shrink-0 items-center gap-2">
+                {item.badge ? (
+                  <span
+                    className={`rounded-full px-2.5 py-1 text-[0.72rem] font-semibold ${
+                      item.badge.tone === "success"
+                        ? "bg-[color:var(--success-soft)] text-[color:var(--success)]"
+                        : "soft-action text-[color:var(--text-base)]"
+                    }`}
+                  >
+                    {item.badge.label}
+                  </span>
+                ) : null}
+                {item.quickHint ? (
+                  <span className="text-[0.72rem] text-[color:var(--text-muted)]">
+                    {item.quickHint}
+                  </span>
+                ) : null}
+              </div>
             </div>
+            <span className="surface-chip pointer-events-none absolute bottom-3 right-3 inline-flex h-7 w-7 items-center justify-center rounded-full text-[color:var(--text-muted)]">
+              <ChevronRightIcon className="h-4 w-4 stroke-[1.9]" />
+            </span>
           </button>
         ))}
       </div>
