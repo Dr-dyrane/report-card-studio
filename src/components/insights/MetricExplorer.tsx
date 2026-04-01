@@ -60,7 +60,7 @@ export function MetricExplorer({
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         {metrics.map((metric) => {
           const toneClass =
             metric.tone === "focus"
@@ -118,9 +118,7 @@ export function MetricExplorer({
                 <h3 className="mt-2 text-2xl font-semibold text-[color:var(--text-strong)]">
                   {activeMetric.title}
                 </h3>
-                <p className="mt-2 text-sm leading-6 text-[color:var(--text-muted)]">
-                  {activeMetric.details.summary}
-                </p>
+                <p className="mt-2 text-sm text-[color:var(--text-muted)]">{activeMetric.hint}</p>
               </div>
 
               <button
@@ -133,20 +131,24 @@ export function MetricExplorer({
               </button>
             </div>
 
-            <div className="mt-5 grid gap-4 md:grid-cols-[0.44fr_0.56fr]">
+            <div className="mt-5 grid gap-4 md:grid-cols-[0.42fr_0.58fr]">
               <div className="surface-pocket rounded-[24px] px-5 py-5">
-                <p className="text-sm text-[color:var(--text-muted)]">Value</p>
                 <p className="mt-2 text-4xl font-semibold text-[color:var(--text-strong)]">
                   {activeMetric.value}
                 </p>
-                <p className="mt-3 text-sm leading-6 text-[color:var(--text-muted)]">
-                  {activeMetric.hint}
-                </p>
+                {activeMetric.details.summary ? (
+                  <p className="mt-3 text-sm leading-6 text-[color:var(--text-muted)]">
+                    {activeMetric.details.summary}
+                  </p>
+                ) : null}
               </div>
 
-              <div className="grid gap-3">
+              <div className="premium-wash overflow-hidden rounded-[24px] px-4 py-1 shadow-[var(--shadow-frost)]">
                 {activeMetric.details.points.map((point) => (
-                  <div key={point} className="surface-pocket rounded-[20px] px-4 py-4">
+                  <div
+                    key={point}
+                    className="border-t border-[color:var(--border-soft)]/35 px-1 py-3 first:border-t-0"
+                  >
                     <p className="text-sm leading-6 text-[color:var(--text-base)]">{point}</p>
                   </div>
                 ))}

@@ -27,8 +27,8 @@ export default async function ReportPreviewPage({
 
   return (
     <div className="report-preview-page space-y-4 sm:space-y-6">
-      <div className="print:hidden">
-        <PageHeader eyebrow="Report preview" title="Preview" description="Ready for print" />
+        <div className="print:hidden">
+        <PageHeader eyebrow="Report preview" title="Preview" />
       </div>
       <div className="print:hidden">
         <ReportPreviewActions />
@@ -52,9 +52,6 @@ export default async function ReportPreviewPage({
               </p>
             </div>
             <div className="soft-action rounded-[18px] px-4 py-3 text-sm print:rounded-[12px] print:border print:border-slate-200 print:bg-white print:px-3 print:py-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
-                Status
-              </p>
               <p className="mt-1 font-semibold capitalize text-[color:var(--text-strong)]">
                 {report.status.toLowerCase()}
               </p>
@@ -64,7 +61,7 @@ export default async function ReportPreviewPage({
 
         <div className="report-print-summary grid gap-4 xl:grid-cols-[1.08fr_0.92fr] print:grid-cols-[1.1fr_0.9fr]">
           <section className="grid gap-4">
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-2.5 sm:grid-cols-2">
               {[
                 ["Student", report.student.fullName],
                 ["Class", report.classroom.name],
@@ -75,10 +72,10 @@ export default async function ReportPreviewPage({
               ].map(([label, value]) => (
                 <div
                   key={label}
-                  className="surface-pocket rounded-[20px] px-4 py-4 print:rounded-[12px] print:border print:border-slate-200 print:bg-white"
+                  className="surface-pocket flex flex-col justify-between gap-1.5 rounded-[18px] px-4 py-3.5 print:rounded-[12px] print:border print:border-slate-200 print:bg-white"
                 >
                   <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
-                  <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)] print:text-[11pt]">
+                  <p className="text-lg font-semibold text-[color:var(--text-strong)] print:text-[11pt]">
                     {value}
                   </p>
                 </div>
@@ -95,12 +92,12 @@ export default async function ReportPreviewPage({
             ].map(([label, value], index) => (
               <div
                 key={label}
-                className={`rounded-[20px] px-4 py-4 print:rounded-[12px] print:border print:border-slate-200 print:bg-white ${
+                className={`rounded-[18px] px-4 py-3.5 print:rounded-[12px] print:border print:border-slate-200 print:bg-white ${
                   index === 3 ? "soft-action-tint" : "surface-pocket"
                 }`}
               >
                 <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
-                <p className="mt-2 text-2xl font-semibold text-[color:var(--text-strong)] print:text-[13pt]">
+                <p className="mt-1.5 text-2xl font-semibold text-[color:var(--text-strong)] print:text-[13pt]">
                   {value}
                 </p>
               </div>
@@ -110,14 +107,10 @@ export default async function ReportPreviewPage({
 
         <section className="mt-6 print:mt-5">
           {!hasEnteredScores ? (
-            <div className="mb-4 rounded-[22px] bg-[color:var(--warning-soft)] px-4 py-4 text-sm leading-6 text-[color:var(--warning)] print:mb-3 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">
-              Subject rows are present, but scores are still blank. This sheet is ready for entry.
+            <div className="mb-4 rounded-[18px] bg-[color:var(--warning-soft)] px-4 py-3 text-sm text-[color:var(--warning)] print:mb-3 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">
+              Scores are blank.
             </div>
           ) : null}
-
-          <div className="mb-4 rounded-[18px] soft-action px-4 py-3 text-sm text-[color:var(--text-muted)] print:mb-3 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">
-            Totals and position reflect the current saved report state.
-          </div>
 
           <div className="surface-chip hidden overflow-hidden rounded-[22px] print:block print:rounded-[12px] print:bg-white print:ring-slate-200 sm:block">
             <table className="report-print-table min-w-full border-separate border-spacing-0">
@@ -214,7 +207,7 @@ export default async function ReportPreviewPage({
               Teacher comment
             </p>
             <p className="mt-3 text-sm leading-6 text-[color:var(--text-base)] print:text-[10pt]">
-              {report.teacherComment ?? "No comment yet."}
+              {report.teacherComment ?? "—"}
             </p>
           </div>
           <div className="surface-pocket rounded-[22px] px-4 py-4 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">
@@ -222,7 +215,7 @@ export default async function ReportPreviewPage({
               Head comment
             </p>
             <p className="mt-3 text-sm leading-6 text-[color:var(--text-base)] print:text-[10pt]">
-              {report.headTeacherComment ?? "No comment yet."}
+              {report.headTeacherComment ?? "—"}
             </p>
           </div>
           <div className="surface-pocket rounded-[22px] px-4 py-4 print:rounded-[12px] print:border print:border-slate-200 print:bg-white">
