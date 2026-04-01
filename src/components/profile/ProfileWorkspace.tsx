@@ -9,6 +9,7 @@ import {
 import { FormEvent, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { SignOutAction } from "@/components/auth/SignOutAction";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { ChangePasswordCard } from "@/components/settings/ChangePasswordCard";
 import { Field } from "@/components/ui/Field";
@@ -508,6 +509,8 @@ export function ProfileWorkspace({ user, schoolName }: ProfileWorkspaceProps) {
           onClick={() => setActivePanel("security")}
         />
       </div>
+
+      <SignOutAction compact />
 
       <FocusSurface
         open={activePanel === "identity"}

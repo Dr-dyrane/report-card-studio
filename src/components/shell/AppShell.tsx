@@ -12,6 +12,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   if (
+    pathname === "/" ||
     pathname.startsWith("/sign-in") ||
     pathname.startsWith("/onboarding") ||
     pathname.startsWith("/forgot-password") ||

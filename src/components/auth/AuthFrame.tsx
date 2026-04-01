@@ -18,7 +18,15 @@ export function AuthFrame({ eyebrow, title, children, footer }: AuthFrameProps) 
       <div className="grid w-full gap-6 lg:grid-cols-[1.02fr_0.98fr]">
         <section className="frost-panel-strong rounded-[32px] px-5 py-6 sm:px-8 sm:py-8">
           <div className="max-w-xl">
-            <BrandMark compact />
+            <div className="flex items-center justify-between gap-3">
+              <BrandMark compact />
+              <Link
+                href="/"
+                className="soft-action rounded-full px-4 py-2 text-sm font-medium"
+              >
+                Home
+              </Link>
+            </div>
             <p className="mt-6 text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--text-muted)]">
               {eyebrow}
             </p>

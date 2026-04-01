@@ -15,6 +15,7 @@ import {
   saveExportPreferences,
   saveWorkspaceProfile,
 } from "@/app/(workspace)/settings/actions";
+import { SignOutAction } from "@/components/auth/SignOutAction";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { ThemeToggleInline } from "@/components/theme/ThemeToggleInline";
 import { Field, InputShell } from "@/components/ui/Field";
@@ -359,6 +360,8 @@ export function SettingsWorkspace({
           onClick={() => setActivePanel("exports")}
         />
       </div>
+
+      <SignOutAction compact />
 
       <FocusSurface
         open={activePanel === "workspace"}
