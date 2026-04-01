@@ -157,11 +157,14 @@ export function MobileBladeList({
                   </button>
                 </div>
 
-                <div className="mt-5 grid grid-cols-2 gap-3">
+                <div className="premium-wash mt-5 overflow-hidden rounded-[22px] px-4 py-2 shadow-[var(--shadow-frost)]">
                   {activeItem.meta.map((entry) => (
-                    <div key={entry.label} className="surface-pocket rounded-[20px] px-4 py-4">
+                    <div
+                      key={entry.label}
+                      className="flex items-center justify-between gap-3 border-t border-[color:var(--border-soft)]/35 py-3 first:border-t-0"
+                    >
                       <p className="text-sm text-[color:var(--text-muted)]">{entry.label}</p>
-                      <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)]">
+                      <p className="text-base font-semibold text-[color:var(--text-strong)]">
                         {entry.value}
                       </p>
                     </div>
@@ -169,7 +172,7 @@ export function MobileBladeList({
                 </div>
 
                 {activeItem.summary ? (
-                  <p className="mt-4 text-sm leading-6 text-[color:var(--text-muted)]">
+                  <p className="mt-4 text-sm text-[color:var(--text-muted)]">
                     {activeItem.summary}
                   </p>
                 ) : null}
@@ -198,7 +201,7 @@ export function MobileBladeList({
                           setActiveItem(null);
                           action.onClick?.();
                         }}
-                        className={`rounded-full px-4 py-3 text-center text-sm font-semibold ${
+                        className={`rounded-full px-4 py-2.5 text-center text-sm font-semibold ${
                           action.tone === "accent" ? "soft-action-tint" : "soft-action"
                         }`}
                       >
@@ -208,7 +211,7 @@ export function MobileBladeList({
                       <Link
                         key={action.label}
                         href={action.href}
-                        className={`rounded-full px-4 py-3 text-center text-sm font-semibold ${
+                        className={`rounded-full px-4 py-2.5 text-center text-sm font-semibold ${
                           action.tone === "accent" ? "soft-action-tint" : "soft-action"
                         }`}
                       >
