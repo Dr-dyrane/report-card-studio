@@ -473,16 +473,10 @@ export function ProfileWorkspace({ user, schoolName }: ProfileWorkspaceProps) {
                 {name}
               </p>
               <p className="mt-1 truncate text-base text-[color:var(--text-base)]">{email}</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <span className="surface-chip rounded-full px-3 py-1.5 text-sm font-medium text-[color:var(--accent-strong)]">
-                  @{username}
-                </span>
-                {schoolName ? (
-                  <span className="surface-chip rounded-full px-3 py-1.5 text-sm font-medium text-[color:var(--text-base)]">
-                    {schoolName}
-                  </span>
-                ) : null}
-              </div>
+              <p className="mt-2 truncate text-sm text-[color:var(--text-muted)]">
+                @{username}
+                {schoolName ? ` / ${schoolName}` : ""}
+              </p>
             </div>
           </div>
         </div>
@@ -500,14 +494,12 @@ export function ProfileWorkspace({ user, schoolName }: ProfileWorkspaceProps) {
           icon={CameraIcon}
           title="Avatar"
           detail={user.image ? "Custom" : "Generated"}
-          summary="Profile image"
           onClick={() => setActivePanel("avatar")}
         />
         <Blade
           icon={KeyIcon}
           title="Security"
           detail="Password"
-          summary="Sign-in"
           onClick={() => setActivePanel("security")}
         />
         <AccountSignOutRow compact />

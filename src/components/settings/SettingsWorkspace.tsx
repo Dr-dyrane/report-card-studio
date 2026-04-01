@@ -333,17 +333,9 @@ export function SettingsWorkspace({
             <p className="mt-1 text-sm text-[color:var(--text-base)] sm:text-[0.95rem]">
               {activeTermName} / {activeSessionName}
             </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--text-base)]">
-              {classroomsCount} classes
-            </span>
-            <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--text-base)]">
-              {subjectsCount} subjects
-            </span>
-            <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--text-base)]">
-              {publishedReports} published reports
-            </span>
+            <p className="mt-2 text-sm text-[color:var(--text-muted)]">
+              {classroomsCount} classes / {subjectsCount} subjects / {publishedReports} published
+            </p>
           </div>
         </div>
       </section>
@@ -352,26 +344,26 @@ export function SettingsWorkspace({
         <Blade
           icon={RectangleStackIcon}
           title="Workspace"
-          summary={activeSessionName}
+          detail={schoolName}
           onClick={() => setActivePanel("workspace")}
         />
         <Blade
           icon={SwatchIcon}
           title="Academic context"
           detail={activeTermName}
-          summary={`${classroomsCount} classes / ${subjectsCount} subjects`}
+          summary={activeSessionName}
           onClick={() => setActivePanel("academic")}
         />
         <Blade
           icon={PaintBrushIcon}
           title="Appearance"
-          summary="Light, dark, system"
+          detail="Theme"
           onClick={() => setActivePanel("appearance")}
         />
         <Blade
           icon={ArrowTopRightOnSquareIcon}
           title="Exports"
-          summary={`${preferredStudentExport} / ${preferredClassExport}`}
+          detail={`${preferredStudentExport} / ${preferredClassExport}`}
           onClick={() => setActivePanel("exports")}
         />
 
@@ -458,4 +450,3 @@ export function SettingsWorkspace({
     </>
   );
 }
-
