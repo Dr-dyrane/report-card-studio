@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
 import { MobileBladeList } from "@/components/mobile/MobileBladeList";
 import { getClassroomsList, getStudentsList } from "@/lib/school-data";
@@ -12,7 +13,7 @@ function slugify(value: string) {
 export default async function StudentsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ class?: string }>;
+  searchParams?: Promise<{ class?: string; filter?: string }>;
 }) {
   const [students, classrooms, resolvedSearchParams] = await Promise.all([
     getStudentsList(),
@@ -21,23 +22,94 @@ export default async function StudentsPage({
   ]);
 
   const selectedClass = resolvedSearchParams?.class ?? "";
-  const visibleStudents = selectedClass
+  const selectedFilter =
+    resolvedSearchParams?.filter === "published" || resolvedSearchParams?.filter === "draft"
+      ? resolvedSearchParams.filter
+      : "";
+  const classScopedStudents = selectedClass
     ? students.filter((student) => slugify(student.classroomName) === selectedClass)
     : students;
-  const published = visibleStudents.filter(
+  const visibleStudents =
+    selectedFilter === "published"
+      ? classScopedStudents.filter((student) => student.status === "Published")
+      : selectedFilter === "draft"
+        ? classScopedStudents.filter((student) => student.status !== "Published")
+        : classScopedStudents;
+  const published = classScopedStudents.filter(
     (student) => student.status === "Published",
   ).length;
-  const drafts = visibleStudents.length - published;
-  const average = visibleStudents.length
+  const drafts = classScopedStudents.length - published;
+  const average = classScopedStudents.length
     ? Math.round(
-        visibleStudents.reduce((sum, student) => sum + student.grandTotal, 0) /
-          visibleStudents.length,
+        classScopedStudents.reduce((sum, student) => sum + student.grandTotal, 0) /
+          classScopedStudents.length,
       )
     : 0;
   const topStudent = visibleStudents[0];
   const selectedClassroomName =
     classrooms.find((classroom) => slugify(classroom.name) === selectedClass)?.name ??
     "All classes";
+  const hasActiveListState = Boolean(selectedClass || selectedFilter);
+
+  const filterHref = (classSlug?: string, filter?: string) => {
+    const params = new URLSearchParams();
+    if (classSlug) params.set("class", classSlug);
+    if (filter) params.set("filter", filter);
+    const query = params.toString();
+    return query ? `/students?${query}` : "/students";
+  };
+
+  const kpiItems = [
+    {
+      label: "Students",
+      value: String(classScopedStudents.length),
+      toneClass: "",
+      href:
+        !selectedFilter
+          ? filterHref(selectedClass || undefined)
+          : filterHref(selectedClass || undefined),
+      active: !selectedFilter,
+    },
+    {
+      label: "Published",
+      value: String(published),
+      toneClass: "mood-surface-success",
+      href:
+        selectedFilter === "published"
+          ? filterHref(selectedClass || undefined)
+          : filterHref(selectedClass || undefined, "published"),
+      active: selectedFilter === "published",
+    },
+    {
+      label: "Drafts",
+      value: String(drafts),
+      toneClass: "mood-surface-warning",
+      href:
+        selectedFilter === "draft"
+          ? filterHref(selectedClass || undefined)
+          : filterHref(selectedClass || undefined, "draft"),
+      active: selectedFilter === "draft",
+    },
+    {
+      label: "Average",
+      value: String(average),
+      toneClass: "mood-surface-focus",
+      href: filterHref(selectedClass || undefined),
+      active: false,
+    },
+  ];
+  const listTitle =
+    selectedFilter === "published"
+      ? "Published"
+      : selectedFilter === "draft"
+        ? "Drafts"
+        : "Roster";
+  const emptyMessage =
+    selectedFilter === "published"
+      ? "No published students yet in this class."
+      : selectedFilter === "draft"
+        ? "No draft students in this class."
+        : "No students yet in this class.";
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -48,11 +120,42 @@ export default async function StudentsPage({
         action={{ label: "Add", href: "/reports/new" }}
       />
 
+      <section className="grid grid-cols-4 gap-2 sm:gap-3">
+        {kpiItems.map((item) => (
+          <Link
+            key={item.label}
+            href={item.href}
+            className={`frost-panel block rounded-[24px] px-4 py-4 transition hover:translate-y-[-1px] sm:px-5 sm:py-5 ${
+              item.toneClass
+            } ${item.active ? "ring-1 ring-[color:var(--accent-soft)]" : ""}`}
+          >
+            <p className="text-sm text-[color:var(--text-muted)]">{item.label}</p>
+            <p className="mt-2 text-xl font-semibold text-[color:var(--text-strong)] sm:text-2xl md:text-3xl">
+              {item.value}
+            </p>
+          </Link>
+        ))}
+      </section>
+
       <section className="grid gap-4 xl:grid-cols-[1.18fr_0.82fr]">
-        <SectionCard title="Roster" tone="focus">
+        <SectionCard
+          title={listTitle}
+          tone="focus"
+          action={
+            hasActiveListState ? (
+              <Link
+                href="/students"
+                aria-label="Reset student filters"
+                className="soft-action inline-flex h-10 w-10 items-center justify-center rounded-full"
+              >
+                <ArrowPathIcon className="h-4.5 w-4.5 stroke-[1.9]" />
+              </Link>
+            ) : null
+          }
+        >
           <div className="mb-4 flex flex-wrap gap-2 sm:mb-5 sm:gap-3">
             <Link
-              href="/students"
+              href={filterHref(undefined, selectedFilter || undefined)}
               className={`rounded-full px-3 py-2 text-center text-sm sm:px-4 ${
                 !selectedClass ? "soft-action-tint" : "soft-action"
               }`}
@@ -62,7 +165,7 @@ export default async function StudentsPage({
             {classrooms.map((classroom) => (
               <Link
                 key={classroom.id}
-                href={`/students?class=${slugify(classroom.name)}`}
+                href={filterHref(slugify(classroom.name), selectedFilter || undefined)}
                 className={`rounded-full px-3 py-2 text-center text-sm sm:px-4 ${
                   selectedClass === slugify(classroom.name)
                     ? "soft-action-tint"
@@ -100,7 +203,7 @@ export default async function StudentsPage({
                 { label: "Profile", href: `/students/${student.id}` },
               ],
             }))}
-            emptyMessage="No students yet in this class."
+            emptyMessage={emptyMessage}
           />
 
           <div className="frost-panel-soft hidden overflow-hidden rounded-[20px] sm:block">
@@ -162,40 +265,13 @@ export default async function StudentsPage({
             </table>
             {!visibleStudents.length ? (
               <div className="empty-state m-4 rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
-                No students yet in this class.
+                {emptyMessage}
               </div>
             ) : null}
           </div>
         </SectionCard>
 
         <div className="grid gap-4">
-        <SectionCard title="Snapshot" tone="focus">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-2">
-              {[
-                ["Students", String(visibleStudents.length)],
-                ["Classes", String(classrooms.length)],
-                ["Published", String(published)],
-                ["Average", String(average)],
-              ].map(([label, value], index) => (
-                <div
-                  key={label}
-                  className={`rounded-[22px] px-4 py-4 ${
-                    index === 2
-                      ? "mood-surface-success"
-                      : index === 3
-                        ? "mood-surface-focus"
-                        : "surface-pocket"
-                  }`}
-                >
-                  <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
-                  <p className="mt-2 text-3xl font-semibold text-[color:var(--text-strong)]">
-                    {value}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </SectionCard>
-
           <SectionCard title="Top student" tone="success">
             {topStudent ? (
               <Link

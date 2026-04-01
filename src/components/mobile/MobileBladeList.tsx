@@ -70,13 +70,13 @@ export function MobileBladeList({
 
   return (
     <>
-      <div className="space-y-2.5 sm:hidden">
+      <div className="space-y-2 sm:hidden">
         {items.map((item) => (
           <button
             key={item.id}
             type="button"
             onClick={() => setActiveItem(item)}
-            className="frost-panel-soft relative block w-full rounded-[22px] px-4 py-3 text-left"
+            className="frost-panel-soft relative block w-full rounded-[20px] px-4 py-3 text-left"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
@@ -85,19 +85,19 @@ export function MobileBladeList({
                 </p>
               </div>
               {item.quickValue ? (
-                <span className="soft-action rounded-full px-3 py-1 text-[0.8rem] font-semibold">
+                <span className="soft-action rounded-full px-2.5 py-0.5 text-[0.78rem] font-semibold">
                   {item.quickValue}
                 </span>
               ) : null}
             </div>
-            <div className="mt-1.5 flex items-center justify-between gap-3 pr-10">
+            <div className="mt-1.5 flex items-center justify-between gap-2 pr-8">
               <p className="min-w-0 truncate text-[0.79rem] leading-5 text-[color:var(--text-muted)]">
                 {item.summary || item.subtitle}
               </p>
-              <div className="flex shrink-0 items-center gap-2">
+              <div className="flex shrink-0 items-center gap-1.5">
                 {item.badge ? (
                   <span
-                    className={`rounded-full px-2.5 py-1 text-[0.72rem] font-semibold ${
+                    className={`rounded-full px-2.5 py-0.5 text-[0.72rem] font-semibold ${
                       item.badge.tone === "success"
                         ? "bg-[color:var(--success-soft)] text-[color:var(--success)]"
                         : "soft-action text-[color:var(--text-base)]"
@@ -113,8 +113,8 @@ export function MobileBladeList({
                 ) : null}
               </div>
             </div>
-            <span className="surface-chip pointer-events-none absolute bottom-3 right-3 inline-flex h-7 w-7 items-center justify-center rounded-full text-[color:var(--text-muted)]">
-              <ChevronRightIcon className="h-4 w-4 stroke-[1.9]" />
+            <span className="surface-chip pointer-events-none absolute bottom-3 right-3 inline-flex h-6 w-6 items-center justify-center rounded-full text-[color:var(--text-muted)]">
+              <ChevronRightIcon className="h-3.5 w-3.5 stroke-[1.9]" />
             </span>
           </button>
         ))}
