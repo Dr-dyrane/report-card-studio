@@ -12,7 +12,6 @@ export default async function ProfilePage() {
       <PageHeader
         eyebrow="Profile"
         title={session.user.name ?? "Profile"}
-        action={{ label: "Settings", href: "/settings" }}
       />
 
       <ProfileWorkspace user={session.user} schoolName={school?.name ?? null} />

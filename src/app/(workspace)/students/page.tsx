@@ -46,7 +46,6 @@ export default async function StudentsPage({
         title="Students"
         description={selectedClassroomName}
         action={{ label: "Add", href: "/reports/new" }}
-        secondaryAction={{ label: "Import", href: "/reports/new?mode=scan" }}
       />
 
       <section className="grid gap-4 xl:grid-cols-[1.18fr_0.82fr]">
@@ -195,9 +194,6 @@ export default async function StudentsPage({
                 </div>
               ))}
             </div>
-            <div className="mt-3 rounded-[18px] quiet-note px-4 py-3 text-sm text-[color:var(--text-muted)]">
-              Positions stay in sync with saved report totals.
-            </div>
           </SectionCard>
 
           <SectionCard title="Top student" tone="success">
@@ -269,7 +265,7 @@ export default async function StudentsPage({
                 ))}
               {drafts ? (
                   <div className="quiet-note rounded-[22px] px-4 py-4 text-sm text-[color:var(--text-muted)]">
-                    {drafts} student records are still draft-only.
+                    {drafts} draft records
                   </div>
               ) : null}
             </div>

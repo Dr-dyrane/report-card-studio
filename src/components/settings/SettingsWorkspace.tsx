@@ -42,8 +42,8 @@ function Blade({
 }: {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
-  detail: string;
-  summary: string;
+  detail?: string;
+  summary?: string;
   onClick: () => void;
 }) {
   const Icon = icon;
@@ -62,11 +62,15 @@ function Blade({
           <span className="truncate text-base font-semibold text-[color:var(--text-strong)]">
             {title}
           </span>
-          <span className="truncate text-sm text-[color:var(--text-muted)]">{detail}</span>
+          {detail ? (
+            <span className="truncate text-sm text-[color:var(--text-muted)]">{detail}</span>
+          ) : null}
         </span>
-        <span className="mt-1 block truncate text-sm text-[color:var(--text-muted)]">
-          {summary}
-        </span>
+        {summary ? (
+          <span className="mt-1 block truncate text-sm text-[color:var(--text-muted)]">
+            {summary}
+          </span>
+        ) : null}
       </span>
       <ChevronRightIcon className="h-4.5 w-4.5 shrink-0 text-[color:var(--text-muted)] transition group-hover:translate-x-0.5" />
     </button>
@@ -144,14 +148,14 @@ function WorkspaceEditor({
           className="soft-action rounded-full px-4 py-2 text-sm font-medium"
           onClick={() => setName(initialName)}
         >
-          Reset
+          Revert
         </button>
         <button
           type="submit"
           disabled={!hasChanges || isPending}
           className="soft-action-tint rounded-full px-5 py-3 text-sm font-semibold disabled:opacity-60"
         >
-          {isPending ? "Saving..." : "Save workspace"}
+          {isPending ? "Saving..." : "Save"}
         </button>
       </div>
     </form>
@@ -283,7 +287,7 @@ function ExportPreferencesEditor({
           disabled={!hasChanges || isPending}
           className="soft-action-tint rounded-full px-5 py-3 text-sm font-semibold disabled:opacity-60"
         >
-          {isPending ? "Saving..." : "Save preferences"}
+          {isPending ? "Saving..." : "Save"}
         </button>
       </div>
     </form>
@@ -325,10 +329,6 @@ export function SettingsWorkspace({
               </span>
             </div>
           </div>
-
-          <div className="surface-pocket rounded-full px-4 py-2.5 text-sm text-[color:var(--text-muted)]">
-            Workspace
-          </div>
         </div>
       </section>
 
@@ -336,7 +336,6 @@ export function SettingsWorkspace({
         <Blade
           icon={RectangleStackIcon}
           title="Workspace"
-          detail={schoolName}
           summary={activeSessionName}
           onClick={() => setActivePanel("workspace")}
         />
@@ -350,14 +349,12 @@ export function SettingsWorkspace({
         <Blade
           icon={PaintBrushIcon}
           title="Appearance"
-          detail="Theme"
           summary="Light, dark, system"
           onClick={() => setActivePanel("appearance")}
         />
         <Blade
           icon={ArrowTopRightOnSquareIcon}
           title="Exports"
-          detail="Files"
           summary={`${preferredStudentExport} · ${preferredClassExport}`}
           onClick={() => setActivePanel("exports")}
         />
@@ -392,12 +389,12 @@ export function SettingsWorkspace({
           </div>
 
           <div className="premium-wash overflow-hidden rounded-[22px] px-4 py-2 shadow-[var(--shadow-frost)]">
-            <InsetLinkRow href="/terms" label="Terms" note="Set the active session and term." />
+            <InsetLinkRow href="/terms" label="Terms" note="Session and term." />
             <div className="border-t border-[color:var(--border-soft)]/40">
-              <InsetLinkRow href="/classes" label="Classes" note="Organize classrooms and teaching groups." />
+              <InsetLinkRow href="/classes" label="Classes" note="Classrooms and groups." />
             </div>
             <div className="border-t border-[color:var(--border-soft)]/40">
-              <InsetLinkRow href="/subjects" label="Subjects" note="Adjust subject rows and scoring structure." />
+              <InsetLinkRow href="/subjects" label="Subjects" note="Rows and scoring." />
             </div>
           </div>
         </div>
@@ -430,9 +427,9 @@ export function SettingsWorkspace({
           />
 
           <div className="premium-wash overflow-hidden rounded-[22px] px-4 py-2 shadow-[var(--shadow-frost)]">
-            <InsetLinkRow href="/exports" label="Export center" note="Student files and class files." />
+            <InsetLinkRow href="/exports" label="Export center" note="Student and class files." />
             <div className="border-t border-[color:var(--border-soft)]/40">
-              <InsetLinkRow href="/reports" label="Reports" note="Review and publish before export." />
+              <InsetLinkRow href="/reports" label="Reports" note="Review before export." />
             </div>
           </div>
         </div>

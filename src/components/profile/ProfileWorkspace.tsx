@@ -50,7 +50,7 @@ function getErrorMessage(error: unknown) {
     }
   }
 
-  return "Try again.";
+  return "Could not save.";
 }
 
 async function updateUserAccount(input: {
@@ -73,7 +73,7 @@ async function updateUserAccount(input: {
     | null;
 
   if (!response.ok) {
-    throw payload?.error?.message ?? payload?.message ?? "Try again.";
+    throw payload?.error?.message ?? payload?.message ?? "Could not save.";
   }
 }
 
@@ -86,8 +86,8 @@ function Blade({
 }: {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
-  detail: string;
-  summary: string;
+  detail?: string;
+  summary?: string;
   onClick: () => void;
 }) {
   const Icon = icon;
@@ -106,11 +106,15 @@ function Blade({
           <span className="truncate text-base font-semibold text-[color:var(--text-strong)]">
             {title}
           </span>
-          <span className="truncate text-sm text-[color:var(--text-muted)]">{detail}</span>
+          {detail ? (
+            <span className="truncate text-sm text-[color:var(--text-muted)]">{detail}</span>
+          ) : null}
         </span>
-        <span className="mt-1 block truncate text-sm text-[color:var(--text-muted)]">
-          {summary}
-        </span>
+        {summary ? (
+          <span className="mt-1 block truncate text-sm text-[color:var(--text-muted)]">
+            {summary}
+          </span>
+        ) : null}
       </span>
       <ChevronRightIcon className="h-4.5 w-4.5 shrink-0 text-[color:var(--text-muted)] transition group-hover:translate-x-0.5" />
     </button>
@@ -221,7 +225,7 @@ function IdentityEditor({
           disabled={!hasChanges || isSubmitting}
           className="soft-action-tint rounded-full px-5 py-3 text-sm font-semibold disabled:opacity-60"
         >
-          {isSubmitting ? "Saving..." : "Save changes"}
+          {isSubmitting ? "Saving..." : "Save"}
         </button>
       </div>
     </form>
@@ -355,9 +359,6 @@ function AvatarEditor({
           <p className="text-lg font-semibold text-[color:var(--text-strong)]">
             {usingGenerated ? "Generated avatar" : "Custom avatar"}
           </p>
-          <p className="mt-1 text-sm leading-6 text-[color:var(--text-muted)]">
-            Upload a square image, paste an image URL, or fall back to the generated avatar.
-          </p>
         </div>
       </div>
 
@@ -419,7 +420,7 @@ function AvatarEditor({
               onClick={() => setImage(urlDraft.trim())}
               className="soft-action rounded-full px-4 py-2 text-sm font-medium"
             >
-              Use this URL
+              Use URL
             </button>
           </div>
         </div>
@@ -437,7 +438,7 @@ function AvatarEditor({
           disabled={!hasChanges || isSubmitting}
           className="soft-action-tint rounded-full px-5 py-3 text-sm font-semibold disabled:opacity-60"
         >
-          {isSubmitting ? "Saving..." : "Save avatar"}
+          {isSubmitting ? "Saving..." : "Save"}
         </button>
       </div>
     </form>
@@ -475,9 +476,6 @@ export function ProfileWorkspace({ user, schoolName }: ProfileWorkspaceProps) {
                 <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--accent-strong)]">
                   @{username}
                 </span>
-                <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--text-base)]">
-                  Teacher
-                </span>
                 {schoolName ? (
                   <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--text-base)]">
                     {schoolName}
@@ -487,9 +485,6 @@ export function ProfileWorkspace({ user, schoolName }: ProfileWorkspaceProps) {
             </div>
           </div>
 
-          <div className="surface-pocket rounded-full px-4 py-2.5 text-sm text-[color:var(--text-muted)]">
-            Account
-          </div>
         </div>
       </section>
 
@@ -497,22 +492,19 @@ export function ProfileWorkspace({ user, schoolName }: ProfileWorkspaceProps) {
         <Blade
           icon={PencilSquareIcon}
           title="Identity"
-          detail={name}
           summary={email}
           onClick={() => setActivePanel("identity")}
         />
         <Blade
           icon={CameraIcon}
           title="Avatar"
-          detail={user.image ? "Custom" : "Generated"}
-          summary="Profile image"
+          summary={user.image ? "Custom image" : "Generated image"}
           onClick={() => setActivePanel("avatar")}
         />
         <Blade
           icon={KeyIcon}
           title="Security"
-          detail="Password"
-          summary="Sign-in"
+          summary="Password"
           onClick={() => setActivePanel("security")}
         />
       </div>

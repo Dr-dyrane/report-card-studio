@@ -42,7 +42,6 @@ export default async function TermsPage() {
       <PageHeader
         eyebrow="Terms"
         title="Terms"
-        description="Sessions, active periods, and safe cleanup."
       />
 
       <TermsManager

@@ -32,12 +32,13 @@ export default async function DashboardPage() {
     .filter((student) => student.grandTotal > 0)
     .sort((left, right) => left.grandTotal - right.grandTotal)
     .slice(0, 3);
+  const leadClassroom = classrooms[0];
 
   const stats = [
     {
       title: "Students",
       value: String(students.length),
-      hint: classrooms[0]?.name ?? "Workspace roster",
+      hint: leadClassroom?.name ?? "Workspace roster",
       details: {
         summary: "Class roster coverage for the active workspace.",
         points: [
@@ -103,14 +104,13 @@ export default async function DashboardPage() {
       <PageHeader
         eyebrow="Dashboard"
         title="Overview"
-        action={{ label: "Students", href: "/students" }}
-        secondaryAction={{ label: "Reports", href: "/reports" }}
+        action={{ label: "Reports", href: "/reports" }}
       />
 
       <div className="grid w-full gap-3 md:grid-cols-[0.92fr_1.08fr]">
-        <section>
+        <SectionCard title="" tone="default">
           <MetricExplorer title="Class performance" metrics={stats} />
-        </section>
+        </SectionCard>
 
         <SectionCard title="Flow" tone="focus">
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
@@ -129,57 +129,48 @@ export default async function DashboardPage() {
             ))}
           </div>
 
-          <div className="quiet-note mt-4 grid grid-cols-2 gap-2 rounded-[24px] p-2">
-            <Link
-              href="/students"
-              className="soft-action-tint rounded-full px-4 py-2 text-center text-sm font-medium"
-            >
-              Open roster
-            </Link>
+          <div className="quiet-note mt-4 rounded-[24px] p-2">
             <Link
               href="/reports"
-              className="soft-action rounded-full px-4 py-2 text-center text-sm font-medium"
+              className="soft-action-tint flex items-center justify-center rounded-full px-4 py-2 text-center text-sm font-medium"
             >
-              Reports
+              Open reports
             </Link>
           </div>
         </SectionCard>
       </div>
 
       <div className="grid w-full gap-3 xl:grid-cols-[1.05fr_0.95fr]">
-        <SectionCard title="Classes">
-          <div className="grid gap-3 md:grid-cols-3">
-            {classrooms.map((classroom) => {
-              const completion = classroom.studentCount
-                ? Math.round((classroom.activeReports / classroom.studentCount) * 100)
-                : 0;
-
-              const classTone =
-                completion >= 95
-                  ? "mood-surface-success"
-                  : completion <= 70
-                    ? "mood-surface-warning"
-                    : "";
-
-              return (
-                <Link
-                  key={classroom.id}
-                  href={`/students?class=${classroom.name.toLowerCase().replace(/\s+/g, "-")}`}
-                  className={`surface-pocket rounded-[22px] px-4 py-4 transition hover:translate-y-[-1px] hover:shadow-[var(--shadow-frost)] ${classTone}`}
-                >
-                  <p className="font-semibold text-[color:var(--text-strong)]">
-                    {classroom.name}
+        <SectionCard title="Class">
+          {leadClassroom ? (
+            <Link
+              href={`/students?class=${leadClassroom.name.toLowerCase().replace(/\s+/g, "-")}`}
+              className="surface-pocket block rounded-[24px] px-5 py-5 transition hover:translate-y-[-1px] hover:shadow-[var(--shadow-frost)]"
+            >
+              <div className="flex items-end justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="truncate text-lg font-semibold text-[color:var(--text-strong)]">
+                    {leadClassroom.name}
                   </p>
-                  <p className="mt-2 text-lg font-semibold text-[color:var(--text-strong)]">
-                    {classroom.activeReports} / {classroom.studentCount}
+                  <p className="mt-2 text-sm text-[color:var(--text-muted)]">
+                    {leadClassroom.activeReports} of {leadClassroom.studentCount} ready
                   </p>
-                  <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-                    {completion}% ready
-                  </p>
-                </Link>
-              );
-            })}
-          </div>
+                </div>
+                <span className="text-2xl font-semibold text-[color:var(--text-strong)]">
+                  {leadClassroom.studentCount
+                    ? Math.round(
+                        (leadClassroom.activeReports / leadClassroom.studentCount) * 100,
+                      )
+                    : 0}
+                  %
+                </span>
+              </div>
+            </Link>
+          ) : (
+            <div className="empty-state rounded-[24px] px-5 py-5 text-sm text-[color:var(--text-muted)]">
+              No class yet.
+            </div>
+          )}
         </SectionCard>
 
         <SectionCard title="Top" tone="success">
@@ -207,7 +198,7 @@ export default async function DashboardPage() {
         </SectionCard>
       </div>
 
-      <div className="grid w-full gap-3 xl:grid-cols-[1.15fr_0.85fr]">
+      <div className="grid w-full gap-3">
         <SectionCard title="Attention" tone="warning">
           <div className="grid gap-3">
             {attentionRows.map((student) => (
@@ -229,33 +220,6 @@ export default async function DashboardPage() {
                 </span>
               </Link>
             ))}
-          </div>
-        </SectionCard>
-
-        <SectionCard title="Next" tone="focus">
-          <div className="grid gap-3">
-            <div className="quiet-note rounded-[24px] px-4 py-4">
-              <p className="text-sm font-medium text-[color:var(--text-base)]">
-                Continue report entry
-              </p>
-              <p className="mt-2 text-sm leading-5 text-[color:var(--text-muted)]">
-                Move from captured scores to checked totals, ranking, and print.
-              </p>
-              <div className="mt-4 flex gap-2">
-                <Link
-                  href="/students"
-                  className="soft-action-tint rounded-full px-4 py-2 text-sm font-medium"
-                >
-                  Open students
-                </Link>
-                <Link
-                  href="/exports"
-                  className="soft-action rounded-full px-4 py-2 text-sm font-medium text-[color:var(--text-base)]"
-                >
-                  Open exports
-                </Link>
-              </div>
-            </div>
           </div>
         </SectionCard>
       </div>

@@ -9,6 +9,7 @@ type BladeAction = {
   label: string;
   href: string;
   tone?: "default" | "accent";
+  onClick?: () => void;
 };
 
 type BladeMeta = {
@@ -80,7 +81,7 @@ export function MobileBladeList({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="font-semibold text-[color:var(--text-strong)]">{item.title}</p>
-                <p className="mt-1 truncate text-sm text-[color:var(--text-muted)]">
+                <p className="mt-1 truncate text-xs text-[color:var(--text-muted)]">
                   {item.subtitle}
                 </p>
               </div>
@@ -90,7 +91,7 @@ export function MobileBladeList({
                 </span>
               ) : null}
             </div>
-            <div className="mt-3 flex items-center gap-2">
+              <div className="mt-2.5 flex items-center gap-2">
               {item.badge ? (
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-semibold ${
@@ -132,7 +133,7 @@ export function MobileBladeList({
                     <h3 className="mt-2 text-2xl font-semibold text-[color:var(--text-strong)]">
                       {activeItem.title}
                     </h3>
-                    <p className="mt-2 text-sm leading-6 text-[color:var(--text-muted)]">
+                    <p className="mt-1.5 text-sm leading-6 text-[color:var(--text-muted)]">
                       {activeItem.subtitle}
                     </p>
                   </div>
@@ -147,14 +148,6 @@ export function MobileBladeList({
                   </button>
                 </div>
 
-                {activeItem.summary ? (
-                  <div className="surface-pocket mt-5 rounded-[22px] px-4 py-4">
-                    <p className="text-sm leading-6 text-[color:var(--text-base)]">
-                      {activeItem.summary}
-                    </p>
-                  </div>
-                ) : null}
-
                 <div className="mt-5 grid grid-cols-2 gap-3">
                   {activeItem.meta.map((entry) => (
                     <div key={entry.label} className="surface-pocket rounded-[20px] px-4 py-4">
@@ -165,6 +158,12 @@ export function MobileBladeList({
                     </div>
                   ))}
                 </div>
+
+                {activeItem.summary ? (
+                  <p className="mt-4 text-sm leading-6 text-[color:var(--text-muted)]">
+                    {activeItem.summary}
+                  </p>
+                ) : null}
 
                 {activeItem.badge ? (
                   <div className="mt-4">
@@ -181,17 +180,33 @@ export function MobileBladeList({
                 ) : null}
 
                 <div className="mt-5 grid grid-cols-1 gap-2">
-                  {activeItem.actions.map((action) => (
-                    <Link
-                      key={action.label}
-                      href={action.href}
-                      className={`rounded-full px-4 py-3 text-center text-sm font-semibold ${
-                        action.tone === "accent" ? "soft-action-tint" : "soft-action"
-                      }`}
-                    >
-                      {action.label}
-                    </Link>
-                  ))}
+                  {activeItem.actions.map((action) =>
+                    action.onClick ? (
+                      <button
+                        key={action.label}
+                        type="button"
+                        onClick={() => {
+                          setActiveItem(null);
+                          action.onClick?.();
+                        }}
+                        className={`rounded-full px-4 py-3 text-center text-sm font-semibold ${
+                          action.tone === "accent" ? "soft-action-tint" : "soft-action"
+                        }`}
+                      >
+                        {action.label}
+                      </button>
+                    ) : (
+                      <Link
+                        key={action.label}
+                        href={action.href}
+                        className={`rounded-full px-4 py-3 text-center text-sm font-semibold ${
+                          action.tone === "accent" ? "soft-action-tint" : "soft-action"
+                        }`}
+                      >
+                        {action.label}
+                      </Link>
+                    ),
+                  )}
                 </div>
               </div>
             </div>,

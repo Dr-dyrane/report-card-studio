@@ -66,18 +66,13 @@ export default async function ReportsPage({
               : "Current term"
         }
         action={{ label: "New", href: "/reports/new" }}
-        secondaryAction={{
-          label: selectedView === "archived" ? "Current" : "Archive",
-          href: selectedView === "archived" ? "/reports" : "/reports?view=archived",
-        }}
       />
 
-      <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+      <section className="grid grid-cols-2 gap-3 xl:grid-cols-3">
         {[
           ["Drafts", String(drafts), ""],
           ["Published", String(published), "mood-surface-success"],
           ["Ready", String(ready), "mood-surface-focus"],
-          ["Archived", String(archived), ""],
         ].map(([label, value, toneClass]) => (
           <div
             key={label}
@@ -113,6 +108,11 @@ export default async function ReportsPage({
             >
               Archived
             </Link>
+            {archived ? (
+              <span className="surface-chip rounded-full px-4 py-2 text-sm font-medium text-[color:var(--text-muted)]">
+                {archived} archived
+              </span>
+            ) : null}
           </div>
 
           <div className="mb-4 flex flex-wrap gap-2">
@@ -138,12 +138,6 @@ export default async function ReportsPage({
                 </Link>
               );
             })}
-          </div>
-
-          <div className="mb-4 rounded-[18px] quiet-note px-4 py-3 text-sm text-[color:var(--text-muted)]">
-            {selectedView === "archived"
-              ? "Archived reports stay readable and can be restored from the sheet."
-              : "Positions and totals refresh after saved edits and publish."}
           </div>
 
           <div className="mb-4 flex flex-wrap gap-2 xl:hidden">
