@@ -74,7 +74,7 @@ export default async function HomePage() {
         </main>
 
         <footer className="mt-3 flex items-center justify-center rounded-[24px] premium-wash px-4 py-4 text-sm text-[color:var(--text-muted)] shadow-[var(--shadow-frost)]">
-          Kradle
+          Kradle by Jelo. All rights reserved.
         </footer>
       </div>
     </div>
