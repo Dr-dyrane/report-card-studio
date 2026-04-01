@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
 import { MobileBladeList } from "@/components/mobile/MobileBladeList";
 import { getClassroomsList, getSubjectsList } from "@/lib/school-data";
@@ -57,6 +58,12 @@ export default async function SubjectsPage({
   });
 
   const categories = [...new Set(subjects.map((subject) => subject.category))].sort();
+  const activeCount = filteredSubjects.filter((subject) => subject.isActive).length;
+  const inactiveCount = filteredSubjects.length - activeCount;
+  const assignedCount = filteredSubjects.filter(
+    (subject) => subject.classroomNames.length > 0,
+  ).length;
+  const hasFilters = Boolean(search || category || mode || selectedClass || active);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -65,10 +72,41 @@ export default async function SubjectsPage({
         title="Subjects"
         description="Scoring rules and order"
         action={{ label: "Add", href: "/subjects/new" }}
-        secondaryAction={{ label: "Reset", href: "/subjects" }}
       />
 
-      <SectionCard title="Subject catalog">
+      <section className="grid grid-cols-4 gap-3">
+        {[
+          ["Visible", String(filteredSubjects.length), ""],
+          ["Active", String(activeCount), "mood-surface-success"],
+          ["Assigned", String(assignedCount), "mood-surface-focus"],
+          ["Inactive", String(inactiveCount), "mood-surface-warning"],
+        ].map(([label, value, toneClass]) => (
+          <div
+            key={label}
+            className={`frost-panel rounded-[24px] px-4 py-4 sm:px-5 sm:py-5 ${toneClass}`}
+          >
+            <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
+            <p className="mt-2 text-xl font-semibold text-[color:var(--text-strong)] sm:text-2xl md:text-3xl">
+              {value}
+            </p>
+          </div>
+        ))}
+      </section>
+
+      <SectionCard
+        title="Catalog"
+        action={
+          hasFilters ? (
+            <Link
+              href="/subjects"
+              aria-label="Reset subject filters"
+              className="soft-action inline-flex h-10 w-10 items-center justify-center rounded-full"
+            >
+              <ArrowPathIcon className="h-4.5 w-4.5 stroke-[1.9]" />
+            </Link>
+          ) : null
+        }
+      >
         <form className="mb-4 grid gap-2 sm:mb-5 lg:grid-cols-[1.3fr_1fr_1fr_1fr_1fr_auto]">
           <input
             type="text"
@@ -150,8 +188,7 @@ export default async function SubjectsPage({
             },
             quickValue: subject.modeLabel,
             quickHint: subject.maxLabel,
-            summary:
-              "Review scoring mode, maxes, and class coverage before opening the subject editor.",
+            summary: `${subject.category} / ${subject.maxLabel}`,
             meta: [
               { label: "Category", value: subject.category },
               { label: "Mode", value: subject.modeLabel },
@@ -228,15 +265,6 @@ export default async function SubjectsPage({
               No subjects match the current filters.
             </div>
           ) : null}
-        </div>
-
-        <div className="mt-5 flex justify-end">
-          <Link
-            href="/subjects/new"
-            className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold"
-          >
-            New subject
-          </Link>
         </div>
       </SectionCard>
     </div>

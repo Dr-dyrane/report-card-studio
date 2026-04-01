@@ -7,18 +7,44 @@ import { SectionCard } from "@/components/ui/SectionCard";
 
 export default async function ClassesPage() {
   const classrooms = await getClassroomsList();
+  const classCount = classrooms.length;
+  const studentCount = classrooms.reduce(
+    (sum, classroom) => sum + classroom.studentCount,
+    0,
+  );
+  const readyReports = classrooms.reduce(
+    (sum, classroom) => sum + classroom.activeReports,
+    0,
+  );
 
   return (
     <div className="space-y-6">
       <PageHeader
         eyebrow="Classes"
         title="Classes"
-        description="Groups, teachers, progress."
+        description="Groups and coverage"
         action={{ label: "Add", href: "/classes/new" }}
-        secondaryAction={{ label: "Assign", href: "/subjects" }}
       />
 
-      <SectionCard title="Class overview">
+      <section className="grid gap-2 sm:gap-3 grid-cols-4">
+        {[
+          ["Classes", String(classCount), ""],
+          ["Students", String(studentCount), "mood-surface-focus"],
+          ["Ready reports", String(readyReports), "mood-surface-success"],
+        ].map(([label, value, toneClass]) => (
+          <div
+            key={label}
+            className={`frost-panel rounded-[24px] px-4 py-4 sm:px-5 sm:py-5 flex flex-col justify-between ${toneClass}`}
+          >
+            <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
+            <p className="mt-2 text-xl font-semibold text-[color:var(--text-strong)] sm:text-2xl md:text-3xl">
+              {value}
+            </p>
+          </div>
+        ))}
+      </section>
+
+      <SectionCard title="Current">
         <MobileBladeList
           items={classrooms.map((classroom) => ({
             id: classroom.id,
@@ -27,8 +53,7 @@ export default async function ClassesPage() {
             eyebrow: "Class",
             quickValue: String(classroom.activeReports),
             quickHint: "ready",
-            summary:
-              "Open the class workspace to manage the roster, subject setup, and report coverage.",
+            summary: `${classroom.studentCount} students / ${classroom.activeReports} ready.`,
             meta: [
               { label: "Students", value: String(classroom.studentCount) },
               { label: "Ready reports", value: String(classroom.activeReports) },
@@ -40,7 +65,7 @@ export default async function ClassesPage() {
           emptyMessage="No classes yet."
         />
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-4">
           {classrooms.map((classroom) => (
             <Link
               key={classroom.id}
@@ -54,7 +79,7 @@ export default async function ClassesPage() {
                 {classroom.studentCount} students
               </p>
               <p className="mt-4 text-sm font-medium text-[color:var(--text-base)]">
-                {classroom.activeReports} reports complete
+                {classroom.activeReports} ready reports
               </p>
             </Link>
           ))}

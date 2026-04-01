@@ -137,7 +137,7 @@ export default async function StudentsPage({
         ))}
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.18fr_0.82fr]">
+      <section className="grid gap-4">
         <SectionCard
           title={listTitle}
           tone="focus"
@@ -271,7 +271,7 @@ export default async function StudentsPage({
           </div>
         </SectionCard>
 
-        <div className="grid gap-4">
+        <div className="grid gap-4 xl:grid-cols-2">
           <SectionCard title="Top student" tone="success">
             {topStudent ? (
               <Link
