@@ -32,13 +32,12 @@ export default async function DashboardPage() {
     .filter((student) => student.grandTotal > 0)
     .sort((left, right) => left.grandTotal - right.grandTotal)
     .slice(0, 3);
-  const leadClassroom = classrooms[0];
 
   const stats = [
     {
       title: "Students",
       value: String(students.length),
-      hint: leadClassroom?.name ?? "Workspace roster",
+      hint: classrooms[0]?.name ?? "Workspace roster",
       details: {
         summary: "Class roster coverage for the active workspace.",
         points: [
@@ -107,72 +106,34 @@ export default async function DashboardPage() {
         action={{ label: "Reports", href: "/reports" }}
       />
 
-      <div className="grid w-full gap-3 md:grid-cols-[0.92fr_1.08fr]">
-        <SectionCard title="Snapshot" tone="default">
-          <MetricExplorer title="Class performance" metrics={stats} />
-        </SectionCard>
+      <MetricExplorer title="Class performance" metrics={stats} />
 
-        <SectionCard title="Flow" tone="focus">
-          <div className="grid grid-cols-2 gap-2 sm:gap-3">
-            {quickFlow.map(([label, hint]) => (
-              <div
-                key={label}
-                className="surface-pocket rounded-[20px] px-3 py-3 sm:rounded-[22px] sm:px-4 sm:py-4"
-              >
-                <p className="text-sm font-semibold text-[color:var(--text-strong)]">
-                  {label}
-                </p>
-                <p className="mt-2 text-sm leading-5 text-[color:var(--text-muted)]">
-                  {hint}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="quiet-note mt-4 rounded-[24px] p-2">
-            <Link
-              href="/reports"
-              className="soft-action-tint flex items-center justify-center rounded-full px-4 py-2 text-center text-sm font-medium"
+      <SectionCard title="Flow" tone="focus">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3">
+          {quickFlow.map(([label, hint]) => (
+            <div
+              key={label}
+              className="surface-pocket rounded-[20px] px-3 py-3 sm:rounded-[22px] sm:px-4 sm:py-4"
             >
-              Open reports
-            </Link>
-          </div>
-        </SectionCard>
-      </div>
-
-      <div className="grid w-full gap-3 xl:grid-cols-[1.05fr_0.95fr]">
-        <SectionCard title="Class">
-          {leadClassroom ? (
-            <Link
-              href={`/students?class=${leadClassroom.name.toLowerCase().replace(/\s+/g, "-")}`}
-              className="surface-pocket block rounded-[24px] px-5 py-5 transition hover:translate-y-[-1px] hover:shadow-[var(--shadow-frost)]"
-            >
-              <div className="flex items-end justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="truncate text-lg font-semibold text-[color:var(--text-strong)]">
-                    {leadClassroom.name}
-                  </p>
-                  <p className="mt-2 text-sm text-[color:var(--text-muted)]">
-                    {leadClassroom.activeReports} of {leadClassroom.studentCount} ready
-                  </p>
-                </div>
-                <span className="text-2xl font-semibold text-[color:var(--text-strong)]">
-                  {leadClassroom.studentCount
-                    ? Math.round(
-                        (leadClassroom.activeReports / leadClassroom.studentCount) * 100,
-                      )
-                    : 0}
-                  %
-                </span>
-              </div>
-            </Link>
-          ) : (
-            <div className="empty-state rounded-[24px] px-5 py-5 text-sm text-[color:var(--text-muted)]">
-              No class yet.
+              <p className="text-sm font-semibold text-[color:var(--text-strong)]">
+                {label}
+              </p>
+              <p className="mt-2 text-sm leading-5 text-[color:var(--text-muted)]">{hint}</p>
             </div>
-          )}
-        </SectionCard>
+          ))}
+        </div>
 
+        <div className="quiet-note mt-4 rounded-[24px] p-2">
+          <Link
+            href="/reports"
+            className="soft-action-tint flex items-center justify-center rounded-full px-4 py-2 text-center text-sm font-medium"
+          >
+            Open reports
+          </Link>
+        </div>
+      </SectionCard>
+
+      <div className="grid w-full gap-3 xl:grid-cols-2">
         <SectionCard title="Top" tone="success">
           <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1">
             {topPerformers.map((student, index) => (
@@ -196,9 +157,7 @@ export default async function DashboardPage() {
             ))}
           </div>
         </SectionCard>
-      </div>
 
-      <div className="grid w-full gap-3">
         <SectionCard title="Attention" tone="warning">
           <div className="grid gap-3">
             {attentionRows.map((student) => (
