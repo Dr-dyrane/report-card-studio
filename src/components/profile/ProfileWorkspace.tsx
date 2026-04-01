@@ -489,7 +489,7 @@ export function ProfileWorkspace({ user, schoolName }: ProfileWorkspaceProps) {
         </div>
       </section>
 
-      <div className="grid gap-3">
+      <div className="grid gap-3 md:grid-cols-2">
         <Blade
           icon={PencilSquareIcon}
           title="Identity"
@@ -508,9 +508,10 @@ export function ProfileWorkspace({ user, schoolName }: ProfileWorkspaceProps) {
           summary="Password"
           onClick={() => setActivePanel("security")}
         />
+        <AccountSignOutRow compact />
       </div>
 
-      <AccountSignOutRow compact />
+
 
       <FocusSurface
         open={activePanel === "identity"}

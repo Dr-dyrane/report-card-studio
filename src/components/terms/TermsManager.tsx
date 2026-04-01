@@ -391,7 +391,7 @@ export function TermsManager({
               {schoolName}
             </p>
             <p className="mt-1.5 text-base text-[color:var(--text-base)]">
-              {(activeTerm?.name ?? "No term")} · {(activeSession?.name ?? "No session")}
+              {(activeTerm?.name ?? "No term")} / {(activeSession?.name ?? "No session")}
             </p>
             <div className="mt-2.5 flex flex-wrap gap-2">
               <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--text-base)]">
@@ -470,7 +470,7 @@ export function TermsManager({
                   <div className="min-w-0">
                     <p className="font-semibold text-[color:var(--text-strong)]">{session.name}</p>
                     <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-                      {session.termsCount} terms · {session.reportCount} reports
+                      {session.termsCount} terms / {session.reportCount} reports
                     </p>
                   </div>
                   <span
@@ -575,7 +575,7 @@ export function TermsManager({
                   <div className="min-w-0">
                     <p className="font-semibold text-[color:var(--text-strong)]">{term.name}</p>
                     <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-                      {term.sessionName} · Order {term.sequence}
+                      {term.sessionName} / Order {term.sequence}
                     </p>
                     {term.nextTermBegins ? (
                       <p className="mt-1 text-sm text-[color:var(--text-muted)]">

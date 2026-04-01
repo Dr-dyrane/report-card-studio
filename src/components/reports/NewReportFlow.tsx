@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import {
   applyScannedReportPrefill,
   createStudentReportCard,
+  prepareScanWorkspace,
 } from "@/app/(workspace)/reports/actions";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { useNewReportFlow } from "@/components/reports/NewReportFlowContext";
@@ -31,6 +32,8 @@ type ClassroomOption = {
 type ScanExtraction = {
   studentName?: string | null;
   className?: string | null;
+  academicSessionName?: string | null;
+  termName?: string | null;
   summary?: {
     assessment1Total?: number;
     assessment2Total?: number;
@@ -48,6 +51,19 @@ type ScanExtraction = {
   teacherComment?: string;
   position?: string | null;
   warnings?: string[];
+  setup?: {
+    academicSessionName?: string | null;
+    termName?: string | null;
+    className?: string | null;
+    subjectNames?: string[];
+    missing?: {
+      academicSession?: boolean;
+      term?: boolean;
+      classroom?: boolean;
+      subjects?: string[];
+      classSubjects?: string[];
+    };
+  };
 };
 
 type StepMeta = {
@@ -328,7 +344,9 @@ export function NewReportFlow({
     current?.id === "mode"
       ? true
       : current?.id === "class"
-        ? Boolean(selectedClassroom)
+        ? mode === "scan"
+          ? true
+          : Boolean(selectedClassroom)
         : current?.id === "student"
           ? Boolean(selectedClassroom && readyStudentName)
           : current?.id === "scan"
@@ -449,11 +467,6 @@ export function NewReportFlow({
   }
 
   function useScanAndOpenSheet() {
-    if (!selectedClassroom) {
-      notify("Choose a class first.", "error");
-      return;
-    }
-
     if (!readyStudentName) {
       notify("Confirm the student name before saving.", "error");
       return;
@@ -465,9 +478,39 @@ export function NewReportFlow({
     }
 
     startTransition(async () => {
+      let classroomId = selectedClassroom?.id ?? "";
+
+      if (!classroomId) {
+        const setupResult = await prepareScanWorkspace({
+          className: scanExtraction.setup?.className ?? scanExtraction.className,
+          academicSessionName:
+            scanExtraction.setup?.academicSessionName ?? scanExtraction.academicSessionName,
+          termName: scanExtraction.setup?.termName ?? scanExtraction.termName,
+          subjectNames: scanExtraction.setup?.subjectNames ?? scanExtraction.scores?.map((row) => row.subject),
+        });
+
+        if (!setupResult.ok || !setupResult.classroomId) {
+          notify(setupResult.message || "Couldn't prepare the workspace from this scan.", "error");
+          return;
+        }
+
+        classroomId = setupResult.classroomId;
+
+        const createdCount =
+          Number(Boolean(setupResult.created?.session)) +
+          Number(Boolean(setupResult.created?.term)) +
+          Number(Boolean(setupResult.created?.classroom)) +
+          Number(setupResult.created?.subjects ?? 0) +
+          Number(setupResult.created?.classSubjects ?? 0);
+
+        if (createdCount > 0) {
+          notify("Setup added.", "success");
+        }
+      }
+
       const result = await applyScannedReportPrefill({
         fullName: readyStudentName,
-        classroomId: selectedClassroom.id,
+        classroomId,
         extraction: scanExtraction,
       });
 
@@ -490,37 +533,31 @@ export function NewReportFlow({
             <button
               type="button"
               onClick={() => setMode("manual")}
-              className={`rounded-[26px] px-5 py-5 text-left transition ${
+              className={`rounded-[26px] px-5 py-5 text-left transition flex gap-2 ${
                 mode === "manual" ? "soft-action-tint" : "soft-action"
               }`}
             >
               <span className="surface-chip inline-flex h-10 w-10 items-center justify-center rounded-full text-[color:var(--accent-strong)]">
                 <DocumentPlusIcon className="h-5 w-5" />
               </span>
-              <h3 className="mt-4 text-xl font-semibold text-[color:var(--text-strong)]">
+              <h3 className="text-xl font-semibold text-[color:var(--text-strong)]">
                 Start manually
               </h3>
-              <p className="mt-2 text-sm leading-6 text-[color:var(--text-muted)]">
-                Open a clean sheet and enter the report card directly, one score row at a time.
-              </p>
             </button>
 
             <button
               type="button"
               onClick={() => setMode("scan")}
-              className={`rounded-[26px] px-5 py-5 text-left transition ${
+              className={`rounded-[26px] px-5 py-5 text-left transition flex gap-2 ${
                 mode === "scan" ? "soft-action-tint" : "soft-action"
               }`}
             >
               <span className="surface-chip inline-flex h-10 w-10 items-center justify-center rounded-full text-[color:var(--accent-strong)]">
                 <SparklesIcon className="h-5 w-5" />
               </span>
-              <h3 className="mt-4 text-xl font-semibold text-[color:var(--text-strong)]">
+              <h3 className="text-xl font-semibold text-[color:var(--text-strong)]">
                 Scan to prefill
               </h3>
-              <p className="mt-2 text-sm leading-6 text-[color:var(--text-muted)]">
-                Use the card image to prefill totals and rows, then cross-check before opening the sheet.
-              </p>
             </button>
           </div>
         </div>
@@ -804,8 +841,78 @@ export function NewReportFlow({
         Boolean(detectedClassName) &&
         normalizeName(detectedClassName) !== normalizeName(finalClassName);
 
+      const setup = scanExtraction?.setup;
+      const missingSetup = setup?.missing;
+      const pendingSetupRows = [
+        missingSetup?.academicSession && setup?.academicSessionName
+          ? `Session: ${setup.academicSessionName}`
+          : null,
+        missingSetup?.term && setup?.termName ? `Term: ${setup.termName}` : null,
+        missingSetup?.classroom && setup?.className ? `Class: ${setup.className}` : null,
+        ...(missingSetup?.subjects?.map((subject) => `Subject: ${subject}`) ?? []),
+        ...(missingSetup?.classSubjects?.map((subject) => `Add to class: ${subject}`) ?? []),
+      ].filter(Boolean) as string[];
+      const hasPendingSetup = pendingSetupRows.length > 0;
+
       return (
         <div className="grid gap-4">
+          {setup ? (
+            <div className="surface-pocket rounded-[22px] px-4 py-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
+                  Setup
+                </p>
+                <span
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
+                    hasPendingSetup ? "soft-action-tint" : "surface-chip"
+                  }`}
+                >
+                  {hasPendingSetup ? "Will add" : "Ready"}
+                </span>
+              </div>
+
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="soft-action rounded-[18px] px-4 py-4">
+                  <p className="text-sm text-[color:var(--text-muted)]">Session</p>
+                  <p className="mt-2 font-semibold text-[color:var(--text-strong)]">
+                    {setup.academicSessionName || "--"}
+                  </p>
+                </div>
+                <div className="soft-action rounded-[18px] px-4 py-4">
+                  <p className="text-sm text-[color:var(--text-muted)]">Term</p>
+                  <p className="mt-2 font-semibold text-[color:var(--text-strong)]">
+                    {setup.termName || "--"}
+                  </p>
+                </div>
+                <div className="soft-action rounded-[18px] px-4 py-4">
+                  <p className="text-sm text-[color:var(--text-muted)]">Class</p>
+                  <p className="mt-2 font-semibold text-[color:var(--text-strong)]">
+                    {finalClassName}
+                  </p>
+                </div>
+                <div className="soft-action rounded-[18px] px-4 py-4">
+                  <p className="text-sm text-[color:var(--text-muted)]">Subjects</p>
+                  <p className="mt-2 font-semibold text-[color:var(--text-strong)]">
+                    {setup.subjectNames?.length ?? 0}
+                  </p>
+                </div>
+              </div>
+
+              {hasPendingSetup ? (
+                <div className="mt-3 grid gap-2">
+                  {pendingSetupRows.slice(0, 6).map((item) => (
+                    <div
+                      key={item}
+                      className="quiet-note rounded-[16px] px-4 py-3 text-sm text-[color:var(--text-base)]"
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="soft-action rounded-[20px] px-4 py-4">
               <div className="flex items-center justify-between gap-3">

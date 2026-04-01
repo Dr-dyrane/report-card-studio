@@ -53,10 +53,10 @@ function Blade({
     <button
       type="button"
       onClick={onClick}
-      className="group frost-panel-soft flex w-full items-center gap-3 rounded-[24px] px-4 py-4 text-left transition hover:translate-y-[-1px]"
+      className="group frost-panel-soft flex w-full items-center gap-3 rounded-[24px] px-4 py-3.5 text-left transition hover:translate-y-[-1px]"
     >
-      <span className="surface-chip inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] text-[color:var(--text-base)]">
-        <Icon className="h-5 w-5" />
+      <span className="surface-chip inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] text-[color:var(--text-base)]">
+        <Icon className="h-4.5 w-4.5" />
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-3">
@@ -111,12 +111,12 @@ function WorkspaceEditor({
         "success",
         result.previousName && result.previousName !== name.trim()
           ? {
-              actionLabel: "Undo",
-              action: async () => {
-                await saveWorkspaceProfile({ name: result.previousName });
-                router.refresh();
-              },
-            }
+            actionLabel: "Undo",
+            action: async () => {
+              await saveWorkspaceProfile({ name: result.previousName });
+              router.refresh();
+            },
+          }
           : undefined,
       );
       router.refresh();
@@ -160,6 +160,23 @@ function WorkspaceEditor({
         </button>
       </div>
     </form>
+  );
+}
+
+function SummaryMetric({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="surface-pocket rounded-[18px] px-4 py-3">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
+        {label}
+      </p>
+      <p className="mt-2 text-base font-semibold text-[color:var(--text-strong)]">{value}</p>
+    </div>
   );
 }
 
@@ -241,9 +258,8 @@ function ExportPreferencesEditor({
                 key={value}
                 type="button"
                 onClick={() => setPreferredStudentExport(value as "PDF" | "PREVIEW")}
-                className={`rounded-full px-4 py-2 text-sm font-medium ${
-                  preferredStudentExport === value ? "soft-action-tint" : "soft-action"
-                }`}
+                className={`rounded-full px-4 py-2 text-sm font-medium ${preferredStudentExport === value ? "soft-action-tint" : "soft-action"
+                  }`}
               >
                 {label}
               </button>
@@ -262,9 +278,8 @@ function ExportPreferencesEditor({
                 key={value}
                 type="button"
                 onClick={() => setPreferredClassExport(value as "EXCEL" | "CSV")}
-                className={`rounded-full px-4 py-2 text-sm font-medium ${
-                  preferredClassExport === value ? "soft-action-tint" : "soft-action"
-                }`}
+                className={`rounded-full px-4 py-2 text-sm font-medium ${preferredClassExport === value ? "soft-action-tint" : "soft-action"
+                  }`}
               >
                 {label}
               </button>
@@ -309,31 +324,31 @@ export function SettingsWorkspace({
 
   return (
     <>
-      <section className="premium-wash premium-sheen rounded-[26px] px-4 py-4 shadow-[var(--shadow-frost-strong)] sm:px-5 sm:py-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <section className="frost-panel-soft rounded-[26px] px-4 py-4 shadow-[var(--shadow-frost)] sm:px-5 sm:py-4.5">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
-            <p className="text-[1.85rem] font-semibold tracking-tight text-[color:var(--text-strong)] sm:text-[2.1rem]">
+            <p className="text-[1.3rem] font-semibold tracking-tight text-[color:var(--text-strong)] sm:text-[1.55rem]">
               {schoolName}
             </p>
-            <p className="mt-1.5 text-base text-[color:var(--text-base)]">
+            <p className="mt-1 text-sm text-[color:var(--text-base)] sm:text-[0.95rem]">
               {activeTermName} / {activeSessionName}
             </p>
-            <div className="mt-2.5 flex flex-wrap gap-2">
-              <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--text-base)]">
-                {classroomsCount} classes
-              </span>
-              <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--text-base)]">
-                {subjectsCount} subjects
-              </span>
-              <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--text-base)]">
-                {publishedReports} published reports
-              </span>
-            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--text-base)]">
+              {classroomsCount} classes
+            </span>
+            <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--text-base)]">
+              {subjectsCount} subjects
+            </span>
+            <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--text-base)]">
+              {publishedReports} published reports
+            </span>
           </div>
         </div>
       </section>
 
-      <div className="grid gap-3">
+      <div className="grid gap-3 md:grid-cols-2">
         <Blade
           icon={RectangleStackIcon}
           title="Workspace"
@@ -359,9 +374,11 @@ export function SettingsWorkspace({
           summary={`${preferredStudentExport} / ${preferredClassExport}`}
           onClick={() => setActivePanel("exports")}
         />
+
+        <AccountSignOutRow compact />
       </div>
 
-      <AccountSignOutRow compact />
+
 
       <FocusSurface
         open={activePanel === "workspace"}
@@ -382,13 +399,9 @@ export function SettingsWorkspace({
         title="Academic context"
       >
         <div className="grid gap-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Current session">
-              <InputShell value={activeSessionName} />
-            </Field>
-            <Field label="Active term">
-              <InputShell value={activeTermName} />
-            </Field>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <SummaryMetric label="Session" value={activeSessionName} />
+            <SummaryMetric label="Term" value={activeTermName} />
           </div>
 
           <div className="premium-wash overflow-hidden rounded-[22px] px-4 py-2 shadow-[var(--shadow-frost)]">
@@ -428,6 +441,11 @@ export function SettingsWorkspace({
             classroomsCount={classroomsCount}
             onSaved={() => setActivePanel(null)}
           />
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <SummaryMetric label="Published" value={String(publishedReports)} />
+            <SummaryMetric label="Class files" value={String(classroomsCount)} />
+          </div>
 
           <div className="premium-wash overflow-hidden rounded-[22px] px-4 py-2 shadow-[var(--shadow-frost)]">
             <InsetLinkRow href="/exports" label="Export center" note="Student and class files." />

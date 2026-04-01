@@ -37,6 +37,14 @@ function slugify(value: string) {
   return value.toLowerCase().replace(/\s+/g, "-");
 }
 
+function inferTermSequence(name: string) {
+  const normalized = name.toLowerCase();
+  if (normalized.includes("first")) return 1;
+  if (normalized.includes("second")) return 2;
+  if (normalized.includes("third")) return 3;
+  return 1;
+}
+
 function formatOrdinal(value: number) {
   const remainderTen = value % 10;
   const remainderHundred = value % 100;
@@ -780,4 +788,168 @@ export async function applyScannedReportPrefill(input: {
   revalidatePath("/analytics");
 
   return { ok: true, href: created.href };
+}
+
+export async function prepareScanWorkspace(input: {
+  className?: string | null;
+  academicSessionName?: string | null;
+  termName?: string | null;
+  subjectNames?: string[];
+}) {
+  await requireServerSession();
+  const ownedSchool = await requireOwnedSchool();
+
+  const db = await getDb();
+  if (!db) {
+    return { ok: false, message: "Database unavailable." };
+  }
+
+  const className = input.className?.trim();
+  if (!className) {
+    return { ok: false, message: "Scan did not provide a class yet." };
+  }
+
+  const sessionName = input.academicSessionName?.trim() || "Academic Session";
+  const termName = input.termName?.trim() || "First Term";
+  const subjectNames = Array.from(
+    new Set((input.subjectNames ?? []).map((value) => value.trim()).filter(Boolean)),
+  );
+  let createdSession = false;
+  let createdTerm = false;
+  let createdClassroom = false;
+  let createdSubjects = 0;
+  let createdBindings = 0;
+
+  const activeSession = await db.academicSession.findFirst({
+    where: {
+      schoolId: ownedSchool.id,
+      isActive: true,
+    },
+  });
+
+  const existingSession = await db.academicSession.findFirst({
+    where: {
+      schoolId: ownedSchool.id,
+      name: sessionName,
+    },
+  });
+
+  const session =
+    existingSession ??
+    (await db.academicSession.create({
+      data: {
+        schoolId: ownedSchool.id,
+        name: sessionName,
+        isActive: !activeSession,
+      },
+    }));
+  createdSession = !existingSession;
+
+  const activeTerm = await db.term.findFirst({
+    where: {
+      session: {
+        schoolId: ownedSchool.id,
+      },
+      isActive: true,
+    },
+  });
+
+  const existingTerm = await db.term.findFirst({
+    where: {
+      sessionId: session.id,
+      name: termName,
+    },
+  });
+
+  const term =
+    existingTerm ??
+    (await db.term.create({
+      data: {
+        sessionId: session.id,
+        name: termName,
+        sequence: inferTermSequence(termName),
+        isActive: !activeTerm,
+      },
+    }));
+  createdTerm = !existingTerm;
+
+  const existingClassroom = await db.classroom.findFirst({
+    where: {
+      schoolId: ownedSchool.id,
+      name: className,
+    },
+    include: {
+      classSubjects: true,
+    },
+  });
+
+  const classroom =
+    existingClassroom ??
+    (await db.classroom.create({
+      data: {
+        schoolId: ownedSchool.id,
+        name: className,
+      },
+      include: {
+        classSubjects: true,
+      },
+    }));
+  createdClassroom = !existingClassroom;
+
+  const existingBindings = new Set(classroom.classSubjects.map((item) => item.subjectId));
+
+  for (const [index, subjectName] of subjectNames.entries()) {
+    const existingSubject = await db.subject.findFirst({
+      where: {
+        schoolId: ownedSchool.id,
+        name: subjectName,
+      },
+    });
+
+    const subject =
+      existingSubject ??
+      (await db.subject.create({
+        data: {
+          schoolId: ownedSchool.id,
+          name: subjectName,
+          assessmentMode: "CONTINUOUS_AND_EXAM",
+          displayOrder: index,
+        },
+      }));
+
+    if (!existingSubject) {
+      createdSubjects += 1;
+    }
+
+    if (!existingBindings.has(subject.id)) {
+      createdBindings += 1;
+      await db.classSubject.create({
+        data: {
+          classroomId: classroom.id,
+          subjectId: subject.id,
+          displayOrder: index,
+        },
+      });
+    }
+  }
+
+  revalidatePath("/classes");
+  revalidatePath("/terms");
+  revalidatePath("/subjects");
+  revalidatePath("/reports/new");
+
+  return {
+    ok: true,
+    classroomId: classroom.id,
+    classroomName: classroom.name,
+    sessionName: session.name,
+    termName: term.name,
+    created: {
+      session: createdSession,
+      term: createdTerm,
+      classroom: createdClassroom,
+      subjects: createdSubjects,
+      classSubjects: createdBindings,
+    },
+  };
 }

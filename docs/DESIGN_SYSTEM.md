@@ -145,6 +145,8 @@ If something feels off at the page level, the cause is often lower:
 - Move shared account actions into account/shared namespaces, not auth namespaces.
 - Replace explanatory UI copy with direct product language.
 - Keep blades and focus surfaces as the default utility pattern.
+- Use disclosure carets for expandable sections and blade groups.
+- Do not use `+` or `-` as the primary expand/collapse affordance when a caret communicates state more naturally.
 - Reduce nested cards when one flatter surface can do the job.
 - Keep semantic mood blended into the app material, never outlined like alerts.
 - Treat the PDF/report card as a flagship product surface, not a utility export.

@@ -6,80 +6,143 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState,
+  useSyncExternalStore,
 } from "react";
 
-type ThemeMode = "light" | "dark" | "system";
+export type ThemeMode = "light" | "dark" | "system";
+type ResolvedTheme = "light" | "dark";
 
-type ThemeContextValue = {
+type ThemeSnapshot = {
   theme: ThemeMode;
-  resolvedTheme: "light" | "dark";
+  resolvedTheme: ResolvedTheme;
+};
+
+type ThemeContextValue = ThemeSnapshot & {
+  hydrated: boolean;
   setTheme: (theme: ThemeMode) => void;
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-function resolveTheme(theme: ThemeMode): "light" | "dark" {
+const STORAGE_KEY = "kradle-theme";
+const THEME_EVENT = "kradle-theme-change";
+const SERVER_SNAPSHOT: ThemeSnapshot = {
+  theme: "system",
+  resolvedTheme: "light",
+};
+
+let lastClientSnapshot: ThemeSnapshot | null = null;
+
+function getStoredTheme(): ThemeMode {
+  const stored = window.localStorage.getItem(STORAGE_KEY);
+  return stored === "light" || stored === "dark" || stored === "system"
+    ? stored
+    : "system";
+}
+
+function resolveTheme(theme: ThemeMode): ResolvedTheme {
   if (theme === "light" || theme === "dark") {
     return theme;
   }
 
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
+function getClientSnapshot(): ThemeSnapshot {
+  const theme = getStoredTheme();
+  const resolvedTheme = resolveTheme(theme);
+
   if (
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
+    lastClientSnapshot &&
+    lastClientSnapshot.theme === theme &&
+    lastClientSnapshot.resolvedTheme === resolvedTheme
   ) {
-    return "dark";
+    return lastClientSnapshot;
   }
 
-  return "light";
+  lastClientSnapshot = {
+    theme,
+    resolvedTheme,
+  };
+
+  return lastClientSnapshot;
+}
+
+function getServerSnapshot(): ThemeSnapshot {
+  return SERVER_SNAPSHOT;
+}
+
+function applyThemeToDocument(resolvedTheme: ResolvedTheme) {
+  document.documentElement.dataset.theme = resolvedTheme;
+  document.documentElement.style.colorScheme = resolvedTheme;
+}
+
+function subscribeTheme(callback: () => void) {
+  const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+  const handleThemeChange = () => callback();
+  const handleStorage = (event: StorageEvent) => {
+    if (event.key === STORAGE_KEY) {
+      callback();
+    }
+  };
+
+  media.addEventListener("change", handleThemeChange);
+  window.addEventListener("storage", handleStorage);
+  window.addEventListener(THEME_EVENT, handleThemeChange);
+
+  return () => {
+    media.removeEventListener("change", handleThemeChange);
+    window.removeEventListener("storage", handleStorage);
+    window.removeEventListener(THEME_EVENT, handleThemeChange);
+  };
+}
+
+function subscribeHydration(_callback: () => void) {
+  return () => {};
+}
+
+function getHydratedClientSnapshot() {
+  return true;
+}
+
+function getHydratedServerSnapshot() {
+  return false;
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeMode>(() => {
-    if (typeof window === "undefined") {
-      return "system";
-    }
-    const storedTheme = window.localStorage.getItem("kradle-theme");
-    return storedTheme === "light" || storedTheme === "dark" || storedTheme === "system"
-      ? storedTheme
-      : "system";
-  });
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">(() =>
-    resolveTheme(
-      typeof window === "undefined"
-        ? "system"
-        : ((window.localStorage.getItem("kradle-theme") as ThemeMode | null) ?? "system"),
-    ),
+  const snapshot = useSyncExternalStore(
+    subscribeTheme,
+    getClientSnapshot,
+    getServerSnapshot,
+  );
+
+  const hydrated = useSyncExternalStore(
+    subscribeHydration,
+    getHydratedClientSnapshot,
+    getHydratedServerSnapshot,
   );
 
   useEffect(() => {
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const apply = () => {
-      const nextResolved = resolveTheme(theme);
-      setResolvedTheme(nextResolved);
-      document.documentElement.dataset.theme = nextResolved;
-      document.documentElement.style.colorScheme = nextResolved;
-    };
+    applyThemeToDocument(snapshot.resolvedTheme);
+  }, [snapshot.resolvedTheme]);
 
-    apply();
-    media.addEventListener("change", apply);
-    return () => media.removeEventListener("change", apply);
-  }, [theme]);
+  const setTheme = (nextTheme: ThemeMode) => {
+    window.localStorage.setItem(STORAGE_KEY, nextTheme);
+    applyThemeToDocument(resolveTheme(nextTheme));
+    window.dispatchEvent(new Event(THEME_EVENT));
+  };
 
-  const value = useMemo(
+  const value = useMemo<ThemeContextValue>(
     () => ({
-      theme,
-      resolvedTheme,
-      setTheme: (nextTheme: ThemeMode) => {
-        setThemeState(nextTheme);
-        window.localStorage.setItem("kradle-theme", nextTheme);
-        const nextResolved = resolveTheme(nextTheme);
-        setResolvedTheme(nextResolved);
-        document.documentElement.dataset.theme = nextResolved;
-        document.documentElement.style.colorScheme = nextResolved;
-      },
+      theme: snapshot.theme,
+      resolvedTheme: snapshot.resolvedTheme,
+      hydrated,
+      setTheme,
     }),
-    [resolvedTheme, theme],
+    [snapshot, hydrated],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
@@ -87,8 +150,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
 export function useTheme() {
   const context = useContext(ThemeContext);
+
   if (!context) {
     throw new Error("useTheme must be used within ThemeProvider.");
   }
+
   return context;
 }

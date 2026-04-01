@@ -23,6 +23,22 @@ function normalizeName(value?: string | null) {
   return value?.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() ?? "";
 }
 
+function uniqueNames(values: Array<string | null | undefined>) {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const value of values) {
+    const trimmed = value?.trim();
+    if (!trimmed) continue;
+    const normalized = normalizeName(trimmed);
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    result.push(trimmed);
+  }
+
+  return result;
+}
+
 export async function POST(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,
@@ -58,24 +74,42 @@ export async function POST(request: Request) {
   const ownedSchool = await requireOwnedSchool();
   const db = await getDb();
 
-  const matchedClassroom = body.className?.trim()
-    ? (
-        await db.classroom.findMany({
-          where: {
-            schoolId: ownedSchool.id,
-          },
+  const [allClassrooms, allSessions, allSubjects] = await Promise.all([
+    db.classroom.findMany({
+      where: {
+        schoolId: ownedSchool.id,
+      },
+      include: {
+        classSubjects: {
           include: {
-            classSubjects: {
-              include: {
-                subject: true,
-              },
-              orderBy: {
-                displayOrder: "asc",
-              },
-            },
+            subject: true,
           },
-        })
-      ).find(
+          orderBy: {
+            displayOrder: "asc",
+          },
+        },
+      },
+    }),
+    db.academicSession.findMany({
+      where: {
+        schoolId: ownedSchool.id,
+      },
+      include: {
+        terms: true,
+      },
+    }),
+    db.subject.findMany({
+      where: {
+        schoolId: ownedSchool.id,
+      },
+      orderBy: {
+        displayOrder: "asc",
+      },
+    }),
+  ]);
+
+  const matchedClassroom = body.className?.trim()
+    ? allClassrooms.find(
         (classroom) =>
           normalizeName(classroom.name) === normalizeName(body.className),
       ) ?? null
@@ -114,6 +148,8 @@ Return this shape:
 {
   "studentName": string | null,
   "className": string | null,
+  "academicSessionName": string | null,
+  "termName": string | null,
   "summary": {
     "assessment1Total": number | null,
     "assessment2Total": number | null,
@@ -197,7 +233,71 @@ Return this shape:
 
   try {
     const parsed = extractFirstJsonObject(content);
-    return NextResponse.json(parsed);
+    const extractedSubjectNames = uniqueNames([
+      ...(Array.isArray(parsed.scores)
+        ? parsed.scores.map((score: { subject?: string | null }) => score.subject)
+        : []),
+      ...subjectNames,
+    ]);
+
+    const extractedSessionName =
+      typeof parsed.academicSessionName === "string" ? parsed.academicSessionName.trim() : "";
+    const extractedTermName =
+      typeof parsed.termName === "string" ? parsed.termName.trim() : "";
+    const extractedClassName =
+      typeof parsed.className === "string" ? parsed.className.trim() : "";
+
+    const matchingSession = extractedSessionName
+      ? allSessions.find(
+          (session) => normalizeName(session.name) === normalizeName(extractedSessionName),
+        ) ?? null
+      : null;
+
+    const matchingTerm = extractedTermName
+      ? matchingSession?.terms.find(
+          (term) => normalizeName(term.name) === normalizeName(extractedTermName),
+        ) ??
+        allSessions
+          .flatMap((session) => session.terms)
+          .find((term) => normalizeName(term.name) === normalizeName(extractedTermName)) ??
+        null
+      : null;
+
+    const matchingClassroom = extractedClassName
+      ? allClassrooms.find(
+          (classroom) => normalizeName(classroom.name) === normalizeName(extractedClassName),
+        ) ?? null
+      : matchedClassroom
+    ?? null;
+
+    const existingSubjectNames = new Set(allSubjects.map((subject) => normalizeName(subject.name)));
+    const existingClassSubjectNames = new Set(
+      (matchingClassroom?.classSubjects ?? []).map((item) => normalizeName(item.subject.name)),
+    );
+
+    const missingSubjects = extractedSubjectNames.filter(
+      (subject) => !existingSubjectNames.has(normalizeName(subject)),
+    );
+    const missingClassSubjects = extractedSubjectNames.filter(
+      (subject) => !existingClassSubjectNames.has(normalizeName(subject)),
+    );
+
+    return NextResponse.json({
+      ...parsed,
+      setup: {
+        academicSessionName: extractedSessionName || null,
+        termName: extractedTermName || null,
+        className: extractedClassName || null,
+        subjectNames: extractedSubjectNames,
+        missing: {
+          academicSession: Boolean(extractedSessionName) && !matchingSession,
+          term: Boolean(extractedTermName) && !matchingTerm,
+          classroom: Boolean(extractedClassName) && !matchingClassroom,
+          subjects: missingSubjects,
+          classSubjects: matchingClassroom ? missingClassSubjects : extractedSubjectNames,
+        },
+      },
+    });
   } catch {
     return NextResponse.json(
       { error: "Could not parse structured report-card data." },

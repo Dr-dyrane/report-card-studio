@@ -9,6 +9,7 @@ import { getServerSession } from "@/lib/auth-session";
 import { getDb } from "@/lib/db";
 import { getOwnedSchoolForUser } from "@/lib/owned-school";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Kradle",
@@ -107,7 +108,7 @@ export default async function RootLayout({
           <ThemeProvider>
             <PwaRegistrar />
             <WorkspaceContextProvider value={workspaceContext}>
-              <AppShell>{children}</AppShell>
+              <AppShell>{children}<Analytics /></AppShell>
             </WorkspaceContextProvider>
           </ThemeProvider>
         </FeedbackProvider>

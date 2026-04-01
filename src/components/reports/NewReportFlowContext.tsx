@@ -12,6 +12,8 @@ import {
 type ScanExtraction = {
   studentName?: string | null;
   className?: string | null;
+  academicSessionName?: string | null;
+  termName?: string | null;
   summary?: {
     assessment1Total?: number;
     assessment2Total?: number;
@@ -29,6 +31,19 @@ type ScanExtraction = {
   teacherComment?: string;
   position?: string | null;
   warnings?: string[];
+  setup?: {
+    academicSessionName?: string | null;
+    termName?: string | null;
+    className?: string | null;
+    subjectNames?: string[];
+    missing?: {
+      academicSession?: boolean;
+      term?: boolean;
+      classroom?: boolean;
+      subjects?: string[];
+      classSubjects?: string[];
+    };
+  };
 };
 
 type FlowMode = "manual" | "scan";

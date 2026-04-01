@@ -8,6 +8,7 @@ import { ThemeToggleInline } from "@/components/theme/ThemeToggleInline";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { BrandMark } from "@/components/ui/BrandMark";
 import { navGroups } from "@/lib/navigation";
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
 
 export function SidebarNav() {
   const pathname = usePathname();
@@ -42,17 +43,20 @@ export function SidebarNav() {
               <section key={group.id} className="space-y-1.5">
                 <button
                   type="button"
-                  onClick={() => setOpenGroupId(group.id)}
-                  className={`flex w-full items-center justify-between rounded-[18px] px-3 py-2 text-left transition ${
-                    isOpen || hasActiveItem ? "surface-pocket" : "surface-hover-soft"
-                  }`}
+
+                  onClick={() =>
+                    setOpenGroupId((prev) => (prev === group.id ? "" : group.id))
+                  }
+                  className={`flex w-full items-center justify-between rounded-[18px] px-3 py-2 text-left transition ${isOpen || hasActiveItem ? "surface-pocket" : "surface-hover-soft"
+                    }`}
                 >
                   <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
                     {group.label}
                   </span>
-                  <span className="text-sm text-[color:var(--text-muted)]">
-                    {isOpen ? "-" : "+"}
-                  </span>
+                  <ChevronDownIcon
+                    className={`h-4 w-4 text-[color:var(--text-muted)] transition-transform duration-200 ${isOpen ? "rotate-180" : "rotate-0"
+                      }`}
+                  />
                 </button>
 
                 {isOpen ? (
@@ -65,19 +69,17 @@ export function SidebarNav() {
                         <Link
                           key={item.href}
                           href={item.href}
-                          className={`group block rounded-[20px] px-4 py-3.5 transition w-full ${
-                            isActive
-                              ? "soft-action-tint text-[color:var(--text-strong)]"
-                              : "text-[color:var(--text-base)] surface-hover-soft"
-                          }`}
+                          className={`group block rounded-[20px] px-4 py-3.5 transition w-full ${isActive
+                            ? "soft-action-tint text-[color:var(--text-strong)]"
+                            : "text-[color:var(--text-base)] surface-hover-soft"
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <span
-                              className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
-                                isActive
-                                  ? "bg-[color:var(--accent)] text-[color:var(--surface)]"
-                                  : "bg-[color:var(--highlight)] text-[color:var(--text-muted)]"
-                              }`}
+                              className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${isActive
+                                ? "bg-[color:var(--accent)] text-[color:var(--surface)]"
+                                : "bg-[color:var(--highlight)] text-[color:var(--text-muted)]"
+                                }`}
                             >
                               <AppIcon name={item.icon} className="h-4 w-4 stroke-[1.75]" />
                             </span>
