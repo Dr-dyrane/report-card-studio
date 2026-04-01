@@ -301,54 +301,90 @@ button {
 
 .mood-surface-focus {
   background:
-    radial-gradient(circle at top right, color-mix(in srgb, var(--focus-soft) 34%, transparent) 0%, transparent 42%),
     linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--focus-soft) 66%, var(--surface) 34%) 0%,
-      color-mix(in srgb, var(--focus-soft) 46%, var(--surface-raised) 54%) 100%
-    );
+      140deg,
+      color-mix(in srgb, var(--canvas) 78%, var(--surface) 22%) 0%,
+      color-mix(in srgb, var(--surface) 88%, var(--surface-raised) 12%) 34%,
+      color-mix(in srgb, var(--focus-soft) 22%, var(--surface) 78%) 72%,
+      color-mix(in srgb, var(--focus-soft) 44%, var(--surface-raised) 56%) 100%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--canvas) 82%, transparent) 0%,
+      color-mix(in srgb, var(--surface) 72%, transparent) 26%,
+      color-mix(in srgb, var(--focus-soft) 34%, transparent) 100%
+    ),
+    radial-gradient(circle at 18% 0%, color-mix(in srgb, var(--surface-raised) 82%, transparent) 0%, transparent 52%),
+    radial-gradient(circle at 82% 18%, color-mix(in srgb, var(--focus-soft) 28%, transparent) 0%, transparent 58%);
   box-shadow:
-    var(--shadow-frost),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      var(--shadow-frost),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .mood-surface-success {
   background:
-    radial-gradient(circle at top right, color-mix(in srgb, var(--success-soft) 28%, transparent) 0%, transparent 44%),
     linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--success-soft) 56%, var(--surface) 44%) 0%,
+      140deg,
+      color-mix(in srgb, var(--canvas) 78%, var(--surface) 22%) 0%,
+      color-mix(in srgb, var(--surface) 88%, var(--surface-raised) 12%) 34%,
+      color-mix(in srgb, var(--success-soft) 20%, var(--surface) 80%) 72%,
       color-mix(in srgb, var(--success-soft) 40%, var(--surface-raised) 60%) 100%
-    );
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--canvas) 82%, transparent) 0%,
+      color-mix(in srgb, var(--surface) 72%, transparent) 26%,
+      color-mix(in srgb, var(--success-soft) 30%, transparent) 100%
+    ),
+    radial-gradient(circle at 18% 0%, color-mix(in srgb, var(--surface-raised) 82%, transparent) 0%, transparent 52%),
+    radial-gradient(circle at 82% 18%, color-mix(in srgb, var(--success-soft) 24%, transparent) 0%, transparent 58%);
   box-shadow:
-    var(--shadow-frost),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+      var(--shadow-frost),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
 .mood-surface-warning {
   background:
-    radial-gradient(circle at top right, color-mix(in srgb, var(--warning-soft) 24%, transparent) 0%, transparent 46%),
     linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--warning-soft) 58%, var(--surface) 42%) 0%,
-      color-mix(in srgb, var(--warning-soft) 40%, var(--surface-raised) 60%) 100%
-    );
+      140deg,
+      color-mix(in srgb, var(--canvas) 78%, var(--surface) 22%) 0%,
+      color-mix(in srgb, var(--surface) 88%, var(--surface-raised) 12%) 34%,
+      color-mix(in srgb, var(--warning-soft) 22%, var(--surface) 78%) 72%,
+      color-mix(in srgb, var(--warning-soft) 44%, var(--surface-raised) 56%) 100%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--canvas) 82%, transparent) 0%,
+      color-mix(in srgb, var(--surface) 72%, transparent) 26%,
+      color-mix(in srgb, var(--warning-soft) 34%, transparent) 100%
+    ),
+    radial-gradient(circle at 18% 0%, color-mix(in srgb, var(--surface-raised) 82%, transparent) 0%, transparent 52%),
+    radial-gradient(circle at 82% 18%, color-mix(in srgb, var(--warning-soft) 28%, transparent) 0%, transparent 58%);
   box-shadow:
-    var(--shadow-frost),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+      var(--shadow-frost),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
 .mood-surface-danger {
   background:
-    radial-gradient(circle at top right, color-mix(in srgb, var(--danger-soft) 28%, transparent) 0%, transparent 44%),
     linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--danger-soft) 62%, var(--surface) 38%) 0%,
-      color-mix(in srgb, var(--danger-soft) 44%, var(--surface-raised) 56%) 100%
-    );
+      140deg,
+      color-mix(in srgb, var(--canvas) 78%, var(--surface) 22%) 0%,
+      color-mix(in srgb, var(--surface) 88%, var(--surface-raised) 12%) 34%,
+      color-mix(in srgb, var(--danger-soft) 22%, var(--surface) 78%) 72%,
+      color-mix(in srgb, var(--danger-soft) 46%, var(--surface-raised) 54%) 100%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--canvas) 82%, transparent) 0%,
+      color-mix(in srgb, var(--surface) 72%, transparent) 26%,
+      color-mix(in srgb, var(--danger-soft) 36%, transparent) 100%
+    ),
+    radial-gradient(circle at 18% 0%, color-mix(in srgb, var(--surface-raised) 82%, transparent) 0%, transparent 52%),
+    radial-gradient(circle at 82% 18%, color-mix(in srgb, var(--danger-soft) 30%, transparent) 0%, transparent 58%);
   box-shadow:
-    var(--shadow-frost),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+      var(--shadow-frost),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
 .mood-badge-focus {
