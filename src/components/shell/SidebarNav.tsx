@@ -65,7 +65,7 @@ export function SidebarNav() {
                         <Link
                           key={item.href}
                           href={item.href}
-                          className={`group block rounded-[20px] px-4 py-3.5 transition ${
+                          className={`group block rounded-[20px] px-4 py-3.5 transition w-full ${
                             isActive
                               ? "soft-action-tint text-[color:var(--text-strong)]"
                               : "text-[color:var(--text-base)] surface-hover-soft"

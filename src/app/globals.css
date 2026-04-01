@@ -222,25 +222,33 @@ button {
 }
 
 .soft-action {
-  background: var(--input-bg);
-  backdrop-filter: blur(12px) saturate(136%);
-  box-shadow: var(--shadow-frost);
-  color: var(--text-base);
+  display: inline-flex;
+  align-items: center;
+    background: var(--input-bg);
+    backdrop-filter: blur(12px) saturate(136%);
+    box-shadow: var(--shadow-frost);
+    color: var(--text-base);
   min-height: 2.5rem;
   line-height: 1;
+  vertical-align: middle;
+  text-align: center;
 }
 
 .soft-action-tint {
-  background:
-    var(--surface-gradient-tint),
-    color-mix(in srgb, var(--accent-soft) 92%, var(--surface) 8%);
-  backdrop-filter: blur(12px) saturate(136%);
-  box-shadow:
-    var(--shadow-frost),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  display: inline-flex;
+  align-items: center;
+    background:
+      var(--surface-gradient-tint),
+      color-mix(in srgb, var(--accent-soft) 92%, var(--surface) 8%);
+    backdrop-filter: blur(12px) saturate(136%);
+    box-shadow:
+      var(--shadow-frost),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22);
   color: var(--accent-strong);
   min-height: 2.5rem;
   line-height: 1;
+  vertical-align: middle;
+  text-align: center;
 }
 
 .premium-wash {

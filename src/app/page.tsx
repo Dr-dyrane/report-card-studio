@@ -27,7 +27,7 @@ export default async function HomePage() {
           <BrandMark compact />
           <Link
             href="/sign-in"
-            className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold"
+            className="soft-action-tint rounded-full px-4 py-3 text-sm font-semibold"
           >
             Sign in
           </Link>

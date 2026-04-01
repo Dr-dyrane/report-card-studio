@@ -15,7 +15,7 @@ import {
   saveExportPreferences,
   saveWorkspaceProfile,
 } from "@/app/(workspace)/settings/actions";
-import { SignOutAction } from "@/components/auth/SignOutAction";
+import { AccountSignOutRow } from "@/components/account/AccountSignOutRow";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { ThemeToggleInline } from "@/components/theme/ThemeToggleInline";
 import { Field, InputShell } from "@/components/ui/Field";
@@ -316,7 +316,7 @@ export function SettingsWorkspace({
               {schoolName}
             </p>
             <p className="mt-1.5 text-base text-[color:var(--text-base)]">
-              {activeTermName} · {activeSessionName}
+              {activeTermName} / {activeSessionName}
             </p>
             <div className="mt-2.5 flex flex-wrap gap-2">
               <span className="surface-chip rounded-full px-3.5 py-2 text-sm font-medium text-[color:var(--text-base)]">
@@ -344,7 +344,7 @@ export function SettingsWorkspace({
           icon={SwatchIcon}
           title="Academic context"
           detail={activeTermName}
-          summary={`${classroomsCount} classes · ${subjectsCount} subjects`}
+          summary={`${classroomsCount} classes / ${subjectsCount} subjects`}
           onClick={() => setActivePanel("academic")}
         />
         <Blade
@@ -356,12 +356,12 @@ export function SettingsWorkspace({
         <Blade
           icon={ArrowTopRightOnSquareIcon}
           title="Exports"
-          summary={`${preferredStudentExport} · ${preferredClassExport}`}
+          summary={`${preferredStudentExport} / ${preferredClassExport}`}
           onClick={() => setActivePanel("exports")}
         />
       </div>
 
-      <SignOutAction compact />
+      <AccountSignOutRow compact />
 
       <FocusSurface
         open={activePanel === "workspace"}
@@ -440,3 +440,4 @@ export function SettingsWorkspace({
     </>
   );
 }
+

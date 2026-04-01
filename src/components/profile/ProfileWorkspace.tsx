@@ -9,7 +9,7 @@ import {
 import { FormEvent, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { SignOutAction } from "@/components/auth/SignOutAction";
+import { AccountSignOutRow } from "@/components/account/AccountSignOutRow";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { ChangePasswordCard } from "@/components/settings/ChangePasswordCard";
 import { Field } from "@/components/ui/Field";
@@ -510,7 +510,7 @@ export function ProfileWorkspace({ user, schoolName }: ProfileWorkspaceProps) {
         />
       </div>
 
-      <SignOutAction compact />
+      <AccountSignOutRow compact />
 
       <FocusSurface
         open={activePanel === "identity"}

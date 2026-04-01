@@ -108,7 +108,7 @@ export default async function DashboardPage() {
       />
 
       <div className="grid w-full gap-3 md:grid-cols-[0.92fr_1.08fr]">
-        <SectionCard title="" tone="default">
+        <SectionCard title="Snapshot" tone="default">
           <MetricExplorer title="Class performance" metrics={stats} />
         </SectionCard>
 
@@ -212,7 +212,7 @@ export default async function DashboardPage() {
                     {student.fullName}
                   </p>
                   <p className="mt-2 text-sm leading-5 text-[color:var(--text-muted)]">
-                    {student.classroomName} · Position {student.position}
+                    {student.classroomName} / Position {student.position}
                   </p>
                 </div>
                 <span className="mood-badge-warning shrink-0 rounded-full px-3 py-1 text-sm font-semibold">
@@ -226,3 +226,4 @@ export default async function DashboardPage() {
     </div>
   );
 }
+

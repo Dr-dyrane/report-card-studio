@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { authClient } from "@/lib/auth-client";
 
-export function SignOutAction({
+export function AccountSignOutRow({
   compact = false,
 }: {
   compact?: boolean;
