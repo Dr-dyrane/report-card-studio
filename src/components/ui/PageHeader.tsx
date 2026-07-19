@@ -24,7 +24,7 @@ export function PageHeader({
     <section className="frost-panel-strong premium-wash premium-sheen rounded-[26px] px-3 py-4 sm:rounded-[30px] sm:px-7 sm:py-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div className="max-w-3xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
+          <p className="text-xs font-medium uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
             {eyebrow}
           </p>
           <h1 className="mt-2 font-display text-[2.25rem] leading-[0.96] text-[color:var(--text-strong)] sm:mt-2 sm:text-[4rem]">
@@ -48,7 +48,7 @@ export function PageHeader({
           {action ? (
             <Link
               href={action.href}
-              className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold transition"
+              className="soft-action-tint rounded-full px-4 py-2 text-sm font-medium transition"
             >
               {action.label}
             </Link>

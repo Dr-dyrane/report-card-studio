@@ -10,7 +10,7 @@ export function Field({ label, hint, children }: FieldProps) {
   return (
     <label className="block space-y-2">
       <div>
-        <p className="text-sm font-semibold text-[color:var(--text-strong)]">
+        <p className="text-sm font-medium text-[color:var(--text-strong)]">
           {label}
         </p>
         {hint ? (

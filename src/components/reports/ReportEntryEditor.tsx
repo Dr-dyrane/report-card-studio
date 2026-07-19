@@ -372,7 +372,7 @@ export function ReportEntryEditor({
         inputMode="numeric"
         placeholder={maxValue ? `/${maxValue}` : "--"}
         data-entry-cell={cellIndex}
-        className={`surface-input rounded-[18px] px-3 py-3 font-semibold text-[color:var(--text-strong)] outline-none transition focus:shadow-[0_0_0_1px_var(--accent-border),var(--shadow-frost)] ${
+        className={`surface-input rounded-[18px] px-3 py-3 font-medium text-[color:var(--text-strong)] outline-none transition focus:shadow-[0_0_0_1px_var(--accent-border),var(--shadow-frost)] ${
           mobile ? "w-full text-center text-lg" : "w-20 text-right"
         }`}
       />
@@ -412,21 +412,21 @@ export function ReportEntryEditor({
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="font-semibold text-[color:var(--text-strong)]">
+                        <p className="font-medium text-[color:var(--text-strong)]">
                           {row.subject}
                         </p>
                         <p className="mt-1 text-sm text-[color:var(--text-muted)]">
                           Live totals
                         </p>
                       </div>
-                      <span className="soft-action-tint inline-flex min-w-14 items-center justify-center rounded-full px-3 py-1.5 text-sm font-semibold">
+                      <span className="soft-action-tint inline-flex min-w-14 items-center justify-center rounded-full px-3 py-1.5 text-sm font-medium">
                         {rowTotal}
                       </span>
                     </div>
 
                     <div className="mt-4 grid grid-cols-3 gap-2">
                       <label className="block">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                           A1{row.a1Max ? ` / ${row.a1Max}` : ""}
                         </p>
                         <div className="mt-2">
@@ -441,7 +441,7 @@ export function ReportEntryEditor({
                         </div>
                       </label>
                       <label className="block">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                           A2{row.a2Max ? ` / ${row.a2Max}` : ""}
                         </p>
                         <div className="mt-2">
@@ -456,7 +456,7 @@ export function ReportEntryEditor({
                         </div>
                       </label>
                       <label className="block">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                           Exam{row.examMax ? ` / ${row.examMax}` : ""}
                         </p>
                         <div className="mt-2">
@@ -504,7 +504,7 @@ export function ReportEntryEditor({
                               : undefined,
                         }}
                       >
-                        <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
+                        <td className="px-4 py-4 font-medium text-[color:var(--text-strong)]">
                           <div>
                             <p>{row.subject}</p>
                             <p className="mt-1 text-xs font-medium text-[color:var(--text-muted)]">
@@ -536,7 +536,7 @@ export function ReportEntryEditor({
                           )}
                         </td>
                         <td className="px-4 py-4 text-right">
-                          <span className="soft-action-tint inline-flex min-w-12 items-center justify-center rounded-full px-3 py-1 font-semibold">
+                          <span className="soft-action-tint inline-flex min-w-12 items-center justify-center rounded-full px-3 py-1 font-medium">
                             {rowTotal}
                           </span>
                         </td>
@@ -550,7 +550,7 @@ export function ReportEntryEditor({
 
         <div className="surface-pocket mt-4 grid gap-3 rounded-[24px] p-3 sm:mt-5 sm:grid-cols-[1fr_0.42fr] sm:gap-4 sm:p-4">
           <div className="soft-action rounded-[22px] px-4 py-4 sm:px-5 sm:py-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
               Comment
             </p>
             <textarea
@@ -566,7 +566,7 @@ export function ReportEntryEditor({
           </div>
 
           <div className="soft-action rounded-[22px] px-4 py-4 sm:px-5 sm:py-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
               Teacher
             </p>
             <input
@@ -604,7 +604,7 @@ export function ReportEntryEditor({
                 type="button"
                 onClick={handlePublish}
                 disabled={isPending || reportStatus === "LOCKED"}
-                className="soft-action-tint col-span-2 rounded-full px-4 py-2 text-sm font-semibold sm:col-span-1"
+                className="soft-action-tint col-span-2 rounded-full px-4 py-2 text-sm font-medium sm:col-span-1"
               >
                 Publish
               </button>
@@ -619,7 +619,7 @@ export function ReportEntryEditor({
                     type="button"
                     onClick={handleRestore}
                     disabled={isPending}
-                    className="soft-action-tint rounded-full px-4 py-2 text-sm font-semibold"
+                    className="soft-action-tint rounded-full px-4 py-2 text-sm font-medium"
                   >
                     Restore
                   </button>
@@ -725,7 +725,7 @@ export function ReportEntryEditor({
         confirmLabel="Remove"
         supportingContent={
           <div className="rounded-[22px] surface-pocket px-4 py-4">
-            <p className="text-sm font-semibold text-[color:var(--text-strong)]">
+            <p className="text-sm font-medium text-[color:var(--text-strong)]">
               {summary.grandTotal} total
             </p>
             <p className="mt-1 text-sm text-[color:var(--text-muted)]">
@@ -746,7 +746,7 @@ export function ReportEntryEditor({
         dangerLabel="Permanent delete"
         supportingContent={
           <div className="rounded-[22px] surface-pocket px-4 py-4">
-            <p className="text-sm font-semibold text-[color:var(--text-strong)]">
+            <p className="text-sm font-medium text-[color:var(--text-strong)]">
               {summary.grandTotal} total
             </p>
             <p className="mt-1 text-sm text-[color:var(--text-muted)]">

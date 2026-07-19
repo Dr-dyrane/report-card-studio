@@ -49,7 +49,7 @@ export function SidebarNav() {
                   className={`flex w-full items-center justify-between rounded-[16px] px-3 py-1.5 text-left transition ${isOpen || hasActiveItem ? "surface-pocket" : "surface-hover-soft"
                     }`}
                 >
-                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
+                  <span className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
                     {group.label}
                   </span>
                   <ChevronDownIcon
@@ -83,7 +83,7 @@ export function SidebarNav() {
                               <AppIcon name={item.icon} className="h-3.5 w-3.5 stroke-[1.75]" />
                             </span>
                             <div>
-                              <p className="text-[0.94rem] font-semibold">{item.label}</p>
+                              <p className="text-[0.94rem] font-medium">{item.label}</p>
                             </div>
                           </div>
                         </Link>
@@ -98,7 +98,7 @@ export function SidebarNav() {
 
         <div className="surface-pocket rounded-[18px] px-3 py-3">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-semibold text-[color:var(--text-strong)]">Appearance</p>
+            <p className="text-sm font-medium text-[color:var(--text-strong)]">Appearance</p>
           </div>
           <div className="mt-2">
             <ThemeToggleInline />

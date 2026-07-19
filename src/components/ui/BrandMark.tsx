@@ -16,10 +16,10 @@ export function BrandMark({
       <div className="flex items-center gap-3">
         <LogoCap className="surface-chip-strong h-11 w-11 rounded-[16px] p-2.5 text-[color:var(--accent)]" />
         <div className="min-w-0">
-          <p className="truncate text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
+          <p className="truncate text-xs font-medium uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
             Kradle
           </p>
-          <p className="truncate text-sm font-semibold text-[color:var(--text-strong)]">
+          <p className="truncate text-sm font-medium text-[color:var(--text-strong)]">
             School reports
           </p>
         </div>
@@ -36,7 +36,7 @@ export function BrandMark({
           </div>
         ) : null}
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
+          <p className="text-xs font-medium uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
             Kradle
           </p>
           <h1 className="mt-3 font-display text-3xl leading-none text-[color:var(--text-strong)]">

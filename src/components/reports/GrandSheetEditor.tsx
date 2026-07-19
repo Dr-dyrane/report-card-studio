@@ -607,10 +607,10 @@ export function GrandSheetEditor({
               <DocumentDuplicateIcon className="h-5 w-5" />
             </span>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
                 Report destination
               </p>
-              <h2 className="mt-1 text-lg font-semibold text-[color:var(--text-strong)]">
+              <h2 className="mt-1 text-lg font-medium text-[color:var(--text-strong)]">
                 Review here, then update every pupil report
               </h2>
             </div>
@@ -624,7 +624,7 @@ export function GrandSheetEditor({
                 setSelectedClassroomId(event.target.value);
                 setGeneratedReports([]);
               }}
-              className="surface-input rounded-[14px] px-3 py-2.5 text-sm font-semibold text-[color:var(--text-strong)] outline-none"
+              className="surface-input rounded-[14px] px-3 py-2.5 text-sm font-normal text-[color:var(--text-strong)] outline-none"
             >
               <option value="">Choose a class</option>
               {classrooms.map((classroom) => (
@@ -640,7 +640,7 @@ export function GrandSheetEditor({
                 setSelectedTermId(event.target.value);
                 setGeneratedReports([]);
               }}
-              className="surface-input rounded-[14px] px-3 py-2.5 text-sm font-semibold text-[color:var(--text-strong)] outline-none"
+              className="surface-input rounded-[14px] px-3 py-2.5 text-sm font-normal text-[color:var(--text-strong)] outline-none"
             >
               <option value="">Choose a term</option>
               {terms.map((term) => (
@@ -659,7 +659,7 @@ export function GrandSheetEditor({
                 !selectedTermId ||
                 savableCount === 0
               }
-              className="soft-action-tint rounded-[14px] px-4 py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-2 xl:col-span-1"
+              className="soft-action-tint rounded-[14px] px-4 py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-2 xl:col-span-1"
             >
               <SparklesIcon className="mr-2 h-4 w-4" />
               {isPending ? "Updating reports..." : `Update ${savableCount} reports`}
@@ -672,21 +672,21 @@ export function GrandSheetEditor({
             Existing reports are updated. Invalid rows stay in this draft for correction.
           </p>
           <details className="group">
-            <summary className="soft-action cursor-pointer list-none rounded-full px-3 py-2 text-xs font-semibold">
+            <summary className="soft-action cursor-pointer list-none rounded-full px-3 py-2 text-xs font-medium">
               <ArrowUpTrayIcon className="mr-1.5 h-4 w-4" />
               Scan or replace sheet
             </summary>
             <div className="mt-3 rounded-[20px] bg-[color:var(--surface-soft)] p-4 shadow-[var(--shadow-frost)]">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-[color:var(--text-strong)]">
+                  <p className="text-sm font-medium text-[color:var(--text-strong)]">
                     Scan a grand-sheet photo
                   </p>
                   <p className="mt-1 text-xs text-[color:var(--text-muted)]">
                     Use a straight, bright photo of the full page.
                   </p>
                 </div>
-                <span className="surface-chip rounded-full px-2.5 py-1 text-[11px] font-semibold text-[color:var(--text-muted)]">
+                <span className="surface-chip rounded-full px-2.5 py-1 text-[11px] font-medium text-[color:var(--text-muted)]">
                   {scanStatus}
                 </span>
               </div>
@@ -704,7 +704,7 @@ export function GrandSheetEditor({
                       type="button"
                       onClick={analyzeGrandSheet}
                       disabled={isScanning}
-                      className="soft-action-tint rounded-[14px] px-3 py-2.5 text-sm font-semibold disabled:opacity-60"
+                      className="soft-action-tint rounded-[14px] px-3 py-2.5 text-sm font-medium disabled:opacity-60"
                     >
                       {isScanning ? "Reading..." : "Read pupil rows"}
                     </button>
@@ -720,7 +720,7 @@ export function GrandSheetEditor({
                   </div>
                 </div>
               ) : (
-                <label className="soft-action-tint mt-3 flex cursor-pointer items-center justify-center rounded-[16px] px-4 py-3 text-sm font-semibold">
+                <label className="soft-action-tint mt-3 flex cursor-pointer items-center justify-center rounded-[16px] px-4 py-3 text-sm font-medium">
                   <ArrowUpTrayIcon className="mr-2 h-4 w-4" />
                   Choose grand-sheet photo
                   <input
@@ -734,7 +734,7 @@ export function GrandSheetEditor({
 
               {scanResult ? (
                 <div className="mt-3 flex items-center justify-between gap-3 rounded-[16px] bg-[color:var(--success-soft)] px-3 py-2.5">
-                  <p className="text-xs font-semibold text-[color:var(--text-strong)]">
+                  <p className="text-xs font-medium text-[color:var(--text-strong)]">
                     {scanResult.rows.length} rows found
                     {scanResult.warnings?.length
                       ? ` · ${scanResult.warnings.length} need review`
@@ -755,7 +755,7 @@ export function GrandSheetEditor({
 
         {generatedReports.length ? (
           <div className="mt-3 flex flex-wrap items-center gap-2 rounded-[16px] bg-[color:var(--accent-soft)] px-3 py-2.5">
-            <p className="mr-auto text-sm font-semibold text-[color:var(--text-strong)]">
+            <p className="mr-auto text-sm font-medium text-[color:var(--text-strong)]">
               {generatedReports.length} reports updated
             </p>
             <Link
@@ -767,7 +767,7 @@ export function GrandSheetEditor({
             </Link>
             <Link
               href="/reports"
-              className="soft-action rounded-full px-3 py-2 text-xs font-semibold"
+              className="soft-action rounded-full px-3 py-2 text-xs font-medium"
             >
               View reports
             </Link>
@@ -778,14 +778,14 @@ export function GrandSheetEditor({
       <section className="frost-panel rounded-[24px] px-3 py-3 sm:rounded-[28px] sm:px-5 sm:py-4">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex flex-wrap gap-2">
-            <span className="surface-chip rounded-full px-3 py-2 text-xs font-semibold text-[color:var(--text-strong)]">
+            <span className="surface-chip rounded-full px-3 py-2 text-xs font-medium text-[color:var(--text-strong)]">
               {rows.length} pupils
             </span>
-            <span className="surface-chip rounded-full px-3 py-2 text-xs font-semibold text-[color:var(--accent-strong)]">
+            <span className="surface-chip rounded-full px-3 py-2 text-xs font-medium text-[color:var(--accent-strong)]">
               {savableCount} report-ready
             </span>
             <span
-              className={`rounded-full px-3 py-2 text-xs font-semibold ${
+              className={`rounded-full px-3 py-2 text-xs font-medium ${
                 issueCount
                   ? "mood-badge-warning"
                   : "surface-chip text-[color:var(--text-muted)]"
@@ -794,7 +794,7 @@ export function GrandSheetEditor({
               {issueCount ? `${issueCount} marks need review` : "No score errors"}
             </span>
             {missingCount ? (
-              <span className="mood-badge-warning rounded-full px-3 py-2 text-xs font-semibold">
+              <span className="mood-badge-warning rounded-full px-3 py-2 text-xs font-medium">
                 {missingCount} blanks
               </span>
             ) : null}
@@ -805,7 +805,7 @@ export function GrandSheetEditor({
               <button
                 type="button"
                 onClick={focusNextIssue}
-                className="soft-action-tint rounded-full px-3.5 py-2 text-sm font-semibold"
+                className="soft-action-tint rounded-full px-3.5 py-2 text-sm font-medium"
               >
                 Next issue
               </button>
@@ -813,7 +813,7 @@ export function GrandSheetEditor({
             <button
               type="button"
               onClick={addRow}
-              className="soft-action rounded-full px-3.5 py-2 text-sm font-semibold"
+              className="soft-action rounded-full px-3.5 py-2 text-sm font-medium"
             >
               <PlusIcon className="mr-2 h-4 w-4" />
               Add pupil
@@ -847,7 +847,7 @@ export function GrandSheetEditor({
         <div className="border-b border-[color:var(--border-soft)] px-4 py-4 sm:px-6">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
                 Primary 3 Grey
               </p>
               <h2 className="mt-1 font-display text-2xl text-[color:var(--text-strong)] sm:text-3xl">
@@ -868,7 +868,7 @@ export function GrandSheetEditor({
                   {activeCell.cellRef}
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-[color:var(--text-strong)]">
+                  <p className="truncate text-sm font-medium text-[color:var(--text-strong)]">
                     {activePupil.name || `Pupil ${activeCell.rowIndex + 1}`}
                   </p>
                   <p className="text-xs text-[color:var(--text-muted)]">
@@ -883,7 +883,7 @@ export function GrandSheetEditor({
             </>
           ) : (
             <>
-              <p className="text-sm font-semibold text-[color:var(--text-strong)]">
+              <p className="text-sm font-medium text-[color:var(--text-strong)]">
                 Select a cell to start correcting
               </p>
               <p className="text-xs text-[color:var(--text-muted)]">
@@ -899,13 +899,13 @@ export function GrandSheetEditor({
               <tr className="table-head text-[color:var(--text-muted)]">
                 <th
                   rowSpan={2}
-                  className="grand-sheet-sticky grand-sheet-number left-0 z-[8] w-11 min-w-11 border-b border-r border-[color:var(--border-soft)] px-2 py-3 text-center font-semibold"
+                  className="grand-sheet-sticky grand-sheet-number left-0 z-[8] w-11 min-w-11 border-b border-r border-[color:var(--border-soft)] px-2 py-3 text-center font-medium"
                 >
                   S/N
                 </th>
                 <th
                   rowSpan={2}
-                  className={`grand-sheet-sticky grand-sheet-name left-11 z-[8] w-52 min-w-52 border-b border-r border-[color:var(--border-soft)] px-3 py-3 text-left font-semibold ${
+                  className={`grand-sheet-sticky grand-sheet-name left-11 z-[8] w-52 min-w-52 border-b border-r border-[color:var(--border-soft)] px-3 py-3 text-left font-medium ${
                     activeCell?.columnIndex === 0 ? "grand-sheet-active-header" : ""
                   }`}
                 >
@@ -913,7 +913,7 @@ export function GrandSheetEditor({
                 </th>
                 <th
                   rowSpan={2}
-                  className={`w-28 min-w-28 border-b border-r border-[color:var(--border-soft)] px-2 py-3 text-left font-semibold ${
+                  className={`w-28 min-w-28 border-b border-r border-[color:var(--border-soft)] px-2 py-3 text-left font-medium ${
                     activeCell?.columnIndex === 1 ? "grand-sheet-active-header" : ""
                   }`}
                 >
@@ -921,13 +921,13 @@ export function GrandSheetEditor({
                 </th>
                 <th
                   colSpan={subjects.length}
-                  className="border-b border-r border-[color:var(--border-soft)] px-3 py-2 text-center font-semibold"
+                  className="border-b border-r border-[color:var(--border-soft)] px-3 py-2 text-center font-medium"
                 >
                   Examination subjects
                 </th>
                 <th
                   colSpan={8}
-                  className="border-b border-[color:var(--border-soft)] px-3 py-2 text-center font-semibold"
+                  className="border-b border-[color:var(--border-soft)] px-3 py-2 text-center font-medium"
                 >
                   Summary
                 </th>
@@ -942,7 +942,7 @@ export function GrandSheetEditor({
                   <th
                     key={subject.key}
                     title={subject.label}
-                    className={`w-16 min-w-16 border-b border-r border-[color:var(--border-soft)] px-1 py-2 text-center font-semibold ${
+                    className={`w-16 min-w-16 border-b border-r border-[color:var(--border-soft)] px-1 py-2 text-center font-medium ${
                       activeCell?.columnIndex === subjectIndex + 2
                         ? "grand-sheet-active-header"
                         : ""
@@ -966,7 +966,7 @@ export function GrandSheetEditor({
                 ].map(([label, max], summaryIndex) => (
                   <th
                     key={label}
-                    className={`border-b border-r border-[color:var(--border-soft)] px-1 py-2 text-center font-semibold ${
+                    className={`border-b border-r border-[color:var(--border-soft)] px-1 py-2 text-center font-medium ${
                       label === "Remark" ? "w-28 min-w-28" : "w-16 min-w-16"
                     } ${
                       summaryIndex < 2 &&
@@ -1004,7 +1004,7 @@ export function GrandSheetEditor({
                       activeCell?.rowIndex === rowIndex ? "grand-sheet-active-row" : ""
                     }`}
                   >
-                    <td className="grand-sheet-sticky grand-sheet-number left-0 z-[5] border-b border-r border-[color:var(--border-soft)] px-2 py-1.5 text-center font-semibold text-[color:var(--text-muted)]">
+                    <td className="grand-sheet-sticky grand-sheet-number left-0 z-[5] border-b border-r border-[color:var(--border-soft)] px-2 py-1.5 text-center font-normal text-[color:var(--text-muted)]">
                       {rowIndex + 1}
                     </td>
                     <td
@@ -1026,7 +1026,7 @@ export function GrandSheetEditor({
                         onChange={(event) =>
                           updateRow(row.id, { name: event.target.value })
                         }
-                        className="grand-sheet-input w-full min-w-0 rounded-md px-2 py-2 font-semibold text-[color:var(--text-strong)] outline-none"
+                        className="grand-sheet-input w-full min-w-0 rounded-md px-2 py-2 font-medium text-[color:var(--text-strong)] outline-none"
                       />
                     </td>
                     <td
@@ -1206,7 +1206,7 @@ export function GrandSheetEditor({
               })}
             </tbody>
             <tfoot>
-              <tr className="table-head font-semibold text-[color:var(--text-muted)]">
+              <tr className="table-head font-medium text-[color:var(--text-muted)]">
                 <td className="grand-sheet-sticky grand-sheet-number left-0 z-[6] border-r border-t border-[color:var(--border-soft)]" />
                 <td className="grand-sheet-sticky grand-sheet-name left-11 z-[6] border-r border-t border-[color:var(--border-soft)] px-3 py-3">
                   Maximum marks

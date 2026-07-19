@@ -130,7 +130,7 @@ export default async function StudentsPage({
             } ${item.active ? "ring-1 ring-[color:var(--accent-soft)]" : ""}`}
           >
             <p className="text-sm text-[color:var(--text-muted)]">{item.label}</p>
-            <p className="mt-2 text-xl font-semibold text-[color:var(--text-strong)] sm:text-2xl md:text-3xl">
+            <p className="mt-2 text-xl font-medium text-[color:var(--text-strong)] sm:text-2xl md:text-3xl">
               {item.value}
             </p>
           </Link>
@@ -226,7 +226,7 @@ export default async function StudentsPage({
                       backgroundColor: index % 2 === 0 ? "var(--table-row-odd)" : undefined,
                     }}
                   >
-                    <td className="px-4 py-3.5 font-semibold text-[color:var(--text-strong)]">
+                    <td className="px-4 py-3.5 font-medium text-[color:var(--text-strong)]">
                       {student.fullName}
                     </td>
                     <td className="px-4 py-3.5 text-[color:var(--text-muted)]">
@@ -239,7 +239,7 @@ export default async function StudentsPage({
                       {student.position}
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="rounded-full bg-[color:var(--success-soft)] px-3 py-1 text-xs font-semibold text-[color:var(--success)]">
+                      <span className="rounded-full bg-[color:var(--success-soft)] px-3 py-1 text-xs font-medium text-[color:var(--success)]">
                         {student.status}
                       </span>
                     </td>
@@ -247,7 +247,7 @@ export default async function StudentsPage({
                       <div className="flex justify-end gap-2">
                         <Link
                           href={student.reportHref}
-                          className="soft-action-tint inline-flex rounded-full px-3 py-1.5 text-sm font-semibold"
+                          className="soft-action-tint inline-flex rounded-full px-3 py-1.5 text-sm font-medium"
                         >
                           Entry
                         </Link>
@@ -280,14 +280,14 @@ export default async function StudentsPage({
               >
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-[color:var(--text-strong)]">
+                    <p className="font-medium text-[color:var(--text-strong)]">
                       {topStudent.fullName}
                     </p>
                     <p className="mt-1 text-sm text-[color:var(--text-muted)]">
                       {topStudent.classroomName}
                     </p>
                   </div>
-                  <span className="mood-badge-focus rounded-full px-3 py-1.5 text-sm font-semibold">
+                  <span className="mood-badge-focus rounded-full px-3 py-1.5 text-sm font-medium">
                     {topStudent.grandTotal}
                   </span>
                 </div>
@@ -326,14 +326,14 @@ export default async function StudentsPage({
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="font-semibold text-[color:var(--text-strong)]">
+                        <p className="font-medium text-[color:var(--text-strong)]">
                           {student.fullName}
                         </p>
                         <p className="mt-1 text-sm text-[color:var(--text-muted)]">
                           Needs review
                         </p>
                       </div>
-                      <span className="mood-badge-warning rounded-full px-3 py-1.5 text-sm font-semibold">
+                      <span className="mood-badge-warning rounded-full px-3 py-1.5 text-sm font-medium">
                         {student.grandTotal}
                       </span>
                     </div>

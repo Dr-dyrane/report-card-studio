@@ -171,7 +171,7 @@ export default async function ReportsPage({
             } ${item.active ? "ring-1 ring-[color:var(--accent-soft)]" : ""}`}
           >
             <p className="text-sm text-[color:var(--text-muted)]">{item.label}</p>
-            <p className="mt-2 text-xl sm:text-2xl md:text-3xl font-semibold text-[color:var(--text-strong)]">
+            <p className="mt-2 text-xl font-medium text-[color:var(--text-strong)] sm:text-2xl md:text-3xl">
               {item.value}
             </p>
           </Link>
@@ -297,7 +297,7 @@ export default async function ReportsPage({
                           index % 2 === 0 ? "var(--table-row-odd)" : undefined,
                       }}
                     >
-                      <td className="px-4 py-3 font-semibold text-[color:var(--text-strong)]">
+                      <td className="px-4 py-3 font-medium text-[color:var(--text-strong)]">
                         {report.student.fullName}
                       </td>
                       <td className="px-4 py-3 text-[color:var(--text-muted)]">
@@ -305,7 +305,7 @@ export default async function ReportsPage({
                       </td>
                       <td className="px-4 py-3">
                       <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                        className={`rounded-full px-3 py-1 text-xs font-medium ${
                           report.status === "PUBLISHED"
                               ? "mood-badge-success"
                               : report.status === "LOCKED"
@@ -326,7 +326,7 @@ export default async function ReportsPage({
                         <div className="flex justify-end gap-2">
                           <Link
                             href={`/reports/${report.id}`}
-                            className="soft-action-tint inline-flex rounded-full px-3 py-1.5 text-sm font-semibold"
+                            className="soft-action-tint inline-flex rounded-full px-3 py-1.5 text-sm font-medium"
                           >
                             {selectedView === "archived" ? "Open" : "Entry"}
                           </Link>

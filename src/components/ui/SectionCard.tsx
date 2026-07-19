@@ -35,7 +35,7 @@ export function SectionCard({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               {title ? (
-                <h2 className="text-[1.05rem] font-semibold tracking-[-0.02em] text-[color:var(--text-strong)] sm:text-[1.35rem]">
+                <h2 className="text-[1.05rem] font-medium tracking-[-0.02em] text-[color:var(--text-strong)] sm:text-[1.35rem]">
                   {title}
                 </h2>
               ) : null}

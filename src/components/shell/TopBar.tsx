@@ -82,7 +82,7 @@ export function TopBar() {
                 {breadcrumb.isRootPage ? (
                   <BrandMark compact />
                 ) : (
-                  <span className="truncate text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
+                  <span className="truncate text-xs font-medium uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
                     {breadcrumb.root.label}
                   </span>
                 )}
@@ -129,7 +129,7 @@ export function TopBar() {
                 textClassName="text-sm"
               />
               <span className="min-w-0 text-left">
-                <span className="block max-w-[180px] truncate text-sm font-semibold text-[color:var(--text-strong)]">
+                <span className="block max-w-[180px] truncate text-sm font-medium text-[color:var(--text-strong)]">
                   {currentUser.name ?? currentUser.email}
                 </span>
                 <span className="block max-w-[180px] truncate text-xs text-[color:var(--text-muted)]">
@@ -141,7 +141,7 @@ export function TopBar() {
 
           <Link
             href="/reports/new"
-            className="soft-action-tint hidden items-center rounded-full px-3 py-2 text-sm font-semibold transition sm:inline-flex sm:px-4"
+            className="soft-action-tint hidden items-center rounded-full px-3 py-2 text-sm font-medium transition sm:inline-flex sm:px-4"
           >
             New
           </Link>
