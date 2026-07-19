@@ -4,7 +4,6 @@ import {
   ArrowPathIcon,
   ArrowUpTrayIcon,
   ChevronDownIcon,
-  ChevronLeftIcon,
   DocumentDuplicateIcon,
   EllipsisHorizontalIcon,
   EyeIcon,
@@ -608,14 +607,6 @@ export function GrandSheetEditor({
     <div className="space-y-2.5">
       <section className="frost-panel-strong relative z-20 rounded-[30px] p-2 sm:p-2.5">
         <div className="flex flex-wrap items-center gap-2">
-          <Link
-            href="/reports"
-            aria-label="Back to reports"
-            className="soft-action compact-action inline-flex h-9 w-9 shrink-0 justify-center rounded-[14px]"
-          >
-            <ChevronLeftIcon className="h-4 w-4" />
-          </Link>
-
           <div className="flex min-w-[12rem] flex-1 items-center gap-2.5 px-1">
             <span className="soft-action-tint inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px]">
               <DocumentDuplicateIcon className="h-4.5 w-4.5" />
