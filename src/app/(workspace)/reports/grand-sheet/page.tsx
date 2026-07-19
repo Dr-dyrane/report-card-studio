@@ -28,6 +28,12 @@ export default async function GrandSheetPage() {
       { sequence: "asc" },
     ],
   });
+  const preferredTermId =
+    terms.find(
+      (term) =>
+        term.session.name === "2025/2026" &&
+        term.name.toLowerCase().includes("third"),
+    )?.id ?? "";
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -49,6 +55,7 @@ export default async function GrandSheetPage() {
           sessionName: term.session.name,
           isActive: term.isActive,
         }))}
+        defaultTermId={preferredTermId}
       />
       <div className="flex justify-end">
         <Link
