@@ -1,4 +1,8 @@
 import { getDb } from "@/lib/db";
+import {
+  GRAND_SHEET_SUBJECTS,
+  normalizeGrandSheetName,
+} from "@/lib/grand-sheet";
 import { getOwnedSchool } from "@/lib/owned-school";
 
 const fallbackReportCards = [
@@ -143,6 +147,7 @@ function buildPreviewRows(
     };
   }>,
   classSubjects: Array<{
+    displayOrder: number;
     subject: {
       id: string;
       name: string;
@@ -152,16 +157,39 @@ function buildPreviewRows(
       examMax: number | null;
     };
   }>,
+  useGrandSheetMaxima = false,
 ) {
   const scoreMap = new Map(reportScores.map((row) => [row.subject.id, row]));
+  const grandSheetSubjectByName = new Map(
+    GRAND_SHEET_SUBJECTS.map((subject) => [
+      normalizeGrandSheetName(subject.label),
+      subject,
+    ]),
+  );
 
   return classSubjects
-    .map(({ subject }) => {
+    .map(({ subject, displayOrder }) => {
       const score = scoreMap.get(subject.id);
+      const grandSheetSubject = grandSheetSubjectByName.get(
+        normalizeGrandSheetName(subject.name),
+      );
+      const displaySubject =
+        useGrandSheetMaxima && grandSheetSubject
+          ? {
+              ...subject,
+              displayOrder,
+              a1Max: null,
+              a2Max: null,
+              examMax: grandSheetSubject.max,
+            }
+          : {
+              ...subject,
+              displayOrder,
+            };
 
       return {
         id: score?.id ?? `missing-${subject.id}`,
-        subject,
+        subject: displaySubject,
         a1Score: score?.a1Score ?? null,
         a2Score: score?.a2Score ?? null,
         examScore: score?.examScore ?? null,
@@ -278,7 +306,11 @@ export async function getReportCardByRouteKey(routeKey: string) {
     const scores = [...reportCard.scores].sort(
       (left, right) => left.subject.displayOrder - right.subject.displayOrder,
     );
-    const previewRows = buildPreviewRows(scores, reportCard.classroom.classSubjects);
+    const previewRows = buildPreviewRows(
+      scores,
+      reportCard.classroom.classSubjects,
+      reportCard.grandMax === 800,
+    );
 
     return {
       ...reportCard,

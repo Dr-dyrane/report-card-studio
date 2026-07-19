@@ -117,29 +117,51 @@ export function ReportEntryEditor({
       ),
     [rows],
   );
+  const hasAssessment1Scores = useMemo(
+    () => rows.some((row) => parseScore(row.a1) !== null),
+    [rows],
+  );
+  const hasAssessment2Scores = useMemo(
+    () => rows.some((row) => parseScore(row.a2) !== null),
+    [rows],
+  );
+  const hasExamScores = useMemo(
+    () => rows.some((row) => parseScore(row.exam) !== null),
+    [rows],
+  );
 
   const summary = useMemo(() => {
-    const assessment1Total = rows.reduce(
+    const detailedAssessment1Total = rows.reduce(
       (sum, row) => sum + (parseScore(row.a1) ?? 0),
       0,
     );
-    const assessment2Total = rows.reduce(
+    const detailedAssessment2Total = rows.reduce(
       (sum, row) => sum + (parseScore(row.a2) ?? 0),
       0,
     );
-    const examTotal = rows.reduce(
+    const detailedExamTotal = rows.reduce(
       (sum, row) => sum + (parseScore(row.exam) ?? 0),
       0,
     );
-    const grandTotal = rows.reduce((sum, row) => sum + computeRowTotal(row), 0);
+    const assessment1Total = hasAssessment1Scores
+      ? detailedAssessment1Total
+      : initialAssessment1Total;
+    const assessment2Total = hasAssessment2Scores
+      ? detailedAssessment2Total
+      : initialAssessment2Total;
+    const examTotal = hasExamScores ? detailedExamTotal : initialExamTotal;
+    const grandTotal = assessment1Total + assessment2Total + examTotal;
 
     return {
-      assessment1Total: hasEnteredScores ? assessment1Total : initialAssessment1Total,
-      assessment2Total: hasEnteredScores ? assessment2Total : initialAssessment2Total,
-      examTotal: hasEnteredScores ? examTotal : initialExamTotal,
+      assessment1Total,
+      assessment2Total,
+      examTotal,
       grandTotal: hasEnteredScores ? grandTotal : initialGrandTotal,
     };
   }, [
+    hasAssessment1Scores,
+    hasAssessment2Scores,
+    hasExamScores,
     hasEnteredScores,
     initialAssessment1Total,
     initialAssessment2Total,
@@ -170,6 +192,8 @@ export function ReportEntryEditor({
         routeKey: reportId,
         teacherComment: comment,
         teacherName: teacher,
+        assessment1Total: summary.assessment1Total,
+        assessment2Total: summary.assessment2Total,
         scores: rows.map((row) => ({
           id: row.id,
           a1: row.a1,
@@ -204,6 +228,8 @@ export function ReportEntryEditor({
           routeKey: reportId,
           teacherComment: comment,
           teacherName: teacher,
+          assessment1Total: summary.assessment1Total,
+          assessment2Total: summary.assessment2Total,
           scores: rows.map((row) => ({
             id: row.id,
             a1: row.a1,

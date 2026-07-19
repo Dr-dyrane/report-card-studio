@@ -5,6 +5,12 @@ import { redirect } from "next/navigation";
 
 import { requireServerSession } from "@/lib/auth-session";
 import { getDb } from "@/lib/db";
+import {
+  GRAND_SHEET_SUBJECTS,
+  grandSheetRemark,
+  normalizeGrandSheetName,
+  type GrandSheetRowInput,
+} from "@/lib/grand-sheet";
 import { requireOwnedSchool } from "@/lib/owned-school";
 
 type ScoreUpdateInput = {
@@ -78,19 +84,25 @@ async function recomputeClassroomTermRanking(classroomId: string, termId: string
       },
     },
     orderBy: [{ grandTotal: "desc" }, { updatedAt: "asc" }],
-    select: { id: true },
+    select: { id: true, grandTotal: true },
   });
 
   await Promise.all(
-    reportCards.map((report, index) =>
-      db.reportCard.update({
+    reportCards.map((report, index) => {
+      const previousMatchingIndex = reportCards.findIndex(
+        (candidate) => candidate.grandTotal === report.grandTotal,
+      );
+
+      return db.reportCard.update({
         where: { id: report.id },
         data: {
           classSize,
-          position: formatOrdinal(index + 1),
+          position: formatOrdinal(
+            (previousMatchingIndex === -1 ? index : previousMatchingIndex) + 1,
+          ),
         },
-      }),
-    ),
+      });
+    }),
   );
 }
 
@@ -99,6 +111,8 @@ export async function updateReportScores(input: {
   routeKey: string;
   teacherComment: string;
   teacherName: string;
+  assessment1Total?: number;
+  assessment2Total?: number;
   scores: ScoreUpdateInput[];
 }) {
   await requireServerSession();
@@ -154,16 +168,20 @@ export async function updateReportScores(input: {
     },
   });
 
-  const assessment1Total = reportScores.reduce(
+  const detailedAssessment1Total = reportScores.reduce(
     (sum, score) => sum + (score.a1Score ?? 0),
     0,
   );
-  const assessment2Total = reportScores.reduce(
+  const detailedAssessment2Total = reportScores.reduce(
     (sum, score) => sum + (score.a2Score ?? 0),
     0,
   );
+  const assessment1Total =
+    input.assessment1Total ?? detailedAssessment1Total;
+  const assessment2Total =
+    input.assessment2Total ?? detailedAssessment2Total;
   const examTotal = reportScores.reduce((sum, score) => sum + (score.examScore ?? 0), 0);
-  const grandTotal = reportScores.reduce((sum, score) => sum + score.totalScore, 0);
+  const grandTotal = assessment1Total + assessment2Total + examTotal;
 
   await db.reportCard.update({
     where: { id: input.reportCardId },
@@ -952,4 +970,277 @@ export async function prepareScanWorkspace(input: {
       classSubjects: createdBindings,
     },
   };
+}
+
+export async function createReportsFromGrandSheet(input: {
+  classroomId: string;
+  termId: string;
+  rows: GrandSheetRowInput[];
+}) {
+  await requireServerSession();
+  const ownedSchool = await requireOwnedSchool();
+  const db = await getDb();
+
+  const classroom = await db.classroom.findFirst({
+    where: {
+      id: input.classroomId,
+      schoolId: ownedSchool.id,
+    },
+    include: {
+      students: true,
+      classSubjects: true,
+    },
+  });
+
+  if (!classroom) {
+    return { ok: false, message: "Choose a class before creating report sheets." };
+  }
+
+  const term = await db.term.findFirst({
+    where: {
+      id: input.termId,
+      session: { schoolId: ownedSchool.id },
+    },
+  });
+
+  if (!term) {
+    return { ok: false, message: "Choose the session and term for this grand sheet." };
+  }
+
+  const validRows = input.rows.filter((row) => {
+    if (!row.name.trim() || !row.admissionNumber.trim()) return false;
+    if (!isBlankOrValidGrandSheetMark(row.firstTest, 130)) return false;
+    if (!isBlankOrValidGrandSheetMark(row.secondTest, 130)) return false;
+
+    return GRAND_SHEET_SUBJECTS.every((subject) =>
+      isBlankOrValidGrandSheetMark(row.scores[subject.key], subject.max),
+    );
+  });
+
+  if (!validRows.length) {
+    return {
+      ok: false,
+      message: "Complete at least one pupil row before creating report sheets.",
+    };
+  }
+  const requiredSubjectKeys = new Set(
+    GRAND_SHEET_SUBJECTS.filter((subject) =>
+      validRows.some((row) => Boolean(row.scores[subject.key]?.trim())),
+    ).map((subject) => subject.key),
+  );
+
+  const existingSubjects = await db.subject.findMany({
+    where: { schoolId: ownedSchool.id },
+  });
+  const subjectByName = new Map(
+    existingSubjects.map((subject) => [
+      normalizeGrandSheetName(subject.name),
+      subject,
+    ]),
+  );
+  const existingStudents = new Map(
+    classroom.students.map((student) => [
+      normalizeGrandSheetName(student.fullName),
+      student,
+    ]),
+  );
+  const existingBindings = new Set(
+    classroom.classSubjects.map((binding) => binding.subjectId),
+  );
+  const reportHrefs: Array<{ href: string; label: string }> = [];
+  let createdStudents = 0;
+  let createdReports = 0;
+  let updatedReports = 0;
+  let createdSubjects = 0;
+
+  await db.$transaction(async (tx) => {
+    const boundSubjects: Array<{
+      id: string;
+      key: string;
+    }> = [];
+
+    for (const [index, definition] of GRAND_SHEET_SUBJECTS.entries()) {
+      const normalizedLabel = normalizeGrandSheetName(definition.label);
+      let subject = subjectByName.get(normalizedLabel);
+
+      if (!subject) {
+        subject = await tx.subject.create({
+          data: {
+            schoolId: ownedSchool.id,
+            name: definition.label,
+            assessmentMode: "EXAM_ONLY",
+            examMax: definition.max,
+            displayOrder: index,
+          },
+        });
+        subjectByName.set(normalizedLabel, subject);
+        createdSubjects += 1;
+      }
+
+      if (!existingBindings.has(subject.id)) {
+        await tx.classSubject.create({
+          data: {
+            classroomId: classroom.id,
+            subjectId: subject.id,
+            displayOrder: index,
+          },
+        });
+        existingBindings.add(subject.id);
+      }
+
+      boundSubjects.push({ id: subject.id, key: definition.key });
+    }
+
+    for (const row of validRows) {
+      const normalizedStudentName = normalizeGrandSheetName(row.name);
+      let student = existingStudents.get(normalizedStudentName);
+
+      if (!student) {
+        student = await tx.student.create({
+          data: {
+            fullName: row.name.trim().replace(/\s+/g, " "),
+            admissionNumber: row.admissionNumber.trim(),
+            classroomId: classroom.id,
+            schoolId: ownedSchool.id,
+          },
+        });
+        existingStudents.set(normalizedStudentName, student);
+        createdStudents += 1;
+      } else if (!student.admissionNumber && row.admissionNumber.trim()) {
+        student = await tx.student.update({
+          where: { id: student.id },
+          data: { admissionNumber: row.admissionNumber.trim() },
+        });
+        existingStudents.set(normalizedStudentName, student);
+      }
+
+      const currentReport = await tx.reportCard.findUnique({
+        where: {
+          studentId_termId: {
+            studentId: student.id,
+            termId: term.id,
+          },
+        },
+      });
+      const examTotal = GRAND_SHEET_SUBJECTS.reduce(
+        (total, subject) => total + Number(row.scores[subject.key] || 0),
+        0,
+      );
+      const assessment1Total = Number(row.firstTest || 0);
+      const assessment2Total = Number(row.secondTest || 0);
+      const grandTotal = assessment1Total + assessment2Total + examTotal;
+      const rowIsComplete =
+        isValidGrandSheetMark(row.firstTest, 130) &&
+        isValidGrandSheetMark(row.secondTest, 130) &&
+        GRAND_SHEET_SUBJECTS.filter((subject) =>
+          requiredSubjectKeys.has(subject.key),
+        ).every((subject) =>
+          isValidGrandSheetMark(row.scores[subject.key], subject.max),
+        );
+      const teacherComment = rowIsComplete
+        ? grandSheetRemark((grandTotal / 800) * 100)
+        : currentReport?.teacherComment;
+
+      const reportCard = currentReport
+        ? await tx.reportCard.update({
+            where: { id: currentReport.id },
+            data: {
+              status: "DRAFT",
+              classSize: validRows.length,
+              grandMax: 800,
+              assessment1Total,
+              assessment2Total,
+              examTotal,
+              grandTotal,
+              teacherComment,
+            },
+          })
+        : await tx.reportCard.create({
+            data: {
+              studentId: student.id,
+              classroomId: classroom.id,
+              termId: term.id,
+              status: "DRAFT",
+              classSize: validRows.length,
+              grandMax: 800,
+              assessment1Total,
+              assessment2Total,
+              examTotal,
+              grandTotal,
+              teacherComment,
+            },
+          });
+
+      if (currentReport) {
+        updatedReports += 1;
+      } else {
+        createdReports += 1;
+      }
+
+      await tx.reportScore.deleteMany({
+        where: {
+          reportCardId: reportCard.id,
+          subjectId: {
+            in: boundSubjects.map((subject) => subject.id),
+          },
+        },
+      });
+      await tx.reportScore.createMany({
+        data: boundSubjects.map((subject) => {
+          const rawExamScore = row.scores[subject.key]?.trim() ?? "";
+          const examScore = rawExamScore ? Number(rawExamScore) : null;
+
+          return {
+            reportCardId: reportCard.id,
+            subjectId: subject.id,
+            a1Score: null,
+            a2Score: null,
+            examScore,
+            totalScore: examScore ?? 0,
+          };
+        }),
+      });
+
+      reportHrefs.push({
+        href: `/reports/${reportCard.id}`,
+        label: student.fullName,
+      });
+    }
+  }, {
+    maxWait: 10_000,
+    timeout: 60_000,
+  });
+
+  await recomputeClassroomTermRanking(classroom.id, term.id);
+
+  revalidatePath("/reports");
+  revalidatePath("/students");
+  revalidatePath("/analytics");
+  revalidatePath("/reports/grand-sheet");
+  for (const report of reportHrefs) {
+    revalidatePath(report.href);
+    revalidatePath(`${report.href}/preview`);
+  }
+
+  return {
+    ok: true,
+    message: `${reportHrefs.length} pupil report ${
+      reportHrefs.length === 1 ? "sheet is" : "sheets are"
+    } ready.`,
+    createdStudents,
+    createdReports,
+    updatedReports,
+    createdSubjects,
+    reports: reportHrefs,
+  };
+}
+
+function isValidGrandSheetMark(value: string | undefined, max: number) {
+  if (!value?.trim()) return false;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 && parsed <= max;
+}
+
+function isBlankOrValidGrandSheetMark(value: string | undefined, max: number) {
+  return !value?.trim() || isValidGrandSheetMark(value, max);
 }

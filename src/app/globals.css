@@ -513,6 +513,19 @@ button {
   --grand-sheet-sticky: color-mix(in srgb, var(--surface) 96%, var(--canvas) 4%);
 }
 
+.grand-sheet-table th,
+.grand-sheet-table td {
+  border-color: transparent !important;
+}
+
+.grand-sheet-table thead {
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--border-soft) 68%, transparent);
+}
+
+.grand-sheet-table tbody tr {
+  transition: background-color 140ms ease;
+}
+
 .grand-sheet-sticky {
   background: var(--grand-sheet-sticky);
   background-clip: padding-box;
@@ -523,10 +536,9 @@ button {
 }
 
 .grand-sheet-input {
-  border: 1px solid transparent;
+  border: 0;
   background: transparent;
   transition:
-    border-color 140ms ease,
     background-color 140ms ease,
     box-shadow 140ms ease;
 }
@@ -536,18 +548,113 @@ button {
 }
 
 .grand-sheet-input:focus {
-  border-color: var(--focus-border);
-  background: var(--input-bg);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-soft) 68%, transparent);
+  background: color-mix(in srgb, var(--input-bg) 80%, transparent);
+  box-shadow: none;
 }
 
 .grand-sheet-input-error {
-  border-color: var(--danger-border);
   background: var(--danger-soft);
 }
 
 .grand-sheet-computed {
   background: color-mix(in srgb, var(--accent-soft) 26%, transparent);
+}
+
+.grand-sheet-locator {
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--accent-soft) 42%, var(--surface) 58%),
+      color-mix(in srgb, var(--surface-muted) 60%, var(--surface) 40%)
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--border-soft) 58%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--border-soft) 58%, transparent);
+}
+
+.grand-sheet-active-header {
+  background: color-mix(in srgb, var(--accent-soft) 76%, var(--table-head) 24%);
+  color: var(--accent-strong);
+}
+
+.grand-sheet-active-column {
+  background: color-mix(in srgb, var(--accent-soft) 18%, transparent);
+}
+
+.grand-sheet-active-row td {
+  background-color: color-mix(in srgb, var(--focus-soft) 20%, var(--surface) 80%);
+}
+
+.grand-sheet-active-row .grand-sheet-sticky {
+  background: color-mix(in srgb, var(--focus-soft) 30%, var(--surface) 70%);
+}
+
+.grand-sheet-active-cell {
+  position: relative;
+  z-index: 4;
+  background: color-mix(in srgb, var(--accent-soft) 70%, var(--surface) 30%) !important;
+  box-shadow:
+    inset 0 0 0 2px var(--accent),
+    0 6px 18px color-mix(in srgb, var(--accent) 13%, transparent);
+}
+
+.grand-sheet-result-excellent {
+  background: color-mix(in srgb, var(--success-soft) 88%, var(--surface) 12%);
+  color: var(--success);
+}
+
+.grand-sheet-result-very-good {
+  background: color-mix(in srgb, var(--success-soft) 58%, var(--accent-soft) 42%);
+  color: color-mix(in srgb, var(--success) 72%, var(--accent-strong) 28%);
+}
+
+.grand-sheet-result-good {
+  background: color-mix(in srgb, var(--accent-soft) 82%, var(--surface) 18%);
+  color: var(--accent-strong);
+}
+
+.grand-sheet-result-credit {
+  background: color-mix(in srgb, var(--warning-soft) 68%, var(--surface) 32%);
+  color: var(--warning);
+}
+
+.grand-sheet-result-pass {
+  background: color-mix(in srgb, var(--warning-soft) 82%, var(--danger-soft) 18%);
+  color: color-mix(in srgb, var(--warning) 72%, var(--danger) 28%);
+}
+
+.grand-sheet-result-needs-improvement {
+  background: color-mix(in srgb, var(--danger-soft) 88%, var(--surface) 12%);
+  color: var(--danger);
+}
+
+.grand-sheet-result-incomplete {
+  background: color-mix(in srgb, var(--surface-muted) 80%, transparent);
+  color: var(--text-muted);
+}
+
+.grand-sheet-performance-excellent .grand-sheet-number {
+  box-shadow: inset 3px 0 0 var(--success);
+}
+
+.grand-sheet-performance-very-good .grand-sheet-number {
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--success) 68%, var(--accent) 32%);
+}
+
+.grand-sheet-performance-good .grand-sheet-number {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.grand-sheet-performance-credit .grand-sheet-number {
+  box-shadow: inset 3px 0 0 var(--warning);
+}
+
+.grand-sheet-performance-pass .grand-sheet-number {
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--warning) 68%, var(--danger) 32%);
+}
+
+.grand-sheet-performance-needs-improvement .grand-sheet-number {
+  box-shadow: inset 3px 0 0 var(--danger);
 }
 
 @media (max-width: 639px) {
