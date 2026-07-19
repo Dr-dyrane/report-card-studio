@@ -31,11 +31,23 @@ export default async function ReportEntryPage({
     ["Position", report.position ?? "--"],
     ["Students", String(report.classSize ?? "--")],
     ["Teacher", report.classroom.teacherName ?? "Class teacher"],
+    [
+      "Entry",
+      report.assessmentEntryMode === "AGGREGATE_TOTALS"
+        ? "test totals"
+        : "per subject",
+    ],
   ];
 
   const summary = [
-    ["A1", String(report.assessment1Total)],
-    ["A2", String(report.assessment2Total)],
+    [
+      report.assessmentEntryMode === "AGGREGATE_TOTALS" ? "1st Test" : "A1",
+      String(report.assessment1Total),
+    ],
+    [
+      report.assessmentEntryMode === "AGGREGATE_TOTALS" ? "2nd Test" : "A2",
+      String(report.assessment2Total),
+    ],
     ["Exam", String(report.examTotal)],
     ["Total", String(report.grandTotal)],
   ];
@@ -119,6 +131,7 @@ export default async function ReportEntryPage({
         teacherComment={report.teacherComment ?? ""}
         teacherName={report.classroom.teacherName ?? "Class teacher"}
         position={report.position ?? "--"}
+        initialAssessmentEntryMode={report.assessmentEntryMode}
         initialAssessment1Total={report.assessment1Total}
         initialAssessment2Total={report.assessment2Total}
         initialExamTotal={report.examTotal}

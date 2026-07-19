@@ -89,9 +89,10 @@ export async function getClassExportDataset(classId: string): Promise<ClassExpor
   const headers = [
     "Student",
     "Status",
+    "Assessment Entry Mode",
     "Position",
-    "A1 Total",
-    "A2 Total",
+    "First Test Total",
+    "Second Test Total",
     "Exam Total",
     "Grand Total",
     ...subjectColumns.flatMap((subject) => [
@@ -110,9 +111,13 @@ export async function getClassExportDataset(classId: string): Promise<ClassExpor
     const baseRow: Record<string, string | number> = {
       Student: report.student.fullName,
       Status: report.status,
+      "Assessment Entry Mode":
+        report.assessmentEntryMode === "AGGREGATE_TOTALS"
+          ? "Aggregate test totals"
+          : "Per subject",
       Position: report.position ?? "--",
-      "A1 Total": report.assessment1Total,
-      "A2 Total": report.assessment2Total,
+      "First Test Total": report.assessment1Total,
+      "Second Test Total": report.assessment2Total,
       "Exam Total": report.examTotal,
       "Grand Total": report.grandTotal,
     };

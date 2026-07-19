@@ -333,6 +333,7 @@ function getRemark(row: ReportCardData["previewRows"][number]) {
 
 function PdfReportCard({ report }: { report: ReportCardData }) {
   const rows = report.previewRows;
+  const isAggregateTotals = report.assessmentEntryMode === "AGGREGATE_TOTALS";
   const teacherComment = report.teacherComment?.trim() || "";
   const headTeacherComment = report.headTeacherComment?.trim() || "";
   const teacherName = report.classroom.teacherName?.trim() || "";
@@ -381,8 +382,16 @@ function PdfReportCard({ report }: { report: ReportCardData }) {
 
           <View style={styles.totalsGrid}>
             {[
-              ["1st Assessment", String(report.assessment1Total), false],
-              ["2nd Assessment", String(report.assessment2Total), false],
+              [
+                isAggregateTotals ? "First Test Total" : "1st Assessment",
+                String(report.assessment1Total),
+                false,
+              ],
+              [
+                isAggregateTotals ? "Second Test Total" : "2nd Assessment",
+                String(report.assessment2Total),
+                false,
+              ],
               ["Exam", String(report.examTotal), false],
               ["Grand Total", `${report.grandTotal} / ${report.grandMax}`, true],
             ].map(([label, value, strong]) => (
@@ -404,7 +413,8 @@ function PdfReportCard({ report }: { report: ReportCardData }) {
         </View>
 
         <View style={styles.tableWrap}>
-          <View style={styles.tableHeadTop}>
+          {!isAggregateTotals ? (
+            <View style={styles.tableHeadTop}>
             <View style={styles.spacerHead} />
             <View style={styles.groupHead}>
               <Text style={styles.groupHeadText}>1st Assessment</Text>
@@ -430,18 +440,31 @@ function PdfReportCard({ report }: { report: ReportCardData }) {
             <View style={[styles.groupHeadSmall, { borderRightWidth: 0, width: "14%" }]}>
               <Text style={styles.groupHeadText}>Remark</Text>
             </View>
-          </View>
+            </View>
+          ) : null}
 
           <View style={styles.tableHead}>
-            <Text style={[styles.tableHeadText, styles.subjectCol]}>Subject</Text>
+            <Text
+              style={[
+                styles.tableHeadText,
+                styles.subjectCol,
+                isAggregateTotals ? { width: "42%" } : {},
+              ]}
+            >
+              Subject
+            </Text>
+            {!isAggregateTotals ? (
+              <>
             <Text style={[styles.tableHeadText, styles.numCol]}>A1 Max</Text>
             <Text style={[styles.tableHeadText, styles.numCol]}>A1</Text>
             <Text style={[styles.tableHeadText, styles.numCol]}>A2 Max</Text>
             <Text style={[styles.tableHeadText, styles.numCol]}>A2</Text>
-            <Text style={[styles.tableHeadText, styles.numCol]}>Exam Max</Text>
-            <Text style={[styles.tableHeadText, styles.numCol]}>Exam</Text>
-            <Text style={[styles.tableHeadText, styles.totalCol]}>Total</Text>
-            <Text style={[styles.tableHeadText, styles.remarkCol]}>Remark</Text>
+              </>
+            ) : null}
+            <Text style={[styles.tableHeadText, styles.numCol, isAggregateTotals ? { width: "12%" } : {}]}>Exam Max</Text>
+            <Text style={[styles.tableHeadText, styles.numCol, isAggregateTotals ? { width: "12%" } : {}]}>Exam</Text>
+            <Text style={[styles.tableHeadText, styles.totalCol, isAggregateTotals ? { width: "14%" } : {}]}>Total</Text>
+            <Text style={[styles.tableHeadText, styles.remarkCol, isAggregateTotals ? { width: "20%" } : {}]}>Remark</Text>
           </View>
 
           {rows.map((row, index) => (
@@ -449,7 +472,17 @@ function PdfReportCard({ report }: { report: ReportCardData }) {
               key={row.id}
               style={[styles.tableRow, index % 2 === 0 ? styles.tableRowAlt : {}]}
             >
-              <Text style={[styles.tableText, styles.subjectCol]}>{row.subject.name}</Text>
+              <Text
+                style={[
+                  styles.tableText,
+                  styles.subjectCol,
+                  isAggregateTotals ? { width: "42%" } : {},
+                ]}
+              >
+                {row.subject.name}
+              </Text>
+              {!isAggregateTotals ? (
+                <>
               <Text style={[styles.tableTextMuted, styles.numCol]}>
                 {scoreDisplay(row.subject.a1Max)}
               </Text>
@@ -458,12 +491,14 @@ function PdfReportCard({ report }: { report: ReportCardData }) {
                 {scoreDisplay(row.subject.a2Max)}
               </Text>
               <Text style={[styles.tableText, styles.numCol]}>{scoreDisplay(row.a2Score)}</Text>
-              <Text style={[styles.tableTextMuted, styles.numCol]}>
+                </>
+              ) : null}
+              <Text style={[styles.tableTextMuted, styles.numCol, isAggregateTotals ? { width: "12%" } : {}]}>
                 {scoreDisplay(row.subject.examMax)}
               </Text>
-              <Text style={[styles.tableText, styles.numCol]}>{scoreDisplay(row.examScore)}</Text>
-              <Text style={[styles.tableText, styles.totalCol]}>{scoreDisplay(row.totalScore)}</Text>
-              <Text style={[styles.tableTextMuted, styles.remarkCol]}>{getRemark(row)}</Text>
+              <Text style={[styles.tableText, styles.numCol, isAggregateTotals ? { width: "12%" } : {}]}>{scoreDisplay(row.examScore)}</Text>
+              <Text style={[styles.tableText, styles.totalCol, isAggregateTotals ? { width: "14%" } : {}]}>{scoreDisplay(row.totalScore)}</Text>
+              <Text style={[styles.tableTextMuted, styles.remarkCol, isAggregateTotals ? { width: "20%" } : {}]}>{getRemark(row)}</Text>
             </View>
           ))}
         </View>

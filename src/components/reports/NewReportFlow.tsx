@@ -1015,8 +1015,8 @@ export function NewReportFlow({
 
           <div className="grid grid-cols-2 gap-3">
             {[
-              ["A1", scanExtraction?.summary?.assessment1Total ?? "--"],
-              ["A2", scanExtraction?.summary?.assessment2Total ?? "--"],
+              ["First test", scanExtraction?.summary?.assessment1Total ?? "--"],
+              ["Second test", scanExtraction?.summary?.assessment2Total ?? "--"],
               ["Exam", scanExtraction?.summary?.examTotal ?? "--"],
               ["Total", scanExtraction?.summary?.grandTotal ?? "--"],
             ].map(([label, value], index) => (

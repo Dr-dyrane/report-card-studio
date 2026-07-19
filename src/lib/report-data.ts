@@ -23,6 +23,7 @@ const fallbackReportCard = {
   classSize: 30,
   grandTotal: 678,
   grandMax: 1000,
+  assessmentEntryMode: "PER_SUBJECT" as const,
   assessment1Total: 134,
   assessment2Total: 113,
   examTotal: 486,

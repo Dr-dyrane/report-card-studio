@@ -34,6 +34,7 @@ type ReportEntryEditorProps = {
   teacherComment: string;
   teacherName: string;
   position: string;
+  initialAssessmentEntryMode: "PER_SUBJECT" | "AGGREGATE_TOTALS";
   initialAssessment1Total: number;
   initialAssessment2Total: number;
   initialExamTotal: number;
@@ -56,18 +57,32 @@ function parseScore(value: string) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function computeRowTotal(row: ScoreRow) {
+function computeRowTotal(
+  row: ScoreRow,
+  assessmentEntryMode: "PER_SUBJECT" | "AGGREGATE_TOTALS",
+) {
   return (
-    (parseScore(row.a1) ?? 0) +
-    (parseScore(row.a2) ?? 0) +
+    (assessmentEntryMode === "PER_SUBJECT"
+      ? (parseScore(row.a1) ?? 0) + (parseScore(row.a2) ?? 0)
+      : 0) +
     (parseScore(row.exam) ?? 0)
   );
 }
 
-function createSnapshot(rows: ScoreRow[], comment: string, teacher: string) {
+function createSnapshot(
+  rows: ScoreRow[],
+  comment: string,
+  teacher: string,
+  assessmentEntryMode: "PER_SUBJECT" | "AGGREGATE_TOTALS",
+  assessment1Total: string,
+  assessment2Total: string,
+) {
   return JSON.stringify({
     comment,
     teacher,
+    assessmentEntryMode,
+    assessment1Total,
+    assessment2Total,
     rows: rows.map((row) => ({
       id: row.id,
       a1: row.a1,
@@ -84,6 +99,7 @@ export function ReportEntryEditor({
   teacherComment,
   teacherName,
   position,
+  initialAssessmentEntryMode,
   initialAssessment1Total,
   initialAssessment2Total,
   initialExamTotal,
@@ -97,6 +113,15 @@ export function ReportEntryEditor({
   const [rows, setRows] = useState(initialRows);
   const [comment, setComment] = useState(teacherComment);
   const [teacher, setTeacher] = useState(teacherName);
+  const [assessmentEntryMode, setAssessmentEntryMode] = useState(
+    initialAssessmentEntryMode,
+  );
+  const [aggregateAssessment1Total, setAggregateAssessment1Total] = useState(
+    String(initialAssessment1Total),
+  );
+  const [aggregateAssessment2Total, setAggregateAssessment2Total] = useState(
+    String(initialAssessment2Total),
+  );
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [hardDeleteConfirmOpen, setHardDeleteConfirmOpen] = useState(false);
   const [activeRowId, setActiveRowId] = useState<string | null>(null);
@@ -105,17 +130,33 @@ export function ReportEntryEditor({
   );
   const [isPending, startTransition] = useTransition();
   const lastSavedSnapshotRef = useRef(
-    createSnapshot(initialRows, teacherComment, teacherName),
+    createSnapshot(
+      initialRows,
+      teacherComment,
+      teacherName,
+      initialAssessmentEntryMode,
+      String(initialAssessment1Total),
+      String(initialAssessment2Total),
+    ),
   );
   const hasEnteredScores = useMemo(
     () =>
+      (assessmentEntryMode === "AGGREGATE_TOTALS" &&
+        (parseScore(aggregateAssessment1Total) !== null ||
+          parseScore(aggregateAssessment2Total) !== null)) ||
       rows.some(
         (row) =>
-          parseScore(row.a1) !== null ||
-          parseScore(row.a2) !== null ||
+          (assessmentEntryMode === "PER_SUBJECT" &&
+            (parseScore(row.a1) !== null ||
+              parseScore(row.a2) !== null)) ||
           parseScore(row.exam) !== null,
       ),
-    [rows],
+    [
+      aggregateAssessment1Total,
+      aggregateAssessment2Total,
+      assessmentEntryMode,
+      rows,
+    ],
   );
   const hasAssessment1Scores = useMemo(
     () => rows.some((row) => parseScore(row.a1) !== null),
@@ -143,12 +184,18 @@ export function ReportEntryEditor({
       (sum, row) => sum + (parseScore(row.exam) ?? 0),
       0,
     );
-    const assessment1Total = hasAssessment1Scores
-      ? detailedAssessment1Total
-      : initialAssessment1Total;
-    const assessment2Total = hasAssessment2Scores
-      ? detailedAssessment2Total
-      : initialAssessment2Total;
+    const assessment1Total =
+      assessmentEntryMode === "AGGREGATE_TOTALS"
+        ? parseScore(aggregateAssessment1Total) ?? 0
+        : hasAssessment1Scores
+          ? detailedAssessment1Total
+          : 0;
+    const assessment2Total =
+      assessmentEntryMode === "AGGREGATE_TOTALS"
+        ? parseScore(aggregateAssessment2Total) ?? 0
+        : hasAssessment2Scores
+          ? detailedAssessment2Total
+          : 0;
     const examTotal = hasExamScores ? detailedExamTotal : initialExamTotal;
     const grandTotal = assessment1Total + assessment2Total + examTotal;
 
@@ -159,19 +206,27 @@ export function ReportEntryEditor({
       grandTotal: hasEnteredScores ? grandTotal : initialGrandTotal,
     };
   }, [
+    aggregateAssessment1Total,
+    aggregateAssessment2Total,
+    assessmentEntryMode,
     hasAssessment1Scores,
     hasAssessment2Scores,
     hasExamScores,
     hasEnteredScores,
-    initialAssessment1Total,
-    initialAssessment2Total,
     initialExamTotal,
     initialGrandTotal,
     rows,
   ]);
 
   function saveIfNeeded(announce = false) {
-    const snapshot = createSnapshot(rows, comment, teacher);
+    const snapshot = createSnapshot(
+      rows,
+      comment,
+      teacher,
+      assessmentEntryMode,
+      aggregateAssessment1Total,
+      aggregateAssessment2Total,
+    );
 
     if (snapshot === lastSavedSnapshotRef.current) {
       setSaveState("Saved");
@@ -192,6 +247,7 @@ export function ReportEntryEditor({
         routeKey: reportId,
         teacherComment: comment,
         teacherName: teacher,
+        assessmentEntryMode,
         assessment1Total: summary.assessment1Total,
         assessment2Total: summary.assessment2Total,
         scores: rows.map((row) => ({
@@ -220,7 +276,14 @@ export function ReportEntryEditor({
 
   function handlePublish() {
     startTransition(async () => {
-      const saveSnapshot = createSnapshot(rows, comment, teacher);
+      const saveSnapshot = createSnapshot(
+        rows,
+        comment,
+        teacher,
+        assessmentEntryMode,
+        aggregateAssessment1Total,
+        aggregateAssessment2Total,
+      );
 
       if (saveSnapshot !== lastSavedSnapshotRef.current) {
         const saveResult = await updateReportScores({
@@ -228,6 +291,7 @@ export function ReportEntryEditor({
           routeKey: reportId,
           teacherComment: comment,
           teacherName: teacher,
+          assessmentEntryMode,
           assessment1Total: summary.assessment1Total,
           assessment2Total: summary.assessment2Total,
           scores: rows.map((row) => ({
@@ -330,6 +394,41 @@ export function ReportEntryEditor({
     setSaveState("Unsaved");
   }
 
+  function changeAssessmentEntryMode(
+    nextMode: "PER_SUBJECT" | "AGGREGATE_TOTALS",
+  ) {
+    if (nextMode === assessmentEntryMode) return;
+
+    if (
+      nextMode === "PER_SUBJECT" &&
+      !window.confirm(
+        "Switch to per-subject tests? Aggregate test totals cannot be distributed automatically. A1 and A2 will start blank.",
+      )
+    ) {
+      return;
+    }
+
+    if (
+      nextMode === "AGGREGATE_TOTALS" &&
+      !window.confirm(
+        "Switch to aggregate test totals? Existing per-subject A1 and A2 scores will be replaced by the two totals when you save.",
+      )
+    ) {
+      return;
+    }
+
+    if (nextMode === "AGGREGATE_TOTALS") {
+      setAggregateAssessment1Total(String(summary.assessment1Total));
+      setAggregateAssessment2Total(String(summary.assessment2Total));
+    }
+
+    setRows((current) =>
+      current.map((row) => ({ ...row, a1: "", a2: "" })),
+    );
+    setAssessmentEntryMode(nextMode);
+    setSaveState("Unsaved");
+  }
+
   function focusCell(cellIndex: number) {
     if (typeof document === "undefined") return;
 
@@ -381,7 +480,11 @@ export function ReportEntryEditor({
 
   function renderSaveMessage() {
     if (isPending) return "Saving...";
-    if (!hasEnteredScores) return "Enter scores and totals will take over live.";
+    if (!hasEnteredScores) {
+      return assessmentEntryMode === "AGGREGATE_TOTALS"
+        ? "Enter the two test totals and each subject exam score."
+        : "Enter A1, A2, and exam scores by subject.";
+    }
     if (saveState === "Saved") return "All changes saved.";
     if (saveState === "Unsaved") return "Changes not saved yet.";
     if (saveState === "Retry") return "Save didn't complete. Try again.";
@@ -391,6 +494,76 @@ export function ReportEntryEditor({
   return (
     <div className="grid gap-3 sm:gap-6 xl:grid-cols-[1.25fr_0.42fr]">
       <SectionCard title="Entry">
+        <div className="surface-pocket mb-4 rounded-[24px] p-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-medium text-[color:var(--text-strong)]">
+                Test score format
+              </p>
+              <p className="mt-1 text-sm text-[color:var(--text-muted)]">
+                {assessmentEntryMode === "AGGREGATE_TOTALS"
+                  ? "First and second tests are class-wide totals; subjects carry exam scores."
+                  : "Each subject carries its own A1, A2, and exam score."}
+              </p>
+            </div>
+            <div className="soft-action grid grid-cols-2 rounded-full p-1">
+              <button
+                type="button"
+                onClick={() => changeAssessmentEntryMode("AGGREGATE_TOTALS")}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  assessmentEntryMode === "AGGREGATE_TOTALS"
+                    ? "soft-action-tint"
+                    : "text-[color:var(--text-muted)]"
+                }`}
+              >
+                Test totals
+              </button>
+              <button
+                type="button"
+                onClick={() => changeAssessmentEntryMode("PER_SUBJECT")}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  assessmentEntryMode === "PER_SUBJECT"
+                    ? "soft-action-tint"
+                    : "text-[color:var(--text-muted)]"
+                }`}
+              >
+                Per subject
+              </button>
+            </div>
+          </div>
+
+          {assessmentEntryMode === "AGGREGATE_TOTALS" ? (
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              {[
+                {
+                  label: "First test total",
+                  value: aggregateAssessment1Total,
+                  setValue: setAggregateAssessment1Total,
+                },
+                {
+                  label: "Second test total",
+                  value: aggregateAssessment2Total,
+                  setValue: setAggregateAssessment2Total,
+                },
+              ].map(({ label, value, setValue }) => (
+                <label key={label} className="soft-action rounded-[20px] px-3 py-3">
+                  <span className="text-xs text-[color:var(--text-muted)]">{label}</span>
+                  <input
+                    value={value}
+                    onChange={(event) => {
+                      setValue(event.target.value);
+                      setSaveState("Unsaved");
+                    }}
+                    onBlur={() => saveIfNeeded()}
+                    inputMode="numeric"
+                    className="surface-input mt-2 w-full rounded-[16px] px-3 py-2.5 text-right text-lg font-medium outline-none"
+                  />
+                </label>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
         {!hasEnteredScores ? (
           <div className="rounded-[22px] bg-[color:var(--accent-soft)] px-4 py-4 text-sm leading-6 text-[color:var(--accent-strong)] shadow-[var(--shadow-frost)]">
             This sheet is ready for entry. Start anywhere and the review totals will update live.
@@ -400,8 +573,10 @@ export function ReportEntryEditor({
         <>
             <form className="space-y-3 sm:hidden">
               {rows.map((row, rowIndex) => {
-                const rowTotal = computeRowTotal(row);
+                const rowTotal = computeRowTotal(row, assessmentEntryMode);
                 const rowIsActive = activeRowId === row.id;
+                const cellBase =
+                  rowIndex * (assessmentEntryMode === "PER_SUBJECT" ? 3 : 1);
 
                 return (
                   <div
@@ -424,7 +599,15 @@ export function ReportEntryEditor({
                       </span>
                     </div>
 
-                    <div className="mt-4 grid grid-cols-3 gap-2">
+                    <div
+                      className={`mt-4 grid gap-2 ${
+                        assessmentEntryMode === "PER_SUBJECT"
+                          ? "grid-cols-3"
+                          : "grid-cols-1"
+                      }`}
+                    >
+                      {assessmentEntryMode === "PER_SUBJECT" ? (
+                        <>
                       <label className="block">
                         <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                           A1{row.a1Max ? ` / ${row.a1Max}` : ""}
@@ -435,7 +618,7 @@ export function ReportEntryEditor({
                             "a1",
                             row.a1,
                             row.a1Max,
-                            rowIndex * 3,
+                            cellBase,
                             true,
                           )}
                         </div>
@@ -450,11 +633,13 @@ export function ReportEntryEditor({
                             "a2",
                             row.a2,
                             row.a2Max,
-                            rowIndex * 3 + 1,
+                            cellBase + 1,
                             true,
                           )}
                         </div>
                       </label>
+                        </>
+                      ) : null}
                       <label className="block">
                         <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
                           Exam{row.examMax ? ` / ${row.examMax}` : ""}
@@ -465,7 +650,8 @@ export function ReportEntryEditor({
                             "exam",
                             row.exam,
                             row.examMax,
-                            rowIndex * 3 + 2,
+                            cellBase +
+                              (assessmentEntryMode === "PER_SUBJECT" ? 2 : 0),
                             true,
                           )}
                         </div>
@@ -481,16 +667,22 @@ export function ReportEntryEditor({
                 <thead className="table-head text-left text-sm text-[color:var(--text-muted)]">
                   <tr>
                     <th className="px-4 py-3 font-medium">Subject</th>
+                    {assessmentEntryMode === "PER_SUBJECT" ? (
+                      <>
                     <th className="px-4 py-3 text-right font-medium">A1</th>
                     <th className="px-4 py-3 text-right font-medium">A2</th>
+                      </>
+                    ) : null}
                     <th className="px-4 py-3 text-right font-medium">Exam</th>
                     <th className="px-4 py-3 text-right font-medium">Total</th>
                   </tr>
                 </thead>
                 <tbody className="bg-[color:var(--surface)] text-sm">
                   {rows.map((row, index) => {
-                    const rowTotal = computeRowTotal(row);
+                    const rowTotal = computeRowTotal(row, assessmentEntryMode);
                     const rowIsActive = activeRowId === row.id;
+                    const cellBase =
+                      index * (assessmentEntryMode === "PER_SUBJECT" ? 3 : 1);
 
                     return (
                       <tr
@@ -508,14 +700,20 @@ export function ReportEntryEditor({
                           <div>
                             <p>{row.subject}</p>
                             <p className="mt-1 text-xs font-medium text-[color:var(--text-muted)]">
-                              {row.a1Max || row.a2Max || row.examMax
-                                ? `${row.a1Max ?? "--"} / ${row.a2Max ?? "--"} / ${row.examMax ?? "--"}`
-                                : "Exam only"}
+                              {assessmentEntryMode === "PER_SUBJECT"
+                                ? row.a1Max || row.a2Max || row.examMax
+                                  ? `${row.a1Max ?? "--"} / ${row.a2Max ?? "--"} / ${row.examMax ?? "--"}`
+                                  : "No score limits"
+                                : row.examMax
+                                  ? `Exam / ${row.examMax}`
+                                  : "Exam score"}
                             </p>
                           </div>
                         </td>
+                        {assessmentEntryMode === "PER_SUBJECT" ? (
+                          <>
                         <td className="px-4 py-4">
-                          {renderScoreInput(row.id, "a1", row.a1, row.a1Max, index * 3)}
+                          {renderScoreInput(row.id, "a1", row.a1, row.a1Max, cellBase)}
                         </td>
                         <td className="px-4 py-4">
                           {renderScoreInput(
@@ -523,16 +721,19 @@ export function ReportEntryEditor({
                             "a2",
                             row.a2,
                             row.a2Max,
-                            index * 3 + 1,
+                            cellBase + 1,
                           )}
                         </td>
+                          </>
+                        ) : null}
                         <td className="px-4 py-4">
                           {renderScoreInput(
                             row.id,
                             "exam",
                             row.exam,
                             row.examMax,
-                            index * 3 + 2,
+                            cellBase +
+                              (assessmentEntryMode === "PER_SUBJECT" ? 2 : 0),
                           )}
                         </td>
                         <td className="px-4 py-4 text-right">
@@ -686,8 +887,18 @@ export function ReportEntryEditor({
       <SectionCard title="Review">
         <div className="grid gap-3 sm:gap-4 md:grid-cols-2 xl:sticky xl:top-28 xl:grid-cols-1">
           {[
-            ["A1 total", String(summary.assessment1Total)],
-            ["A2 total", String(summary.assessment2Total)],
+            [
+              assessmentEntryMode === "AGGREGATE_TOTALS"
+                ? "First test total"
+                : "A1 total",
+              String(summary.assessment1Total),
+            ],
+            [
+              assessmentEntryMode === "AGGREGATE_TOTALS"
+                ? "Second test total"
+                : "A2 total",
+              String(summary.assessment2Total),
+            ],
             ["Exam total", String(summary.examTotal)],
             ["Grand total", String(summary.grandTotal)],
             ["Position", position],

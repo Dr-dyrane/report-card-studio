@@ -111,6 +111,7 @@ export async function updateReportScores(input: {
   routeKey: string;
   teacherComment: string;
   teacherName: string;
+  assessmentEntryMode: "PER_SUBJECT" | "AGGREGATE_TOTALS";
   assessment1Total?: number;
   assessment2Total?: number;
   scores: ScoreUpdateInput[];
@@ -134,6 +135,7 @@ export async function updateReportScores(input: {
       id: true,
       classroomId: true,
       termId: true,
+      assessmentEntryMode: true,
     },
   });
 
@@ -146,13 +148,22 @@ export async function updateReportScores(input: {
       continue;
     }
 
-    const a1Score = parseScore(score.a1);
-    const a2Score = parseScore(score.a2);
+    const a1Score =
+      input.assessmentEntryMode === "PER_SUBJECT"
+        ? parseScore(score.a1)
+        : null;
+    const a2Score =
+      input.assessmentEntryMode === "PER_SUBJECT"
+        ? parseScore(score.a2)
+        : null;
     const examScore = parseScore(score.exam);
     const totalScore = (a1Score ?? 0) + (a2Score ?? 0) + (examScore ?? 0);
 
-    await db.reportScore.update({
-      where: { id: score.id },
+    await db.reportScore.updateMany({
+      where: {
+        id: score.id,
+        reportCardId: input.reportCardId,
+      },
       data: {
         a1Score,
         a2Score,
@@ -176,10 +187,25 @@ export async function updateReportScores(input: {
     (sum, score) => sum + (score.a2Score ?? 0),
     0,
   );
+  const aggregateAssessment1Total = Number(input.assessment1Total);
+  const aggregateAssessment2Total = Number(input.assessment2Total);
+  if (
+    input.assessmentEntryMode === "AGGREGATE_TOTALS" &&
+    (!Number.isFinite(aggregateAssessment1Total) ||
+      aggregateAssessment1Total < 0 ||
+      !Number.isFinite(aggregateAssessment2Total) ||
+      aggregateAssessment2Total < 0)
+  ) {
+    return { ok: false };
+  }
   const assessment1Total =
-    input.assessment1Total ?? detailedAssessment1Total;
+    input.assessmentEntryMode === "AGGREGATE_TOTALS"
+      ? aggregateAssessment1Total
+      : detailedAssessment1Total;
   const assessment2Total =
-    input.assessment2Total ?? detailedAssessment2Total;
+    input.assessmentEntryMode === "AGGREGATE_TOTALS"
+      ? aggregateAssessment2Total
+      : detailedAssessment2Total;
   const examTotal = reportScores.reduce((sum, score) => sum + (score.examScore ?? 0), 0);
   const grandTotal = assessment1Total + assessment2Total + examTotal;
 
@@ -187,6 +213,7 @@ export async function updateReportScores(input: {
     where: { id: input.reportCardId },
     data: {
       teacherComment: input.teacherComment,
+      assessmentEntryMode: input.assessmentEntryMode,
       assessment1Total,
       assessment2Total,
       examTotal,
@@ -736,6 +763,12 @@ export async function applyScannedReportPrefill(input: {
   }
 
   const incomingScores = input.extraction.scores ?? [];
+  const hasDetailedAssessmentScores = incomingScores.some(
+    (score) => score.a1Score != null || score.a2Score != null,
+  );
+  const assessmentEntryMode = hasDetailedAssessmentScores
+    ? "PER_SUBJECT"
+    : "AGGREGATE_TOTALS";
 
   for (const reportScore of reportCard.scores) {
     const match = incomingScores.find(
@@ -746,11 +779,16 @@ export async function applyScannedReportPrefill(input: {
 
     if (!match) continue;
 
-    const a1Score = match.a1Score ?? null;
-    const a2Score = match.a2Score ?? null;
+    const a1Score = hasDetailedAssessmentScores
+      ? match.a1Score ?? null
+      : null;
+    const a2Score = hasDetailedAssessmentScores
+      ? match.a2Score ?? null
+      : null;
     const examScore = match.examScore ?? null;
-    const totalScore =
-      match.totalScore ?? (a1Score ?? 0) + (a2Score ?? 0) + (examScore ?? 0);
+    const totalScore = hasDetailedAssessmentScores
+      ? match.totalScore ?? (a1Score ?? 0) + (a2Score ?? 0) + (examScore ?? 0)
+      : examScore ?? 0;
 
     await db.reportScore.update({
       where: { id: reportScore.id },
@@ -767,24 +805,33 @@ export async function applyScannedReportPrefill(input: {
     where: { reportCardId: reportCard.id },
   });
 
-  const assessment1Total = refreshedScores.reduce(
+  const detailedAssessment1Total = refreshedScores.reduce(
     (sum, score) => sum + (score.a1Score ?? 0),
     0,
   );
-  const assessment2Total = refreshedScores.reduce(
+  const detailedAssessment2Total = refreshedScores.reduce(
     (sum, score) => sum + (score.a2Score ?? 0),
     0,
   );
+  const assessment1Total = hasDetailedAssessmentScores
+    ? detailedAssessment1Total
+    : input.extraction.summary?.assessment1Total ??
+      reportCard.assessment1Total;
+  const assessment2Total = hasDetailedAssessmentScores
+    ? detailedAssessment2Total
+    : input.extraction.summary?.assessment2Total ??
+      reportCard.assessment2Total;
   const examTotal = refreshedScores.reduce(
     (sum, score) => sum + (score.examScore ?? 0),
     0,
   );
-  const grandTotal = refreshedScores.reduce((sum, score) => sum + score.totalScore, 0);
+  const grandTotal = assessment1Total + assessment2Total + examTotal;
 
   await db.reportCard.update({
     where: { id: reportCard.id },
     data: {
       status: "DRAFT",
+      assessmentEntryMode,
       position: input.extraction.position ?? undefined,
       grandMax: input.extraction.summary?.grandMax ?? reportCard.grandMax,
       assessment1Total,
@@ -1147,6 +1194,7 @@ export async function createReportsFromGrandSheet(input: {
             data: {
               classSize: validRows.length,
               grandMax: 800,
+              assessmentEntryMode: "AGGREGATE_TOTALS",
               assessment1Total,
               assessment2Total,
               examTotal,
@@ -1162,6 +1210,7 @@ export async function createReportsFromGrandSheet(input: {
               status: "DRAFT",
               classSize: validRows.length,
               grandMax: 800,
+              assessmentEntryMode: "AGGREGATE_TOTALS",
               assessment1Total,
               assessment2Total,
               examTotal,

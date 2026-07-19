@@ -9,9 +9,6 @@ export default async function ReportPreviewPage({
 }) {
   const { reportId } = await params;
   const report = await getReportCardByRouteKey(reportId);
-  const hasEnteredScores = !!report?.previewRows.some(
-    (row) => row.a1Score !== null || row.a2Score !== null || row.examScore !== null,
-  );
 
   if (!report) {
     return (
@@ -24,6 +21,17 @@ export default async function ReportPreviewPage({
       </div>
     );
   }
+
+  const isAggregateTotals = report.assessmentEntryMode === "AGGREGATE_TOTALS";
+  const hasEnteredScores =
+    report.assessment1Total > 0 ||
+    report.assessment2Total > 0 ||
+    report.previewRows.some(
+      (row) =>
+        (!isAggregateTotals &&
+          (row.a1Score !== null || row.a2Score !== null)) ||
+        row.examScore !== null,
+    );
 
   return (
     <div className="report-preview-page space-y-4 sm:space-y-6">
@@ -85,8 +93,14 @@ export default async function ReportPreviewPage({
 
           <aside className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
             {[
-              ["1st Assessment", String(report.assessment1Total)],
-              ["2nd Assessment", String(report.assessment2Total)],
+              [
+                isAggregateTotals ? "First Test Total" : "1st Assessment",
+                String(report.assessment1Total),
+              ],
+              [
+                isAggregateTotals ? "Second Test Total" : "2nd Assessment",
+                String(report.assessment2Total),
+              ],
               ["Exam", String(report.examTotal)],
               ["Grand Total", String(report.grandTotal)],
             ].map(([label, value], index) => (
@@ -117,10 +131,14 @@ export default async function ReportPreviewPage({
               <thead className="table-head text-left text-sm text-[color:var(--text-muted)] print:bg-slate-50 print:text-[10pt]">
                 <tr>
                   <th className="px-4 py-3 font-medium">Subject</th>
+                  {!isAggregateTotals ? (
+                    <>
                   <th className="px-4 py-3 text-right font-medium">A1 Max</th>
                   <th className="px-4 py-3 text-right font-medium">A1 Score</th>
                   <th className="px-4 py-3 text-right font-medium">A2 Max</th>
                   <th className="px-4 py-3 text-right font-medium">A2 Score</th>
+                    </>
+                  ) : null}
                   <th className="px-4 py-3 text-right font-medium">Exam Max</th>
                   <th className="px-4 py-3 text-right font-medium">Exam Score</th>
                   <th className="px-4 py-3 text-right font-medium">Total</th>
@@ -138,6 +156,8 @@ export default async function ReportPreviewPage({
                     <td className="px-4 py-4 font-semibold text-[color:var(--text-strong)]">
                       {row.subject.name}
                     </td>
+                    {!isAggregateTotals ? (
+                      <>
                     <td className="px-4 py-4 text-right text-[color:var(--text-muted)]">
                       {row.subject.a1Max ?? "--"}
                     </td>
@@ -146,6 +166,8 @@ export default async function ReportPreviewPage({
                       {row.subject.a2Max ?? "--"}
                     </td>
                     <td className="px-4 py-4 text-right">{row.a2Score ?? "--"}</td>
+                      </>
+                    ) : null}
                     <td className="px-4 py-4 text-right text-[color:var(--text-muted)]">
                       {row.subject.examMax ?? "--"}
                     </td>
@@ -170,7 +192,13 @@ export default async function ReportPreviewPage({
                     {row.totalScore}
                   </span>
                 </div>
-                <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
+                <div
+                  className={`mt-3 grid gap-3 text-sm ${
+                    isAggregateTotals ? "grid-cols-1" : "grid-cols-3"
+                  }`}
+                >
+                  {!isAggregateTotals ? (
+                    <>
                   <div>
                     <p className="text-[color:var(--text-muted)]">
                       A1 {row.subject.a1Max ? `/ ${row.subject.a1Max}` : ""}
@@ -179,6 +207,8 @@ export default async function ReportPreviewPage({
                       {row.a1Score ?? "--"}
                     </p>
                   </div>
+                    </>
+                  ) : null}
                   <div>
                     <p className="text-[color:var(--text-muted)]">
                       A2 {row.subject.a2Max ? `/ ${row.subject.a2Max}` : ""}

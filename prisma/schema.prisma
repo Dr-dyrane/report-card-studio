@@ -18,6 +18,11 @@ enum AssessmentMode {
   EXAM_ONLY
 }
 
+enum AssessmentEntryMode {
+  PER_SUBJECT
+  AGGREGATE_TOTALS
+}
+
 enum StudentExportPreference {
   PDF
   PREVIEW
@@ -163,27 +168,28 @@ model ClassSubject {
 }
 
 model ReportCard {
-  id                 String        @id @default(cuid())
-  studentId          String
-  classroomId        String
-  termId             String
-  status             ReportStatus  @default(DRAFT)
-  position           String?
-  classSize          Int?
-  grandTotal         Int           @default(0)
-  grandMax           Int           @default(1000)
-  assessment1Total   Int           @default(0)
-  assessment2Total   Int           @default(0)
-  examTotal          Int           @default(0)
-  teacherComment     String?
-  headTeacherComment String?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-  student            Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  classroom          Classroom     @relation(fields: [classroomId], references: [id], onDelete: Cascade)
-  term               Term          @relation(fields: [termId], references: [id], onDelete: Cascade)
-  scores             ReportScore[]
-  scanSources        ScanSource[]
+  id                  String              @id @default(cuid())
+  studentId           String
+  classroomId         String
+  termId              String
+  status              ReportStatus        @default(DRAFT)
+  assessmentEntryMode AssessmentEntryMode @default(PER_SUBJECT)
+  position            String?
+  classSize           Int?
+  grandTotal          Int                 @default(0)
+  grandMax            Int                 @default(1000)
+  assessment1Total    Int                 @default(0)
+  assessment2Total    Int                 @default(0)
+  examTotal           Int                 @default(0)
+  teacherComment      String?
+  headTeacherComment  String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  student             Student             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  classroom           Classroom           @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  term                Term                @relation(fields: [termId], references: [id], onDelete: Cascade)
+  scores              ReportScore[]
+  scanSources         ScanSource[]
 
   @@unique([studentId, termId])
 }
