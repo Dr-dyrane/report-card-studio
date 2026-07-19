@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -29,19 +28,43 @@ enum ClassExportPreference {
   CSV
 }
 
+enum ScanKind {
+  REPORT_CARD
+  GRAND_SHEET
+}
+
+enum ScanStatus {
+  CREATED
+  UPLOADING
+  STORED
+  PROCESSING
+  READY
+  NEEDS_REVIEW
+  FAILED
+}
+
+enum ScanAttemptStatus {
+  CREATED
+  PROCESSING
+  READY
+  NEEDS_REVIEW
+  FAILED
+}
+
 model School {
-  id                       String                  @id @default(cuid())
-  name                     String
-  ownerId                  String?
-  preferredStudentExport   StudentExportPreference @default(PDF)
-  preferredClassExport     ClassExportPreference   @default(EXCEL)
-  createdAt                DateTime                @default(now())
-  updatedAt                DateTime                @updatedAt
-  owner                    User?                   @relation(fields: [ownerId], references: [id], onDelete: SetNull)
-  sessions                 AcademicSession[]
-  classrooms               Classroom[]
-  students                 Student[]
-  subjects                 Subject[]
+  id                     String                  @id @default(cuid())
+  name                   String
+  ownerId                String?
+  preferredStudentExport StudentExportPreference @default(PDF)
+  preferredClassExport   ClassExportPreference   @default(EXCEL)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  owner                  User?                   @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  sessions               AcademicSession[]
+  classrooms             Classroom[]
+  students               Student[]
+  subjects               Subject[]
+  scanSources            ScanSource[]
 
   @@index([ownerId])
 }
@@ -70,6 +93,7 @@ model Term {
   updatedAt      DateTime        @updatedAt
   session        AcademicSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   reportCards    ReportCard[]
+  scanSources    ScanSource[]
 
   @@unique([sessionId, sequence])
 }
@@ -87,6 +111,7 @@ model Classroom {
   students      Student[]
   classSubjects ClassSubject[]
   reportCards   ReportCard[]
+  scanSources   ScanSource[]
 }
 
 model Student {
@@ -158,6 +183,7 @@ model ReportCard {
   classroom          Classroom     @relation(fields: [classroomId], references: [id], onDelete: Cascade)
   term               Term          @relation(fields: [termId], references: [id], onDelete: Cascade)
   scores             ReportScore[]
+  scanSources        ScanSource[]
 
   @@unique([studentId, termId])
 }
@@ -176,17 +202,72 @@ model ReportScore {
   @@unique([reportCardId, subjectId])
 }
 
+model ScanSource {
+  id                  String        @id @default(cuid())
+  kind                ScanKind
+  status              ScanStatus    @default(CREATED)
+  schoolId            String
+  creatorId           String
+  classroomId         String?
+  termId              String?
+  reportCardId        String?
+  blobPathname        String?       @unique
+  originalFilename    String?
+  contentType         String?
+  byteSize            Int?
+  width               Int?
+  height              Int?
+  safeError           String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  storedAt            DateTime?
+  processingStartedAt DateTime?
+  completedAt         DateTime?
+  school              School        @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  creator             User          @relation(fields: [creatorId], references: [id], onDelete: Restrict)
+  classroom           Classroom?    @relation(fields: [classroomId], references: [id], onDelete: SetNull)
+  term                Term?         @relation(fields: [termId], references: [id], onDelete: SetNull)
+  reportCard          ReportCard?   @relation(fields: [reportCardId], references: [id], onDelete: SetNull)
+  attempts            ScanAttempt[]
+
+  @@index([schoolId, status])
+  @@index([creatorId])
+  @@index([classroomId])
+  @@index([termId])
+  @@index([reportCardId])
+}
+
+model ScanAttempt {
+  id               String            @id @default(cuid())
+  scanSourceId     String
+  attemptNumber    Int
+  status           ScanAttemptStatus @default(CREATED)
+  model            String?
+  promptVersion    String
+  structuredResult Json?
+  warnings         Json?
+  safeError        String?
+  createdAt        DateTime          @default(now())
+  startedAt        DateTime?
+  completedAt      DateTime?
+  scanSource       ScanSource        @relation(fields: [scanSourceId], references: [id], onDelete: Cascade)
+
+  @@unique([scanSourceId, attemptNumber])
+  @@index([scanSourceId, status])
+}
+
 model User {
-  id              String    @id
+  id              String       @id
   name            String
   email           String
-  emailVerified   Boolean   @default(false)
+  emailVerified   Boolean      @default(false)
   image           String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
   username        String?
   displayUsername String?
   schools         School[]
+  scanSources     ScanSource[]
   sessions        Session[]
   accounts        Account[]
 

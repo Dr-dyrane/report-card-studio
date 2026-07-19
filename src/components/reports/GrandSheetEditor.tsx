@@ -14,7 +14,6 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  type ChangeEvent,
   type KeyboardEvent,
   useEffect,
   useMemo,
@@ -24,6 +23,7 @@ import {
 
 import { createReportsFromGrandSheet } from "@/app/(workspace)/reports/actions";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
+import { ScanImageCapture } from "@/components/scans/ScanImageCapture";
 import grandSheetData from "@/data/primary3GreyGrandSheet.json";
 import {
   GRAND_SHEET_SUBJECTS,
@@ -68,6 +68,7 @@ type ActiveCell = {
 };
 
 const STORAGE_KEY = "report-card-studio:primary-3-grey-grand-sheet:v3";
+const SCAN_STORAGE_KEY = `${STORAGE_KEY}:scan-id`;
 const subjects = GRAND_SHEET_SUBJECTS;
 
 function emptyScores() {
@@ -197,6 +198,7 @@ export function GrandSheetEditor({
       "",
   );
   const [scanPreviewUrl, setScanPreviewUrl] = useState<string | null>(null);
+  const [scanId, setScanId] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [scanStatus, setScanStatus] = useState("Choose a clear photo");
   const [isScanning, setIsScanning] = useState(false);
@@ -210,6 +212,7 @@ export function GrandSheetEditor({
         const restored = normalizeStoredRows(JSON.parse(stored));
         if (restored) setRows(restored);
       }
+      setScanId(window.localStorage.getItem(SCAN_STORAGE_KEY));
     } catch {
       // A damaged local draft should never block the editor.
     } finally {
@@ -221,6 +224,15 @@ export function GrandSheetEditor({
     if (!hydrated) return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
   }, [hydrated, rows]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    if (scanId) {
+      window.localStorage.setItem(SCAN_STORAGE_KEY, scanId);
+    } else {
+      window.localStorage.removeItem(SCAN_STORAGE_KEY);
+    }
+  }, [hydrated, scanId]);
 
   const requiredSubjectKeys = useMemo(
     () =>
@@ -371,34 +383,10 @@ export function GrandSheetEditor({
     }
   }
 
-  function handleGrandSheetFile(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    setScanResult(null);
-    setGeneratedReports([]);
-
-    if (!file) {
-      setScanPreviewUrl(null);
-      setScanStatus("Choose a clear photo");
-      return;
-    }
-
-    if (file.size > 15_000_000) {
-      notify("Use an image smaller than 15 MB.", "error");
-      event.target.value = "";
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setScanPreviewUrl(typeof reader.result === "string" ? reader.result : null);
-      setScanStatus("Photo ready to scan");
-    };
-    reader.readAsDataURL(file);
-  }
-
   async function analyzeGrandSheet() {
-    if (!scanPreviewUrl) {
-      notify("Choose a grand-sheet photo first.", "error");
+    if (isScanning) return;
+    if (!scanId) {
+      notify("Save a grand-sheet photo securely first.", "error");
       return;
     }
 
@@ -406,10 +394,10 @@ export function GrandSheetEditor({
     setScanStatus("Reading pupil rows...");
 
     try {
-      const response = await fetch("/api/vision/grand-sheet", {
+      const response = await fetch(`/api/scans/${scanId}/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageDataUrl: scanPreviewUrl }),
+        body: JSON.stringify({}),
       });
       const payload = (await response.json()) as
         | ScanResult
@@ -420,7 +408,7 @@ export function GrandSheetEditor({
           "error" in payload && payload.error
             ? payload.error
             : "The grand-sheet scan did not complete.";
-        setScanStatus("Scan needs another try");
+        setScanStatus("Photo saved — reading failed");
         notify(message, "error");
         return;
       }
@@ -450,7 +438,7 @@ export function GrandSheetEditor({
 
       notify("Scan ready. Review it before replacing the draft.", "success");
     } catch {
-      setScanStatus("Scan needs another try");
+      setScanStatus("Photo saved — reading failed");
       notify("The grand-sheet scan did not complete.", "error");
     } finally {
       setIsScanning(false);
@@ -706,46 +694,33 @@ export function GrandSheetEditor({
                 </span>
               </div>
 
-              {scanPreviewUrl ? (
-                <div className="mt-3 grid grid-cols-[64px_1fr] gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={scanPreviewUrl}
-                    alt="Grand-sheet scan preview"
-                    className="h-16 w-16 rounded-[18px] object-cover"
-                  />
-                  <div className="flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={analyzeGrandSheet}
-                      disabled={isScanning}
-                      className="soft-action-tint compact-action rounded-[14px] px-3 text-xs font-medium disabled:opacity-60"
-                    >
-                      {isScanning ? "Reading..." : "Read rows"}
-                    </button>
-                    <label className="soft-action compact-action flex cursor-pointer items-center rounded-[14px] px-3 text-xs font-medium">
-                      Replace photo
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleGrandSheetFile}
-                      />
-                    </label>
-                  </div>
-                </div>
-              ) : (
-                <label className="soft-action-tint compact-action mt-3 flex cursor-pointer items-center justify-center rounded-[16px] px-3 text-sm font-medium">
-                  <ArrowUpTrayIcon className="mr-2 h-4 w-4" />
-                  Choose photo
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleGrandSheetFile}
-                  />
-                </label>
-              )}
+              <div className="mt-3">
+                <ScanImageCapture
+                  kind="GRAND_SHEET"
+                  classroomId={selectedClassroomId || undefined}
+                  scanId={scanId}
+                  previewUrl={scanPreviewUrl}
+                  onPreviewUrlChange={setScanPreviewUrl}
+                  onScanIdChange={setScanId}
+                  onStatusChange={setScanStatus}
+                  onReady={() => {
+                    setScanResult(null);
+                    setGeneratedReports([]);
+                  }}
+                  onError={(message) => notify(message, "error")}
+                />
+              </div>
+
+              {scanId ? (
+                <button
+                  type="button"
+                  onClick={analyzeGrandSheet}
+                  disabled={isScanning}
+                  className="soft-action-tint compact-action mt-3 w-full justify-center rounded-[14px] px-3 text-xs font-medium disabled:opacity-60"
+                >
+                  {isScanning ? "Reading..." : "Read rows"}
+                </button>
+              ) : null}
 
               {scanResult ? (
                 <div className="mt-3 flex items-center justify-between gap-3 rounded-[18px] bg-[color:var(--success-soft)] px-3 py-2">

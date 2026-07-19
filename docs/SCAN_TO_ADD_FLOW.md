@@ -16,20 +16,21 @@ This should feel faster than the old Excel workflow while preserving the same tr
 - teacher edits
 - teacher saves
 
-## Source Pattern
+## Storage and Processing Architecture
 
-The `drdyrane` repo already has the pattern we want to adapt:
+Scan originals contain pupil information and must be stored in the connected
+**Private Vercel Blob** store. The browser uploads the original directly to
+Blob; image bytes and base64 data must never be placed in React state,
+`sessionStorage`, or a JSON request body.
 
-- a visual lens capture/upload flow
-- a client `visionEngine` that sends:
-  - `imageDataUrl`
-  - `clinicalContext`
-  - `lensPrompt`
-- a backend vision endpoint
-- structured JSON returned to the app
-- a review surface where the user continues from AI output instead of starting from zero
+Lifecycle:
 
-For Kradle, the same architecture should be simplified into document extraction rather than clinical analysis.
+`CREATED → UPLOADING → STORED → PROCESSING → READY | NEEDS_REVIEW | FAILED`
+
+`ScanSource` stores ownership and private Blob metadata. Every AI read creates
+a `ScanAttempt`, so a failed read can be retried without losing or replacing
+the immutable original. Applying a successful extraction to academic records
+remains a separate, explicit teacher action.
 
 ## Product Flow
 
@@ -56,12 +57,14 @@ From class, student, or reports view:
 2. open a bottom sheet:
    - `Take photo`
    - `Upload image`
-3. send the image to a Kradle vision endpoint
-4. receive structured extracted data
-5. prefill the report sheet
-6. show low-confidence or unreadable fields inline
-7. let the teacher edit anything
-8. save only after teacher review
+3. upload the original directly to private Blob storage
+4. show `Saved securely`
+5. send only the saved `scanId` to the vision endpoint
+6. receive structured extracted data
+7. prefill the report sheet
+8. show low-confidence or unreadable fields inline
+9. let the teacher edit anything
+10. save only after teacher review
 
 ## UI Direction
 
@@ -196,26 +199,31 @@ Optional contextual prompt pieces:
 - known term
 - known student name if chosen before scan
 
-## Environment Variables To Bring Over
+## Private Blob Setup
 
-The `drdyrane` repo uses a lightweight vision env shape. Kradle should start with the same pattern.
+Connect a **Private Vercel Blob** store to this Vercel project.
 
-Minimum:
-
-```env
-OPENAI_API_KEY=""
-OPENAI_MODEL="gpt-4.1-mini"
-OPENAI_VISION_MODEL="gpt-4o-mini"
-LLM_VISION_PROVIDER="openai"
-VISION_ENRICHMENT="true"
-```
-
-Optional fallback:
+Hosted server reads use project-scoped OIDC credentials supplied by Vercel:
 
 ```env
-ANTHROPIC_API_KEY=""
-ANTHROPIC_MODEL="claude-3-5-haiku-20241022"
+VERCEL_OIDC_TOKEN=""
+BLOB_STORE_ID=""
 ```
+
+Direct browser upload token issuance currently also requires:
+
+```env
+BLOB_READ_WRITE_TOKEN=""
+```
+
+Never commit these values. Use `vercel env pull .env.local` for local
+development after connecting the store. Blob completion callbacks cannot reach
+localhost; set `VERCEL_BLOB_CALLBACK_URL` to an HTTPS tunnel while testing
+callbacks locally. The client calls the authenticated confirmation endpoint as
+a local-development reconciliation fallback.
+
+AI reading still requires `OPENAI_API_KEY` and the existing optional model
+variables.
 
 ## Implementation Plan
 
@@ -223,7 +231,8 @@ ANTHROPIC_MODEL="claude-3-5-haiku-20241022"
 
 - add env variables
 - add `/api/vision/report-card`
-- upload one image
+- direct-upload one image to private Blob
+- persist `ScanSource` and `ScanAttempt`
 - return strict extracted JSON
 - prefill report sheet
 

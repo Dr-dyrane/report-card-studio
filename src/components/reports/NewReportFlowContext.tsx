@@ -56,6 +56,7 @@ type PersistedState = {
   classQuery: string;
   studentName: string;
   scanPreviewUrl: string | null;
+  scanId: string | null;
   scanExtraction: ScanExtraction | null;
   scanStatus: string;
   currentStep: number;
@@ -69,6 +70,7 @@ type NewReportFlowContextValue = PersistedState & {
   setClassQuery: (value: string) => void;
   setStudentName: (value: string) => void;
   setScanPreviewUrl: (value: string | null) => void;
+  setScanId: (value: string | null) => void;
   setScanExtraction: (value: ScanExtraction | null) => void;
   setScanStatus: (value: string) => void;
   setCurrentStep: (value: number) => void;
@@ -96,6 +98,7 @@ export function NewReportFlowProvider({
   const [classQuery, setClassQuery] = useState("");
   const [studentName, setStudentName] = useState("");
   const [scanPreviewUrl, setScanPreviewUrl] = useState<string | null>(null);
+  const [scanId, setScanId] = useState<string | null>(null);
   const [scanExtraction, setScanExtraction] = useState<ScanExtraction | null>(null);
   const [scanStatus, setScanStatus] = useState("Ready");
   const [currentStep, setCurrentStepState] = useState(0);
@@ -115,7 +118,9 @@ export function NewReportFlowProvider({
       setSelectedClassroomId(parsed.selectedClassroomId || initialClassroomId);
       setClassQuery(parsed.classQuery || "");
       setStudentName(parsed.studentName || "");
-      setScanPreviewUrl(parsed.scanPreviewUrl || null);
+      // Object URLs are tab-local and must never be serialized.
+      setScanPreviewUrl(null);
+      setScanId(parsed.scanId || null);
       setScanExtraction(parsed.scanExtraction || null);
       setScanStatus(parsed.scanStatus || "Ready");
       setCurrentStepState(typeof parsed.currentStep === "number" ? parsed.currentStep : 0);
@@ -140,7 +145,8 @@ export function NewReportFlowProvider({
       selectedClassroomId,
       classQuery,
       studentName,
-      scanPreviewUrl,
+      scanPreviewUrl: null,
+      scanId,
       scanExtraction,
       scanStatus,
       currentStep,
@@ -155,7 +161,7 @@ export function NewReportFlowProvider({
     mode,
     studentMode,
     scanExtraction,
-    scanPreviewUrl,
+    scanId,
     scanStatus,
     selectedClassroomId,
     studentName,
@@ -178,6 +184,7 @@ export function NewReportFlowProvider({
       setCurrentStepState(0);
       setVisitedSteps([0]);
       setScanPreviewUrl(null);
+      setScanId(null);
       setScanExtraction(null);
       setScanStatus("Ready");
     };
@@ -193,6 +200,7 @@ export function NewReportFlowProvider({
       setClassQuery("");
       setStudentName("");
       setScanPreviewUrl(null);
+      setScanId(null);
       setScanExtraction(null);
       setScanStatus("Ready");
       setCurrentStepState(0);
@@ -207,6 +215,7 @@ export function NewReportFlowProvider({
       classQuery,
       studentName,
       scanPreviewUrl,
+      scanId,
       scanExtraction,
       scanStatus,
       currentStep,
@@ -217,6 +226,7 @@ export function NewReportFlowProvider({
       setClassQuery,
       setStudentName,
       setScanPreviewUrl,
+      setScanId,
       setScanExtraction,
       setScanStatus,
       setCurrentStep,
@@ -231,6 +241,7 @@ export function NewReportFlowProvider({
     mode,
     studentMode,
     scanExtraction,
+    scanId,
     scanPreviewUrl,
     scanStatus,
     selectedClassroomId,

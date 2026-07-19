@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, KeyboardEvent, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { KeyboardEvent, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
   ArrowPathIcon,
   ArrowRightIcon,
@@ -19,6 +19,7 @@ import {
 } from "@/app/(workspace)/reports/actions";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { useNewReportFlow } from "@/components/reports/NewReportFlowContext";
+import { ScanImageCapture } from "@/components/scans/ScanImageCapture";
 import { SectionCard } from "@/components/ui/SectionCard";
 
 type ClassroomOption = {
@@ -97,6 +98,7 @@ export function NewReportFlow({
     classQuery,
     studentName,
     scanPreviewUrl,
+    scanId,
     scanExtraction,
     scanStatus,
     currentStep,
@@ -107,18 +109,19 @@ export function NewReportFlow({
     setClassQuery,
     setStudentName,
     setScanPreviewUrl,
+    setScanId,
     setScanExtraction,
     setScanStatus,
     setCurrentStep,
     resetFlow,
   } = useNewReportFlow();
 
-  const [scanFile, setScanFile] = useState<File | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [scanStageIndex, setScanStageIndex] = useState(0);
   const [isPending, startTransition] = useTransition();
   const studentInputRef = useRef<HTMLInputElement | null>(null);
   const previousSuggestedNameRef = useRef("");
+  const analyzeLockRef = useRef(false);
 
   const scanStages = useMemo(
     () => [
@@ -273,16 +276,69 @@ export function NewReportFlow({
   }, [isScanning, scanStages]);
 
   useEffect(() => {
-    if (!scanPreviewUrl) {
-      setScanFile(null);
-    }
-  }, [scanPreviewUrl]);
-
-  useEffect(() => {
     if (currentStep > maxStep) {
       setCurrentStep(maxStep);
     }
   }, [currentStep, maxStep, setCurrentStep]);
+
+  useEffect(() => {
+    if (!scanId || scanExtraction) return;
+
+    let active = true;
+    let timer: number | undefined;
+
+    async function recoverScan() {
+      try {
+        const response = await fetch(`/api/scans/${scanId}`, {
+          cache: "no-store",
+        });
+        const payload = (await response.json()) as {
+          status?: string;
+          safeError?: string | null;
+          latestAttempt?: {
+            structuredResult?: ScanExtraction | null;
+            safeError?: string | null;
+          } | null;
+        };
+        if (!active || !response.ok) return;
+
+        if (
+          (payload.status === "READY" ||
+            payload.status === "NEEDS_REVIEW") &&
+          payload.latestAttempt?.structuredResult
+        ) {
+          setScanExtraction(payload.latestAttempt.structuredResult);
+          setScanStatus(
+            payload.status === "NEEDS_REVIEW" ? "Needs review" : "Ready to review",
+          );
+          return;
+        }
+
+        if (payload.status === "FAILED") {
+          setScanStatus("Photo saved — reading failed");
+          return;
+        }
+
+        if (payload.status === "STORED") {
+          setScanStatus("Saved securely");
+          return;
+        }
+
+        if (payload.status === "PROCESSING") {
+          setScanStatus("Reading image…");
+          timer = window.setTimeout(recoverScan, 1500);
+        }
+      } catch {
+        // The persisted scan id remains available for an explicit retry.
+      }
+    }
+
+    void recoverScan();
+    return () => {
+      active = false;
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [scanExtraction, scanId, setScanExtraction, setScanStatus]);
 
   function syncDetectedContext(extraction: ScanExtraction) {
     let detectedClassroom = selectedClassroom;
@@ -315,24 +371,6 @@ export function NewReportFlow({
     if (studentMode === "new" && detectedClassroom && !studentName.trim()) {
       setStudentName(buildSuggestedStudentName(detectedClassroom));
     }
-  }
-
-  function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
-    const nextFile = event.target.files?.[0] ?? null;
-    setScanFile(nextFile);
-    setScanExtraction(null);
-    setScanStatus(nextFile ? "Image ready" : "Ready");
-
-    if (!nextFile) {
-      setScanPreviewUrl(null);
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setScanPreviewUrl(typeof reader.result === "string" ? reader.result : null);
-    };
-    reader.readAsDataURL(nextFile);
   }
 
   function getReadyStudentName() {
@@ -420,23 +458,24 @@ export function NewReportFlow({
   }
 
   async function analyzeScan() {
-    if (!scanPreviewUrl) {
-      notify("Add a report card image first.", "error");
+    if (analyzeLockRef.current) return;
+    if (!scanId) {
+      notify("Save a report card photo securely first.", "error");
       return;
     }
 
+    analyzeLockRef.current = true;
     setIsScanning(true);
     setScanStageIndex(0);
     setScanStatus("Analyzing...");
 
     try {
-      const response = await fetch("/api/vision/report-card", {
+      const response = await fetch(`/api/scans/${scanId}/analyze`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          imageDataUrl: scanPreviewUrl,
           studentName: studentName.trim() || undefined,
           className: selectedClassroom?.name,
         }),
@@ -447,7 +486,7 @@ export function NewReportFlow({
       if (!response.ok || ("error" in payload && payload.error)) {
         const message =
           "error" in payload && payload.error ? payload.error : "Scan didn't complete.";
-        setScanStatus("Needs retry");
+        setScanStatus("Photo saved — reading failed");
         notify(message, "error");
         return;
       }
@@ -459,9 +498,10 @@ export function NewReportFlow({
       setCurrentStep(Math.min(currentStep + 1, maxStep));
       notify("Scan ready for review.", "success");
     } catch {
-      setScanStatus("Needs retry");
+      setScanStatus("Photo saved — reading failed");
       notify("Scan didn't complete.", "error");
     } finally {
+      analyzeLockRef.current = false;
       setIsScanning(false);
     }
   }
@@ -758,27 +798,44 @@ export function NewReportFlow({
     if (current.id === "scan") {
       return (
         <div className="grid gap-4">
-          <label className="soft-action flex min-h-72 cursor-pointer items-center justify-center rounded-[26px] px-5 py-5 text-center text-sm font-medium text-[color:var(--text-muted)]">
-            {scanPreviewUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={scanPreviewUrl}
-                alt="Selected report card"
-                className="h-auto max-h-80 w-full rounded-[20px] object-cover"
-              />
-            ) : (
-              <div className="grid gap-2">
-                <p className="font-semibold text-[color:var(--text-strong)]">Choose image</p>
-                <p>Add a clear report-card photo to begin the prefill.</p>
-              </div>
-            )}
-            <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-          </label>
+          <ScanImageCapture
+            kind="REPORT_CARD"
+            classroomId={selectedClassroom?.id}
+            scanId={scanId}
+            previewUrl={scanPreviewUrl}
+            onPreviewUrlChange={setScanPreviewUrl}
+            onScanIdChange={setScanId}
+            onStatusChange={setScanStatus}
+            onReady={() => setScanExtraction(null)}
+            onError={(message) => notify(message, "error")}
+          />
 
           <div className="flex items-center justify-between gap-3 text-sm text-[color:var(--text-muted)]">
-            <span>{scanFile?.name ?? "No image selected"}</span>
+            <span>{scanId ? "Private original retained" : "No photo saved yet"}</span>
             <span>{scanStatus}</span>
           </div>
+
+          {scanStatus === "Photo saved — reading failed" ? (
+            <div className="surface-pocket flex flex-wrap gap-2 rounded-[20px] px-3 py-3">
+              <button
+                type="button"
+                onClick={analyzeScan}
+                className="soft-action-tint rounded-full px-3 py-2 text-sm font-semibold"
+              >
+                Retry
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("manual")}
+                className="soft-action rounded-full px-3 py-2 text-sm font-medium"
+              >
+                Enter manually
+              </button>
+              <span className="self-center text-xs text-[color:var(--text-muted)]">
+                Use Take photo or Photo library above to replace it.
+              </span>
+            </div>
+          ) : null}
 
           {isScanning ? (
             <div className="surface-pocket grid gap-3 rounded-[24px] px-4 py-4">
@@ -1099,11 +1156,11 @@ export function NewReportFlow({
                 <button
                   type="button"
                   onClick={analyzeScan}
-                  disabled={isPending || isScanning || !scanPreviewUrl}
+                  disabled={isPending || isScanning || !scanId}
                   className="soft-action-tint inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold disabled:opacity-60"
                 >
                   {isScanning ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : <ArrowUpTrayIcon className="h-4 w-4" />}
-                  {isScanning ? "Scanning..." : "Scan image"}
+                  {isScanning ? "Reading..." : "Read image"}
                 </button>
               ) : null}
 
