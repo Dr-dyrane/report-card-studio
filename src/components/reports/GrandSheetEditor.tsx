@@ -4,9 +4,12 @@ import {
   ArrowPathIcon,
   ArrowUpTrayIcon,
   ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   DocumentDuplicateIcon,
   EllipsisHorizontalIcon,
   EyeIcon,
+  PencilSquareIcon,
   PlusIcon,
   SparklesIcon,
   TrashIcon,
@@ -127,6 +130,18 @@ function performanceTone(percentage: number) {
   return "needs-improvement";
 }
 
+function mobileResultTone(tone: string, invalidCount: number) {
+  if (invalidCount || tone === "needs-improvement") {
+    return "mood-badge-danger";
+  }
+  if (tone === "excellent") return "mood-badge-success";
+  if (tone === "very-good") return "mood-badge-focus";
+  if (tone === "credit" || tone === "pass") {
+    return "mood-badge-warning";
+  }
+  return "surface-chip text-[color:var(--text-base)]";
+}
+
 function excelColumn(value: number) {
   let column = value;
   let label = "";
@@ -203,6 +218,9 @@ export function GrandSheetEditor({
   const [scanStatus, setScanStatus] = useState("Choose a clear photo");
   const [isScanning, setIsScanning] = useState(false);
   const [generatedReports, setGeneratedReports] = useState<GeneratedReport[]>([]);
+  const [mobileRowIndex, setMobileRowIndex] = useState<number | null>(null);
+  const [mobileEditing, setMobileEditing] = useState(false);
+  const [mobileView, setMobileView] = useState<"results" | "merit">("results");
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -308,6 +326,64 @@ export function GrandSheetEditor({
         .sort((left, right) => right - left),
     [computedRows],
   );
+
+  const displayRows = useMemo(
+    () =>
+      computedRows.map((row, sourceIndex) => {
+        const positionIndex = rankedTotals.indexOf(row.grandTotal);
+        const position =
+          row.assessmentComplete && positionIndex >= 0
+            ? ordinal(positionIndex + 1)
+            : "—";
+        const remark = row.assessmentComplete
+          ? grandSheetRemark(row.percentage)
+          : row.invalidCount
+            ? "Needs correction"
+            : "Incomplete";
+
+        return {
+          ...row,
+          sourceIndex,
+          position,
+          remark,
+          tone: row.assessmentComplete
+            ? performanceTone(row.percentage)
+            : "incomplete",
+        };
+      }),
+    [computedRows, rankedTotals],
+  );
+
+  const mobileDisplayRows = useMemo(
+    () => {
+      if (mobileView === "results") return displayRows;
+      return displayRows
+        .filter((row) => row.assessmentComplete)
+        .sort(
+          (left, right) =>
+            right.grandTotal - left.grandTotal ||
+            left.sourceIndex - right.sourceIndex,
+        );
+    },
+    [displayRows, mobileView],
+  );
+
+  const mobileRow =
+    mobileRowIndex === null ? null : displayRows[mobileRowIndex] ?? null;
+  const mobileViewPosition = mobileRow
+    ? mobileDisplayRows.findIndex(
+        (row) => row.sourceIndex === mobileRow.sourceIndex,
+      )
+    : -1;
+
+  useEffect(() => {
+    if (mobileRowIndex === null) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileRowIndex]);
 
   const savableCount = computedRows.filter(
     (row) =>
@@ -855,7 +931,98 @@ export function GrandSheetEditor({
           </div>
         ) : null}
 
-        <div className="grand-sheet-scroll overflow-x-auto rounded-[24px] bg-[color:var(--surface)] pb-1">
+        <div className="grid gap-1.5 px-1 pb-1 md:hidden">
+          <div className="flex items-center justify-between gap-3 px-1 py-1">
+            <div
+              className="surface-pocket grid grid-cols-2 rounded-[16px] p-1"
+              aria-label="Class result view"
+            >
+              {[
+                ["results", "Results"],
+                ["merit", "Merit"],
+              ].map(([value, label]) => {
+                const active = mobileView === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() =>
+                      setMobileView(value as "results" | "merit")
+                    }
+                    className={`min-h-11 rounded-[13px] px-4 text-xs font-medium transition ${
+                      active
+                        ? "soft-action-tint"
+                        : "text-[color:var(--text-muted)]"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-right text-xs leading-5 text-[color:var(--text-muted)]">
+              {mobileView === "results"
+                ? "Source order"
+                : `${mobileDisplayRows.length} ranked`}
+              <br />
+              Tap for details
+            </p>
+          </div>
+
+          {mobileDisplayRows.map((row) => (
+            <button
+              key={row.id}
+              type="button"
+              onClick={() => {
+                setMobileRowIndex(row.sourceIndex);
+                setMobileEditing(false);
+              }}
+              className="surface-hover-soft grid min-h-[68px] w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-[20px] px-3 py-2.5 text-left"
+            >
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="w-8 shrink-0 text-right text-xs tabular-nums text-[color:var(--text-muted)]">
+                    {mobileView === "merit"
+                      ? row.position
+                      : row.sourceIndex + 1}
+                  </span>
+                  <p className="truncate text-sm font-medium text-[color:var(--text-strong)]">
+                    {row.name || `Pupil ${row.sourceIndex + 1}`}
+                  </p>
+                </div>
+                <div className="mt-1.5 flex items-center gap-2 pl-10 text-xs text-[color:var(--text-muted)]">
+                  <span className="tabular-nums">
+                    {row.hasAssessment ? `${row.grandTotal}/800` : "No total"}
+                  </span>
+                  <span aria-hidden="true">·</span>
+                  <span className="tabular-nums">
+                    {row.hasAssessment ? `${row.percentage.toFixed(1)}%` : "—"}
+                  </span>
+                  {mobileView === "results" ? (
+                    <>
+                      <span aria-hidden="true">·</span>
+                      <span>{row.position}</span>
+                    </>
+                  ) : null}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`${mobileResultTone(
+                    row.tone,
+                    row.invalidCount,
+                  )} max-w-28 rounded-full px-2.5 py-1 text-center text-xs font-medium`}
+                >
+                  {row.remark}
+                </span>
+                <ChevronRightIcon className="h-4 w-4 shrink-0 text-[color:var(--text-muted)]" />
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <div className="grand-sheet-scroll hidden overflow-x-auto rounded-[24px] bg-[color:var(--surface)] pb-1 md:block">
           <table className="grand-sheet-table w-max min-w-full border-collapse text-xs">
             <thead>
               <tr className="table-head text-[color:var(--text-muted)]">
@@ -948,21 +1115,11 @@ export function GrandSheetEditor({
               </tr>
             </thead>
             <tbody>
-              {computedRows.map((row, rowIndex) => {
-                const positionIndex = rankedTotals.indexOf(row.grandTotal);
-                const position =
-                  row.assessmentComplete &&
-                  positionIndex >= 0
-                    ? ordinal(positionIndex + 1)
-                    : "—";
-                const tone = row.assessmentComplete
-                  ? performanceTone(row.percentage)
-                  : "incomplete";
-
+              {displayRows.map((row, rowIndex) => {
                 return (
                   <tr
                     key={row.id}
-                    className={`group grand-sheet-performance-${tone} bg-[color:var(--surface)] even:bg-[color:var(--table-row-odd)] hover:bg-[color:var(--surface-muted)] ${
+                    className={`group grand-sheet-performance-${row.tone} bg-[color:var(--surface)] even:bg-[color:var(--table-row-odd)] hover:bg-[color:var(--surface-muted)] ${
                       activeCell?.rowIndex === rowIndex ? "grand-sheet-active-row" : ""
                     }`}
                   >
@@ -1144,14 +1301,12 @@ export function GrandSheetEditor({
                     <td
                       className="grand-sheet-computed px-2 py-1.5 text-center font-semibold"
                     >
-                      {position}
+                      {row.position}
                     </td>
                     <td
-                      className={`grand-sheet-result-${tone} px-2 py-1.5 text-center font-medium`}
+                      className={`grand-sheet-result-${row.tone} px-2 py-1.5 text-center font-medium`}
                     >
-                      {row.assessmentComplete
-                        ? grandSheetRemark(row.percentage)
-                        : "—"}
+                      {row.assessmentComplete ? row.remark : "—"}
                     </td>
                     <td className="px-1 py-1 text-center">
                       <button
@@ -1170,6 +1325,286 @@ export function GrandSheetEditor({
           </table>
         </div>
       </section>
+
+      {mobileRow ? (
+        <div
+          className="fixed inset-0 z-[var(--z-dialog)] md:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${mobileRow.name || `Pupil ${mobileRow.sourceIndex + 1}`} result details`}
+        >
+          <button
+            type="button"
+            aria-label="Close pupil details"
+            onClick={() => {
+              setMobileEditing(false);
+              setMobileRowIndex(null);
+            }}
+            className="absolute inset-0 bg-[color:var(--overlay-backdrop)]"
+          />
+
+          <section className="frost-panel-strong absolute inset-x-0 bottom-0 flex max-h-[92dvh] flex-col overflow-hidden rounded-t-[32px] shadow-[var(--shadow-2)]">
+            <header className="flex items-center gap-3 px-4 pb-3 pt-4">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-medium text-[color:var(--text-muted)]">
+                  Pupil {mobileRow.sourceIndex + 1} of {displayRows.length}
+                </p>
+                <h2 className="mt-1 truncate text-xl font-semibold text-[color:var(--text-strong)]">
+                  {mobileRow.name || `Pupil ${mobileRow.sourceIndex + 1}`}
+                </h2>
+              </div>
+              <span
+                className={`${mobileResultTone(
+                  mobileRow.tone,
+                  mobileRow.invalidCount,
+                )} rounded-full px-3 py-1.5 text-xs font-medium`}
+              >
+                {mobileRow.remark}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileEditing(false);
+                  setMobileRowIndex(null);
+                }}
+                className="soft-action min-h-11 rounded-full px-4 text-sm font-medium"
+              >
+                Done
+              </button>
+            </header>
+
+            <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-4">
+              {!mobileRow.assessmentComplete ? (
+                <div className="mood-surface-warning mb-3 rounded-[20px] px-3 py-3">
+                  <p className="text-sm font-semibold text-[color:var(--text-strong)]">
+                    {mobileRow.invalidCount
+                      ? `${mobileRow.invalidCount} value${mobileRow.invalidCount === 1 ? "" : "s"} need correction`
+                      : "Assessment is incomplete"}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-[color:var(--text-muted)]">
+                    Position and final remark remain provisional until required
+                    marks are present and valid.
+                  </p>
+                </div>
+              ) : null}
+
+              <div className="surface-pocket rounded-[22px] p-3">
+                {mobileEditing ? (
+                  <div className="grid gap-2">
+                    <label className="grid gap-1 text-xs text-[color:var(--text-muted)]">
+                      Student
+                      <input
+                        value={mobileRow.name}
+                        onChange={(event) =>
+                          updateRow(mobileRow.id, { name: event.target.value })
+                        }
+                        className="surface-input min-h-11 rounded-[14px] px-3 text-sm font-medium text-[color:var(--text-strong)] outline-none"
+                      />
+                    </label>
+                    <label className="grid gap-1 text-xs text-[color:var(--text-muted)]">
+                      Admission number
+                      <input
+                        value={mobileRow.admissionNumber}
+                        onChange={(event) =>
+                          updateRow(mobileRow.id, {
+                            admissionNumber: event.target.value,
+                          })
+                        }
+                        className="surface-input min-h-11 rounded-[14px] px-3 text-sm text-[color:var(--text-strong)] outline-none"
+                      />
+                    </label>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs text-[color:var(--text-muted)]">
+                      Admission number
+                    </span>
+                    <span className="text-sm font-medium tabular-nums text-[color:var(--text-strong)]">
+                      {mobileRow.admissionNumber || "Not entered"}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <section className="mt-3">
+                <h3 className="px-1 text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                  Result overview
+                </h3>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {[
+                    ["Grand total", mobileRow.hasAssessment ? `${mobileRow.grandTotal}/800` : "—"],
+                    ["Percentage", mobileRow.hasAssessment ? `${mobileRow.percentage.toFixed(1)}%` : "—"],
+                    ["Position", mobileRow.position],
+                    ["Remark", mobileRow.remark],
+                  ].map(([label, value]) => (
+                    <div key={label} className="surface-pocket rounded-[20px] px-3 py-3">
+                      <p className="text-xs text-[color:var(--text-muted)]">{label}</p>
+                      <p className="mt-1.5 text-base font-semibold tabular-nums text-[color:var(--text-strong)]">
+                        {value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="mt-4">
+                <div className="flex items-end justify-between gap-3 px-1">
+                  <h3 className="text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                    Tests
+                  </h3>
+                  <span className="text-xs font-medium tabular-nums text-[color:var(--text-strong)]">
+                    {mobileRow.testTotal}/260
+                  </span>
+                </div>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {[
+                    ["First Test", "firstTest", mobileRow.firstTest, 130],
+                    ["Second Test", "secondTest", mobileRow.secondTest, 130],
+                  ].map(([label, field, value, max]) => {
+                    const stringValue = String(value);
+                    const invalid =
+                      hasValue(stringValue) &&
+                      !isValidMark(stringValue, Number(max));
+                    return (
+                      <div key={String(field)} className="surface-pocket rounded-[20px] p-3">
+                        <p className="text-xs text-[color:var(--text-muted)]">{label}</p>
+                        {mobileEditing ? (
+                          <input
+                            aria-label={`${label}, maximum ${max}`}
+                            inputMode="numeric"
+                            value={stringValue}
+                            onChange={(event) =>
+                              updateRow(mobileRow.id, {
+                                [field]: event.target.value,
+                              })
+                            }
+                            className={`grand-sheet-input mt-2 min-h-11 w-full rounded-[14px] px-3 text-center text-base font-semibold tabular-nums outline-none ${
+                              invalid
+                                ? "grand-sheet-input-error text-[color:var(--danger)]"
+                                : "surface-input text-[color:var(--text-strong)]"
+                            }`}
+                          />
+                        ) : (
+                          <p className="mt-1.5 text-lg font-semibold tabular-nums text-[color:var(--text-strong)]">
+                            {stringValue || "—"}
+                            <span className="text-xs font-normal text-[color:var(--text-muted)]">
+                              /{max}
+                            </span>
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <section className="mt-4">
+                <div className="flex items-end justify-between gap-3 px-1">
+                  <h3 className="text-xs font-medium uppercase tracking-[0.16em] text-[color:var(--text-muted)]">
+                    Examination
+                  </h3>
+                  <span className="text-xs font-medium tabular-nums text-[color:var(--text-strong)]">
+                    {mobileRow.examTotal}/540
+                  </span>
+                </div>
+                <div className="mt-2 grid gap-1.5">
+                  {subjects.map((subject) => {
+                    const value = mobileRow.scores[subject.key];
+                    const invalid =
+                      hasValue(value) && !isValidMark(value, subject.max);
+                    const missing =
+                      requiredSubjectKeys.has(subject.key) && !hasValue(value);
+                    return (
+                      <div
+                        key={subject.key}
+                        className={`flex min-h-12 items-center gap-3 rounded-[18px] px-3 py-1.5 ${
+                          invalid || missing
+                            ? "mood-surface-warning"
+                            : "surface-pocket"
+                        }`}
+                      >
+                        <p className="min-w-0 flex-1 truncate text-sm text-[color:var(--text-strong)]">
+                          {subject.label}
+                        </p>
+                        {mobileEditing ? (
+                          <input
+                            aria-label={`${subject.label}, maximum ${subject.max}`}
+                            inputMode="numeric"
+                            value={value}
+                            onChange={(event) =>
+                              updateScore(
+                                mobileRow.id,
+                                subject.key,
+                                event.target.value,
+                              )
+                            }
+                            className={`grand-sheet-input min-h-11 w-20 rounded-[14px] px-2 text-center text-base font-semibold tabular-nums outline-none ${
+                              invalid
+                                ? "grand-sheet-input-error text-[color:var(--danger)]"
+                                : "surface-input text-[color:var(--text-strong)]"
+                            }`}
+                          />
+                        ) : (
+                          <p className="shrink-0 text-sm font-semibold tabular-nums text-[color:var(--text-strong)]">
+                            {value || "—"}
+                            <span className="text-xs font-normal text-[color:var(--text-muted)]">
+                              /{subject.max}
+                            </span>
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            </div>
+
+            <footer className="grid grid-cols-[1fr_auto_1fr] gap-2 bg-[color:var(--surface-muted)] px-3 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+              <button
+                type="button"
+                disabled={mobileViewPosition <= 0}
+                onClick={() => {
+                  setMobileEditing(false);
+                  setMobileRowIndex(
+                    mobileDisplayRows[mobileViewPosition - 1]?.sourceIndex ??
+                      null,
+                  );
+                }}
+                className="soft-action min-h-11 justify-center rounded-[16px] px-3 text-sm font-medium disabled:opacity-40"
+              >
+                <ChevronLeftIcon className="mr-1 h-4 w-4" />
+                Previous
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileEditing((current) => !current)}
+                className="soft-action-tint min-h-11 justify-center rounded-[16px] px-4 text-sm font-semibold"
+              >
+                <PencilSquareIcon className="mr-1.5 h-4 w-4" />
+                {mobileEditing ? "Review" : "Edit scores"}
+              </button>
+              <button
+                type="button"
+                disabled={
+                  mobileViewPosition < 0 ||
+                  mobileViewPosition === mobileDisplayRows.length - 1
+                }
+                onClick={() => {
+                  setMobileEditing(false);
+                  setMobileRowIndex(
+                    mobileDisplayRows[mobileViewPosition + 1]?.sourceIndex ??
+                      null,
+                  );
+                }}
+                className="soft-action min-h-11 justify-center rounded-[16px] px-3 text-sm font-medium disabled:opacity-40"
+              >
+                Next
+                <ChevronRightIcon className="ml-1 h-4 w-4" />
+              </button>
+            </footer>
+          </section>
+        </div>
+      ) : null}
     </div>
   );
 }
