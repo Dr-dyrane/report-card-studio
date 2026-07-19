@@ -3,8 +3,10 @@
 import {
   ArrowPathIcon,
   ArrowUpTrayIcon,
-  CheckCircleIcon,
+  ChevronDownIcon,
+  ChevronLeftIcon,
   DocumentDuplicateIcon,
+  EllipsisHorizontalIcon,
   EyeIcon,
   PlusIcon,
   SparklesIcon,
@@ -321,6 +323,10 @@ export function GrandSheetEditor({
     0,
   );
   const activePupil = activeCell ? rows[activeCell.rowIndex] : null;
+  const destinationClassroom = classrooms.find(
+    (classroom) => classroom.id === selectedClassroomId,
+  );
+  const destinationTerm = terms.find((term) => term.id === selectedTermId);
 
   function updateRow(
     id: string,
@@ -599,117 +605,135 @@ export function GrandSheetEditor({
   }
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      <section className="frost-panel-strong rounded-[26px] px-4 py-4 sm:rounded-[30px] sm:px-6">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-          <div className="flex items-center gap-3">
-            <span className="soft-action-tint inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl">
-              <DocumentDuplicateIcon className="h-5 w-5" />
+    <div className="space-y-2.5">
+      <section className="frost-panel-strong relative z-20 rounded-[30px] p-2 sm:p-2.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/reports"
+            aria-label="Back to reports"
+            className="soft-action compact-action inline-flex h-9 w-9 shrink-0 justify-center rounded-[14px]"
+          >
+            <ChevronLeftIcon className="h-4 w-4" />
+          </Link>
+
+          <div className="flex min-w-[12rem] flex-1 items-center gap-2.5 px-1">
+            <span className="soft-action-tint inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px]">
+              <DocumentDuplicateIcon className="h-4.5 w-4.5" />
             </span>
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--text-muted)]">
-                Report destination
+            <div className="min-w-0">
+              <h1 className="truncate text-base font-medium text-[color:var(--text-strong)]">
+                Grand sheet
+              </h1>
+              <p className="truncate text-xs text-[color:var(--text-muted)]">
+                {rows.length} pupils · {savableCount} ready
+                {issueCount || missingCount
+                  ? ` · ${issueCount + missingCount} to review`
+                  : " · no issues"}
               </p>
-              <h2 className="mt-1 text-lg font-medium text-[color:var(--text-strong)]">
-                Review here, then update every pupil report
-              </h2>
             </div>
           </div>
 
-          <div className="grid flex-1 gap-2 sm:grid-cols-2 xl:max-w-3xl xl:grid-cols-[1fr_1fr_auto]">
-            <select
-              aria-label="Report class"
-              value={selectedClassroomId}
-              onChange={(event) => {
-                setSelectedClassroomId(event.target.value);
-                setGeneratedReports([]);
-              }}
-              className="surface-input rounded-[14px] px-3 py-2.5 text-sm font-normal text-[color:var(--text-strong)] outline-none"
-            >
-              <option value="">Choose a class</option>
-              {classrooms.map((classroom) => (
-                <option key={classroom.id} value={classroom.id}>
-                  {classroom.name} · {classroom.studentCount} pupils
-                </option>
-              ))}
-            </select>
-            <select
-              aria-label="Report session and term"
-              value={selectedTermId}
-              onChange={(event) => {
-                setSelectedTermId(event.target.value);
-                setGeneratedReports([]);
-              }}
-              className="surface-input rounded-[14px] px-3 py-2.5 text-sm font-normal text-[color:var(--text-strong)] outline-none"
-            >
-              <option value="">Choose a term</option>
-              {terms.map((term) => (
-                <option key={term.id} value={term.id}>
-                  {term.sessionName} · {term.name}
-                  {term.isActive ? " · Active" : ""}
-                </option>
-              ))}
-            </select>
+          {issueCount || missingCount ? (
             <button
               type="button"
-              onClick={createStudentReports}
-              disabled={
-                isPending ||
-                !selectedClassroomId ||
-                !selectedTermId ||
-                savableCount === 0
-              }
-              className="soft-action-tint rounded-[14px] px-4 py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-2 xl:col-span-1"
+              onClick={focusNextIssue}
+              className="mood-badge-warning compact-action inline-flex items-center rounded-[14px] px-3 text-xs font-medium"
             >
-              <SparklesIcon className="mr-2 h-4 w-4" />
-              {isPending ? "Updating reports..." : `Update ${savableCount} reports`}
+              Review next
             </button>
-          </div>
-        </div>
+          ) : null}
 
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[color:var(--border-soft)] pt-3">
-          <p className="text-xs text-[color:var(--text-muted)]">
-            Existing reports are updated. Invalid rows stay in this draft for correction.
-          </p>
-          <details className="group">
-            <summary className="soft-action cursor-pointer list-none rounded-full px-3 py-2 text-xs font-medium">
-              <ArrowUpTrayIcon className="mr-1.5 h-4 w-4" />
-              Scan or replace sheet
+          <details className="grand-sheet-popover relative">
+            <summary className="soft-action compact-action cursor-pointer list-none rounded-[14px] px-3 text-xs font-medium">
+              <span className="max-w-32 truncate">
+                {destinationClassroom?.name ?? "Destination"}
+              </span>
+              <ChevronDownIcon className="ml-1.5 h-3.5 w-3.5" />
             </summary>
-            <div className="mt-3 rounded-[20px] bg-[color:var(--surface-soft)] p-4 shadow-[var(--shadow-frost)]">
-              <div className="flex items-center justify-between gap-3">
+            <div className="surface-enter frost-panel-strong absolute right-0 z-30 mt-2 grid w-[min(28rem,calc(100vw-2rem))] gap-2 rounded-[24px] p-3 shadow-[var(--shadow-2)] sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <p className="text-sm font-medium text-[color:var(--text-strong)]">
+                  Report destination
+                </p>
+                <p className="mt-0.5 text-xs text-[color:var(--text-muted)]">
+                  Choose where these reviewed rows should update.
+                </p>
+              </div>
+              <select
+                aria-label="Report class"
+                value={selectedClassroomId}
+                onChange={(event) => {
+                  setSelectedClassroomId(event.target.value);
+                  setGeneratedReports([]);
+                }}
+                className="surface-input compact-action rounded-[14px] px-3 text-sm font-normal text-[color:var(--text-strong)] outline-none"
+              >
+                <option value="">Choose a class</option>
+                {classrooms.map((classroom) => (
+                  <option key={classroom.id} value={classroom.id}>
+                    {classroom.name} · {classroom.studentCount} pupils
+                  </option>
+                ))}
+              </select>
+              <select
+                aria-label="Report session and term"
+                value={selectedTermId}
+                onChange={(event) => {
+                  setSelectedTermId(event.target.value);
+                  setGeneratedReports([]);
+                }}
+                className="surface-input compact-action rounded-[14px] px-3 text-sm font-normal text-[color:var(--text-strong)] outline-none"
+              >
+                <option value="">Choose a term</option>
+                {terms.map((term) => (
+                  <option key={term.id} value={term.id}>
+                    {term.sessionName} · {term.name}
+                    {term.isActive ? " · Active" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </details>
+
+          <details className="grand-sheet-popover relative">
+            <summary className="soft-action compact-action cursor-pointer list-none rounded-[14px] px-3 text-xs font-medium">
+              <ArrowUpTrayIcon className="mr-1.5 h-4 w-4" />
+              Scan
+            </summary>
+            <div className="surface-enter frost-panel-strong absolute right-0 z-30 mt-2 w-[min(25rem,calc(100vw-2rem))] rounded-[24px] p-3 shadow-[var(--shadow-2)]">
+              <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-sm font-medium text-[color:var(--text-strong)]">
-                    Scan a grand-sheet photo
+                    Scan or replace
                   </p>
-                  <p className="mt-1 text-xs text-[color:var(--text-muted)]">
-                    Use a straight, bright photo of the full page.
+                  <p className="mt-0.5 text-xs text-[color:var(--text-muted)]">
+                    Use a straight, bright photo of the full sheet.
                   </p>
                 </div>
-                <span className="surface-chip rounded-full px-2.5 py-1 text-[11px] font-medium text-[color:var(--text-muted)]">
+                <span className="text-[11px] text-[color:var(--text-muted)]">
                   {scanStatus}
                 </span>
               </div>
 
               {scanPreviewUrl ? (
-                <div className="mt-3 grid grid-cols-[72px_1fr] gap-3">
+                <div className="mt-3 grid grid-cols-[64px_1fr] gap-3">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={scanPreviewUrl}
                     alt="Grand-sheet scan preview"
-                    className="h-20 w-[72px] rounded-[14px] object-cover"
+                    className="h-16 w-16 rounded-[18px] object-cover"
                   />
-                  <div className="flex flex-col gap-2 sm:flex-row">
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
                       onClick={analyzeGrandSheet}
                       disabled={isScanning}
-                      className="soft-action-tint rounded-[14px] px-3 py-2.5 text-sm font-medium disabled:opacity-60"
+                      className="soft-action-tint compact-action rounded-[14px] px-3 text-xs font-medium disabled:opacity-60"
                     >
-                      {isScanning ? "Reading..." : "Read pupil rows"}
+                      {isScanning ? "Reading..." : "Read rows"}
                     </button>
-                    <label className="soft-action flex cursor-pointer items-center justify-center rounded-[14px] px-3 py-2.5 text-sm font-medium">
-                      Choose another
+                    <label className="soft-action compact-action flex cursor-pointer items-center rounded-[14px] px-3 text-xs font-medium">
+                      Replace photo
                       <input
                         type="file"
                         accept="image/*"
@@ -720,9 +744,9 @@ export function GrandSheetEditor({
                   </div>
                 </div>
               ) : (
-                <label className="soft-action-tint mt-3 flex cursor-pointer items-center justify-center rounded-[16px] px-4 py-3 text-sm font-medium">
+                <label className="soft-action-tint compact-action mt-3 flex cursor-pointer items-center justify-center rounded-[16px] px-3 text-sm font-medium">
                   <ArrowUpTrayIcon className="mr-2 h-4 w-4" />
-                  Choose grand-sheet photo
+                  Choose photo
                   <input
                     type="file"
                     accept="image/*"
@@ -733,8 +757,8 @@ export function GrandSheetEditor({
               )}
 
               {scanResult ? (
-                <div className="mt-3 flex items-center justify-between gap-3 rounded-[16px] bg-[color:var(--success-soft)] px-3 py-2.5">
-                  <p className="text-xs font-medium text-[color:var(--text-strong)]">
+                <div className="mt-3 flex items-center justify-between gap-3 rounded-[18px] bg-[color:var(--success-soft)] px-3 py-2">
+                  <p className="text-xs text-[color:var(--text-strong)]">
                     {scanResult.rows.length} rows found
                     {scanResult.warnings?.length
                       ? ` · ${scanResult.warnings.length} need review`
@@ -743,7 +767,7 @@ export function GrandSheetEditor({
                   <button
                     type="button"
                     onClick={applyScannedRows}
-                    className="rounded-full bg-[color:var(--success)] px-3 py-2 text-xs font-bold text-white"
+                    className="compact-action rounded-[14px] bg-[color:var(--success)] px-3 text-xs font-medium text-white"
                   >
                     Use scan
                   </button>
@@ -751,161 +775,133 @@ export function GrandSheetEditor({
               ) : null}
             </div>
           </details>
+
+          <details className="grand-sheet-popover relative">
+            <summary
+              aria-label="More grand sheet actions"
+              className="soft-action compact-action inline-flex h-9 w-9 cursor-pointer list-none justify-center rounded-[14px]"
+            >
+              <EllipsisHorizontalIcon className="h-5 w-5" />
+            </summary>
+            <div className="surface-enter frost-panel-strong absolute right-0 z-30 mt-2 w-64 rounded-[24px] p-2 shadow-[var(--shadow-2)]">
+              <button
+                type="button"
+                onClick={addRow}
+                className="surface-hover-soft flex w-full items-center rounded-[16px] px-3 py-2 text-left text-sm"
+              >
+                <PlusIcon className="mr-2.5 h-4 w-4" />
+                Add pupil
+              </button>
+              <button
+                type="button"
+                onClick={resetSheet}
+                className="surface-hover-soft mt-1 flex w-full items-center rounded-[16px] px-3 py-2 text-left text-sm text-[color:var(--danger)]"
+              >
+                <ArrowPathIcon className="mr-2.5 h-4 w-4" />
+                Reset local draft
+              </button>
+              <p className="px-3 pb-2 pt-3 text-xs leading-5 text-[color:var(--text-muted)]">
+                Enter moves down. Totals, position, and remarks update automatically.
+              </p>
+            </div>
+          </details>
+
+          <button
+            type="button"
+            onClick={createStudentReports}
+            disabled={
+              isPending ||
+              !selectedClassroomId ||
+              !selectedTermId ||
+              savableCount === 0
+            }
+            className="soft-action-tint compact-action rounded-[14px] px-3.5 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <SparklesIcon className="mr-1.5 h-4 w-4" />
+            {isPending ? "Updating..." : `Update ${savableCount}`}
+          </button>
         </div>
 
         {generatedReports.length ? (
-          <div className="mt-3 flex flex-wrap items-center gap-2 rounded-[16px] bg-[color:var(--accent-soft)] px-3 py-2.5">
-            <p className="mr-auto text-sm font-medium text-[color:var(--text-strong)]">
+          <div className="mt-2 flex flex-wrap items-center gap-2 rounded-[20px] bg-[color:var(--accent-soft)] px-3 py-2">
+            <p className="mr-auto text-xs text-[color:var(--text-strong)]">
               {generatedReports.length} reports updated
             </p>
             <Link
               href={generatedReports[0].href}
-              className="rounded-full bg-[color:var(--accent)] px-3 py-2 text-xs font-bold text-white"
+              className="compact-action inline-flex items-center rounded-[14px] bg-[color:var(--accent)] px-3 text-xs font-medium text-white"
             >
               <EyeIcon className="mr-1.5 h-4 w-4" />
               Open first
             </Link>
             <Link
               href="/reports"
-              className="soft-action rounded-full px-3 py-2 text-xs font-medium"
+              className="soft-action compact-action rounded-[14px] px-3 text-xs font-medium"
             >
-              View reports
+              View all
             </Link>
           </div>
         ) : null}
       </section>
 
-      <section className="frost-panel rounded-[24px] px-3 py-3 sm:rounded-[28px] sm:px-5 sm:py-4">
-        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-          <div className="flex flex-wrap gap-2">
-            <span className="surface-chip rounded-full px-3 py-2 text-xs font-medium text-[color:var(--text-strong)]">
-              {rows.length} pupils
-            </span>
-            <span className="surface-chip rounded-full px-3 py-2 text-xs font-medium text-[color:var(--accent-strong)]">
-              {savableCount} report-ready
-            </span>
-            <span
-              className={`rounded-full px-3 py-2 text-xs font-medium ${
-                issueCount
-                  ? "mood-badge-warning"
-                  : "surface-chip text-[color:var(--text-muted)]"
-              }`}
-            >
-              {issueCount ? `${issueCount} marks need review` : "No score errors"}
-            </span>
-            {missingCount ? (
-              <span className="mood-badge-warning rounded-full px-3 py-2 text-xs font-medium">
-                {missingCount} blanks
-              </span>
-            ) : null}
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {issueCount || missingCount ? (
-              <button
-                type="button"
-                onClick={focusNextIssue}
-                className="soft-action-tint rounded-full px-3.5 py-2 text-sm font-medium"
-              >
-                Next issue
-              </button>
-            ) : null}
-            <button
-              type="button"
-              onClick={addRow}
-              className="soft-action rounded-full px-3.5 py-2 text-sm font-medium"
-            >
-              <PlusIcon className="mr-2 h-4 w-4" />
-              Add pupil
-            </button>
-            <details className="relative">
-              <summary className="soft-action cursor-pointer list-none rounded-full px-3.5 py-2 text-sm font-medium">
-                More
-              </summary>
-              <div className="absolute right-0 z-20 mt-2 w-40 rounded-[16px] bg-[color:var(--surface)] p-2 shadow-[var(--shadow-raised)]">
-                <button
-                  type="button"
-                  onClick={resetSheet}
-                  className="soft-action w-full rounded-[12px] px-3 py-2 text-left text-sm font-medium"
-                >
-                  <ArrowPathIcon className="mr-2 h-4 w-4" />
-                  Reset draft
-                </button>
-              </div>
-            </details>
-          </div>
-        </div>
-        <p className="mt-3 text-xs leading-5 text-[color:var(--text-muted)]">
-          Enter the two test totals and the 18 exam marks. Exam total, grand
-          total, percentage, position, and remark update automatically. Nothing
-          reaches the school database until you choose a class and create the
-          report sheets above.
-        </p>
-      </section>
-
-      <section className="frost-panel-strong overflow-hidden rounded-[24px] sm:rounded-[30px]">
-        <div className="border-b border-[color:var(--border-soft)] px-4 py-4 sm:px-6">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
-                Primary 3 Grey
-              </p>
-              <h2 className="mt-1 font-display text-2xl text-[color:var(--text-strong)] sm:text-3xl">
-                Third Term Examination
-              </h2>
-            </div>
-            <p className="text-sm text-[color:var(--text-muted)]">
-              2025/2026 session · Maximum 800
+      <section className="frost-panel-strong overflow-hidden rounded-[30px] p-1.5 sm:p-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-[color:var(--text-strong)]">
+              {destinationClassroom?.name ?? "Primary 3 Grey"} ·{" "}
+              {destinationTerm?.name ?? "Third Term"}
+            </p>
+            <p className="truncate text-xs text-[color:var(--text-muted)]">
+              {destinationTerm?.sessionName ?? "2025/2026"} · Maximum 800
             </p>
           </div>
+          <p
+            className={`text-xs ${
+              issueCount || missingCount
+                ? "text-[color:var(--warning)]"
+                : "text-[color:var(--success)]"
+            }`}
+          >
+            {issueCount || missingCount
+              ? `${issueCount + missingCount} items need attention`
+              : "Ready to update"}
+          </p>
         </div>
 
-        <div className="grand-sheet-locator flex min-h-14 flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          {activeCell && activePupil ? (
-            <>
-              <div className="flex min-w-0 items-center gap-3">
-                <span className="rounded-lg bg-[color:var(--accent-soft)] px-2.5 py-1.5 font-mono text-xs font-bold text-[color:var(--accent-strong)]">
-                  {activeCell.cellRef}
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-[color:var(--text-strong)]">
-                    {activePupil.name || `Pupil ${activeCell.rowIndex + 1}`}
-                  </p>
-                  <p className="text-xs text-[color:var(--text-muted)]">
-                    Row {activeCell.rowIndex + 1} · {activeCell.label}
-                    {activeCell.max ? ` · Maximum ${activeCell.max}` : ""}
-                  </p>
-                </div>
-              </div>
-              <p className="text-xs text-[color:var(--text-muted)]">
-                Enter moves down · Shift + Enter moves up
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="text-sm font-medium text-[color:var(--text-strong)]">
-                Select a cell to start correcting
-              </p>
-              <p className="text-xs text-[color:var(--text-muted)]">
-                Your exact row, pupil, subject, and workbook reference will stay visible here.
-              </p>
-            </>
-          )}
-        </div>
+        {activeCell && activePupil ? (
+          <div className="grand-sheet-locator mx-1 mb-1 flex min-h-10 items-center gap-2 rounded-[16px] px-3 py-1.5">
+            <span className="rounded-[10px] bg-[color:var(--accent-soft)] px-2 py-1 font-mono text-[11px] font-medium text-[color:var(--accent-strong)]">
+              {activeCell.cellRef}
+            </span>
+            <p className="min-w-0 flex-1 truncate text-xs text-[color:var(--text-strong)]">
+              <span className="font-medium">
+                {activePupil.name || `Pupil ${activeCell.rowIndex + 1}`}
+              </span>
+              <span className="text-[color:var(--text-muted)]">
+                {" "}
+                · {activeCell.label}
+                {activeCell.max ? ` · max ${activeCell.max}` : ""}
+              </span>
+            </p>
+            <span className="hidden text-[11px] text-[color:var(--text-muted)] sm:block">
+              Enter ↓ · Shift Enter ↑
+            </span>
+          </div>
+        ) : null}
 
-        <div className="grand-sheet-scroll overflow-x-auto pb-2">
-          <table className="grand-sheet-table w-max min-w-full border-separate border-spacing-0 text-xs">
+        <div className="grand-sheet-scroll overflow-x-auto rounded-[24px] bg-[color:var(--surface)] pb-1">
+          <table className="grand-sheet-table w-max min-w-full border-collapse text-xs">
             <thead>
               <tr className="table-head text-[color:var(--text-muted)]">
                 <th
                   rowSpan={2}
-                  className="grand-sheet-sticky grand-sheet-number left-0 z-[8] w-11 min-w-11 border-b border-r border-[color:var(--border-soft)] px-2 py-3 text-center font-medium"
+                  className="grand-sheet-sticky grand-sheet-number left-0 z-[8] w-11 min-w-11 px-2 py-2.5 text-center font-medium"
                 >
                   S/N
                 </th>
                 <th
                   rowSpan={2}
-                  className={`grand-sheet-sticky grand-sheet-name left-11 z-[8] w-52 min-w-52 border-b border-r border-[color:var(--border-soft)] px-3 py-3 text-left font-medium ${
+                  className={`grand-sheet-sticky grand-sheet-name left-11 z-[8] w-52 min-w-52 px-3 py-2.5 text-left font-medium ${
                     activeCell?.columnIndex === 0 ? "grand-sheet-active-header" : ""
                   }`}
                 >
@@ -913,7 +909,7 @@ export function GrandSheetEditor({
                 </th>
                 <th
                   rowSpan={2}
-                  className={`w-28 min-w-28 border-b border-r border-[color:var(--border-soft)] px-2 py-3 text-left font-medium ${
+                  className={`w-28 min-w-28 px-2 py-2.5 text-left font-medium ${
                     activeCell?.columnIndex === 1 ? "grand-sheet-active-header" : ""
                   }`}
                 >
@@ -921,20 +917,20 @@ export function GrandSheetEditor({
                 </th>
                 <th
                   colSpan={subjects.length}
-                  className="border-b border-r border-[color:var(--border-soft)] px-3 py-2 text-center font-medium"
+                  className="px-3 py-1.5 text-center font-medium"
                 >
                   Examination subjects
                 </th>
                 <th
                   colSpan={8}
-                  className="border-b border-[color:var(--border-soft)] px-3 py-2 text-center font-medium"
+                  className="px-3 py-1.5 text-center font-medium"
                 >
                   Summary
                 </th>
                 <th
                   rowSpan={2}
                   aria-label="Row actions"
-                  className="w-12 min-w-12 border-b border-l border-[color:var(--border-soft)]"
+                  className="w-12 min-w-12"
                 />
               </tr>
               <tr className="table-head text-[color:var(--text-muted)]">
@@ -942,7 +938,7 @@ export function GrandSheetEditor({
                   <th
                     key={subject.key}
                     title={subject.label}
-                    className={`w-16 min-w-16 border-b border-r border-[color:var(--border-soft)] px-1 py-2 text-center font-medium ${
+                    className={`w-16 min-w-16 px-1 py-1.5 text-center font-medium ${
                       activeCell?.columnIndex === subjectIndex + 2
                         ? "grand-sheet-active-header"
                         : ""
@@ -966,7 +962,7 @@ export function GrandSheetEditor({
                 ].map(([label, max], summaryIndex) => (
                   <th
                     key={label}
-                    className={`border-b border-r border-[color:var(--border-soft)] px-1 py-2 text-center font-medium ${
+                    className={`px-1 py-1.5 text-center font-medium ${
                       label === "Remark" ? "w-28 min-w-28" : "w-16 min-w-16"
                     } ${
                       summaryIndex < 2 &&
@@ -1004,11 +1000,11 @@ export function GrandSheetEditor({
                       activeCell?.rowIndex === rowIndex ? "grand-sheet-active-row" : ""
                     }`}
                   >
-                    <td className="grand-sheet-sticky grand-sheet-number left-0 z-[5] border-b border-r border-[color:var(--border-soft)] px-2 py-1.5 text-center font-normal text-[color:var(--text-muted)]">
+                    <td className="grand-sheet-sticky grand-sheet-number left-0 z-[5] px-2 py-1 text-center font-normal text-[color:var(--text-muted)]">
                       {rowIndex + 1}
                     </td>
                     <td
-                      className={`grand-sheet-sticky grand-sheet-name left-11 z-[5] border-b border-r border-[color:var(--border-soft)] p-1 ${cellClass(
+                      className={`grand-sheet-sticky grand-sheet-name left-11 z-[5] p-1 ${cellClass(
                         rowIndex,
                         0,
                       )}`}
@@ -1026,11 +1022,11 @@ export function GrandSheetEditor({
                         onChange={(event) =>
                           updateRow(row.id, { name: event.target.value })
                         }
-                        className="grand-sheet-input w-full min-w-0 rounded-md px-2 py-2 font-medium text-[color:var(--text-strong)] outline-none"
+                        className="grand-sheet-input w-full min-w-0 rounded-[12px] px-2 py-1.5 font-medium text-[color:var(--text-strong)] outline-none"
                       />
                     </td>
                     <td
-                      className={`border-b border-r border-[color:var(--border-soft)] p-1 ${cellClass(
+                      className={`p-1 ${cellClass(
                         rowIndex,
                         1,
                       )}`}
@@ -1050,7 +1046,7 @@ export function GrandSheetEditor({
                             admissionNumber: event.target.value,
                           })
                         }
-                        className="grand-sheet-input w-full rounded-md px-2 py-2 text-[color:var(--text-base)] outline-none"
+                        className="grand-sheet-input w-full rounded-[12px] px-2 py-1.5 text-[color:var(--text-base)] outline-none"
                       />
                     </td>
                     {subjects.map((subject, subjectIndex) => {
@@ -1063,7 +1059,7 @@ export function GrandSheetEditor({
                       return (
                         <td
                           key={subject.key}
-                          className={`border-b border-r border-[color:var(--border-soft)] p-1 ${cellClass(
+                          className={`p-1 ${cellClass(
                             rowIndex,
                             columnIndex,
                           )}`}
@@ -1095,7 +1091,7 @@ export function GrandSheetEditor({
                                 event.target.value,
                               )
                             }
-                            className={`grand-sheet-input w-full rounded-md px-1 py-2 text-center font-medium outline-none ${
+                            className={`grand-sheet-input w-full rounded-[12px] px-1 py-1.5 text-center font-medium outline-none ${
                               invalid
                                 ? "grand-sheet-input-error text-[color:var(--danger)]"
                                 : "text-[color:var(--text-strong)]"
@@ -1118,7 +1114,7 @@ export function GrandSheetEditor({
                       return (
                         <td
                           key={String(field)}
-                          className={`border-b border-r border-[color:var(--border-soft)] p-1 ${cellClass(
+                          className={`p-1 ${cellClass(
                             rowIndex,
                             columnIndex,
                           )}`}
@@ -1152,7 +1148,7 @@ export function GrandSheetEditor({
                                 [field]: event.target.value,
                               })
                             }
-                            className={`grand-sheet-input w-full rounded-md px-1 py-2 text-center font-medium outline-none ${
+                            className={`grand-sheet-input w-full rounded-[12px] px-1 py-1.5 text-center font-medium outline-none ${
                               invalid
                                 ? "grand-sheet-input-error text-[color:var(--danger)]"
                                 : "text-[color:var(--text-strong)]"
@@ -1161,37 +1157,37 @@ export function GrandSheetEditor({
                         </td>
                       );
                     })}
-                    <td className="grand-sheet-computed border-b border-r border-[color:var(--border-soft)] px-2 py-2 text-center font-semibold">
+                    <td className="grand-sheet-computed px-2 py-1.5 text-center font-semibold">
                       {row.hasAssessment ? row.examTotal : "—"}
                     </td>
-                    <td className="grand-sheet-computed border-b border-r border-[color:var(--border-soft)] px-2 py-2 text-center font-semibold">
+                    <td className="grand-sheet-computed px-2 py-1.5 text-center font-semibold">
                       {row.hasAssessment ? row.testTotal : "—"}
                     </td>
                     <td
-                      className={`grand-sheet-computed grand-sheet-result-${tone} border-b border-r border-[color:var(--border-soft)] px-2 py-2 text-center font-semibold text-[color:var(--text-strong)]`}
+                      className="grand-sheet-computed px-2 py-1.5 text-center font-semibold text-[color:var(--text-strong)]"
                     >
                       {row.hasAssessment ? row.grandTotal : "—"}
                     </td>
                     <td
-                      className={`grand-sheet-computed grand-sheet-result-${tone} border-b border-r border-[color:var(--border-soft)] px-2 py-2 text-center font-semibold`}
+                      className="grand-sheet-computed px-2 py-1.5 text-center font-semibold"
                     >
                       {row.hasAssessment
                         ? row.percentage.toFixed(1)
                         : "—"}
                     </td>
                     <td
-                      className={`grand-sheet-computed grand-sheet-result-${tone} border-b border-r border-[color:var(--border-soft)] px-2 py-2 text-center font-semibold`}
+                      className="grand-sheet-computed px-2 py-1.5 text-center font-semibold"
                     >
                       {position}
                     </td>
                     <td
-                      className={`grand-sheet-computed grand-sheet-result-${tone} border-b border-r border-[color:var(--border-soft)] px-2 py-2 text-center font-medium`}
+                      className={`grand-sheet-result-${tone} px-2 py-1.5 text-center font-medium`}
                     >
                       {row.assessmentComplete
                         ? grandSheetRemark(row.percentage)
                         : "—"}
                     </td>
-                    <td className="border-b border-[color:var(--border-soft)] px-1 py-1 text-center">
+                    <td className="px-1 py-1 text-center">
                       <button
                         type="button"
                         onClick={() => removeRow(row.id)}
@@ -1205,46 +1201,8 @@ export function GrandSheetEditor({
                 );
               })}
             </tbody>
-            <tfoot>
-              <tr className="table-head font-medium text-[color:var(--text-muted)]">
-                <td className="grand-sheet-sticky grand-sheet-number left-0 z-[6] border-r border-t border-[color:var(--border-soft)]" />
-                <td className="grand-sheet-sticky grand-sheet-name left-11 z-[6] border-r border-t border-[color:var(--border-soft)] px-3 py-3">
-                  Maximum marks
-                </td>
-                <td
-                  colSpan={1}
-                  className="border-r border-t border-[color:var(--border-soft)]"
-                />
-                {subjects.map((subject) => (
-                  <td
-                    key={subject.key}
-                    className="border-r border-t border-[color:var(--border-soft)] px-1 py-3 text-center"
-                  >
-                    {subject.max}
-                  </td>
-                ))}
-                {[130, 130, 540, 260, 800, 100, "—", "—"].map((value, index) => (
-                  <td
-                    key={`${value}-${index}`}
-                    className="border-r border-t border-[color:var(--border-soft)] px-1 py-3 text-center"
-                  >
-                    {value}
-                  </td>
-                ))}
-                <td className="border-t border-[color:var(--border-soft)]" />
-              </tr>
-            </tfoot>
           </table>
         </div>
-      </section>
-
-      <section className="quiet-note flex items-start gap-3 rounded-[22px] px-4 py-3 text-sm text-[color:var(--text-muted)]">
-        <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-[color:var(--success)]" />
-        <p className="leading-5">
-          A pupil is marked complete only when name, admission number, both
-          test totals, and all 18 exam marks are present and within their
-          maximums.
-        </p>
       </section>
     </div>
   );

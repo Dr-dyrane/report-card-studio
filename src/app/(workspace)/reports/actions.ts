@@ -1142,10 +1142,9 @@ export async function createReportsFromGrandSheet(input: {
         : currentReport?.teacherComment;
 
       const reportCard = currentReport
-        ? await tx.reportCard.update({
+          ? await tx.reportCard.update({
             where: { id: currentReport.id },
             data: {
-              status: "DRAFT",
               classSize: validRows.length,
               grandMax: 800,
               assessment1Total,
