@@ -154,6 +154,10 @@ export default async function ReportsPage({
               ? selectedClassName
               : "Current term"
         }
+        secondaryAction={{
+          label: "Grand sheet",
+          href: "/reports/grand-sheet",
+        }}
         action={{ label: "New", href: "/reports/new" }}
       />
 

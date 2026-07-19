@@ -504,6 +504,59 @@ button {
   display: none;
 }
 
+.grand-sheet-scroll {
+  scrollbar-color: var(--border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.grand-sheet-table {
+  --grand-sheet-sticky: color-mix(in srgb, var(--surface) 96%, var(--canvas) 4%);
+}
+
+.grand-sheet-sticky {
+  background: var(--grand-sheet-sticky);
+  background-clip: padding-box;
+}
+
+.grand-sheet-name {
+  box-shadow: 8px 0 14px -14px color-mix(in srgb, var(--text-strong) 45%, transparent);
+}
+
+.grand-sheet-input {
+  border: 1px solid transparent;
+  background: transparent;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.grand-sheet-input:hover {
+  background: color-mix(in srgb, var(--input-bg) 72%, transparent);
+}
+
+.grand-sheet-input:focus {
+  border-color: var(--focus-border);
+  background: var(--input-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-soft) 68%, transparent);
+}
+
+.grand-sheet-input-error {
+  border-color: var(--danger-border);
+  background: var(--danger-soft);
+}
+
+.grand-sheet-computed {
+  background: color-mix(in srgb, var(--accent-soft) 26%, transparent);
+}
+
+@media (max-width: 639px) {
+  .grand-sheet-name {
+    width: 10.5rem;
+    min-width: 10.5rem;
+  }
+}
+
 .overlay-fade {
   animation: overlay-fade-in 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
